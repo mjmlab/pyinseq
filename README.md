@@ -2,8 +2,8 @@
 
 **Developing Python software with the following goals**
 
-1. Learn to be a better Python programmer.
-2. Reproduce the functionality in [Andy Goodman's INSeq Perl pipeline](http://www.nature.com/nprot/journal/v6/n12/extref/nprot.2011.417-S2.zip) (15 MB .zip download) with additional improvements listed below.
+1. Reproduce the functionality in [Andy Goodman's INSeq Perl pipeline](http://www.nature.com/nprot/journal/v6/n12/extref/nprot.2011.417-S2.zip) (15 MB .zip download) with additional improvements listed below.
+2. Learn to be a better Python programmer.
 
 
 **Implemented**
