@@ -4,6 +4,7 @@ Developing a Python software package with the following goals:
 
 1. Learn to be a better Python programmer.
 2. Reproduce the functionality in [Andy Goodman's INSeq Perl pipeline](http://www.nature.com/nprot/journal/v6/n12/extref/nprot.2011.417-S2.zip) (15 MB .zip download) with additional improvements listed below.
+3. Read in FASTQ files instead of SCARF. (Note that David Cronin implemented this previously for us in Perl but in a complicated way.)
 3. Run Bowtie (or Bowtie2?) seemlessly from within the software instead of requiring complicated index setup.
 4. Demultiplex into separate files per barcode - will facilitate data deposition and analysis when samples from multiple experiments are run in the same Illumina run.
 5. Include RNA genes.
