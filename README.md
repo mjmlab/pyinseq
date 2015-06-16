@@ -14,13 +14,13 @@
 **Need to implement for functionality**
 
 3. Run Bowtie (or Bowtie2?) seemlessly from within the software instead of requiring complicated index setup.
-4. Finish the map to genes a la Goodman.
+4. Finish the mapping to genes a la Goodman.
+5. Ability to analyze Left & Right transposon ends separately (may as well incorporate this up front since we will need to do this soon).
 6. Summarize analysis results in a single table (for all chromosomes/plasmids; and for all samples under analysis).
 
 **Wish list**
 
 5. Include RNA genes.
-5. Ability to analyze Left & Right transposon ends separately.
 5. Count TA sites per gene and normalize genes per number of TA sites.
 7. LOESS normalization to correct for more hits at origin and fewer hits at terminus.
 8. Statistical analysis of results (method TBD).
