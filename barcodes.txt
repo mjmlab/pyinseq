@@ -1,0 +1,4 @@
+TTTT	E270_1	Input1
+GGGG	E270_8	Input1
+AGTC	E270_3	Output1	Minimal-GlcNAc
+GTCA	E270_10	Output1	Minimal-GlcNAc
