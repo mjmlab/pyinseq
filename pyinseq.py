@@ -7,7 +7,6 @@
 #class fastq()
 #    def __init_(self, file):
 
-import timing   # how long the program takes to run
 import gzip
 from itertools import islice
 import os
@@ -31,15 +30,6 @@ print args.echo
 #parser.add_argument('-b', '--barcodes', action='store', destination=barcode_file,
 #    default='barcodes.txt', required=True,
 #    help='Tab-delimited list of barcodes and samples. See format in barcode_example.txt')
-
-
-#   help
-#   -i input
-#   -s sample list
-#   -g genome (fasta? ptt etc.)
-#   -t transposon sequence OR...
-#   -l transposon sequence left
-#   -r transposon sequence right
 
 
 class RawData(object):
