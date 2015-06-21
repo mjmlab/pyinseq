@@ -14,10 +14,32 @@ Log the number of reads in the input file and the number in each barcode
 """
 
 import gzip
-from itertools import islice
 import sys # for output logging
 import os
 import argparse
+
+
+def barcodes_prep(samples):
+
+    # Extract barcode list from sample dictionary
+    barcode_list = []
+    for keys in samples:
+        barcode_list.append(keys)
+
+    barcode_length = len(barcode_list[0])
+
+    print('\n=== Checking barcodes ===')
+
+    for b in barcode_list:
+        print(b)
+        if len(b) != barcode_length:
+            print('Error: barcodes are not the same length')
+            exit() # How to really do error handling???
+    print('n={0} barcodes of same length ({1} nt)'.format(len(barcode_list), barcode_length))
+
+    return barcode_list, barcode_length
+
+
 
 def demultiplex_fastq(fastq_file):
     if fastq_file.endswith('.gz'):
@@ -25,22 +47,21 @@ def demultiplex_fastq(fastq_file):
     else:
         opener = open
 
-    barcodes = { \
+    sample_list = { \
     'CGAT':'Input1', \
     'GCTA':'Input2', \
     'AGTC':'Output1', \
     'AAAA':'Output2'}
+
+    # barcodes = list of barcodes (sequences only)
+    # b_len = barcode length
+    barcodes, b_len = barcodes_prep(sample_list)
 
     with opener(fastq_file, 'r') as f:
 
         print('\n=== Demultiplexing FASTQ input file by 5\' barcode ===')
 
         (file_root, file_ext) = (os.path.splitext(fastq_file))
-
-        # barcode length
-        # in future generalize for other length barcodes
-        # measure length of barcodes and make sure all have same length; else exit
-        b_len = 4
 
         # fastq record
         # identifier =     record[0]
@@ -63,7 +84,8 @@ def demultiplex_fastq(fastq_file):
 
 
 def main():
-    demultiplex_fastq('E689_400k_lines.fastq')
+    reads = 'E689_400k_lines.fastq'
+    demultiplex_fastq(reads)
 
 if __name__ == "__main__":
     main()
