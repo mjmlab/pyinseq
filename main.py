@@ -7,6 +7,7 @@
 #class fastq()
 #    def __init_(self, file):
 
+from pyinseq.config import *
 import gzip
 from itertools import islice
 import os
