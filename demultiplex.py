@@ -5,18 +5,21 @@ Demultiplexes a FASTQ file into multiple files by 5' end barcode
 Output file includes the input file name and the barcode:
 e.g., file.fastq demultiplexes into file_CGAT.fastq, etc.
 
-Change print statement to a return???
+
+Generalize to read in the input file and the barcode file
+
+Log the number of reads in the input file and the number in each barcode
+(and the number and percent that do not belong to one of those barcodes)
 
 """
 
 import gzip
 from itertools import islice
+import sys # for output logging
 import os
 import argparse
-import re
 
 def demultiplex_fastq(fastq_file):
-    print('Parsing FASTQ input file')
     if fastq_file.endswith('.gz'):
         opener = gzip.open
     else:
@@ -30,6 +33,8 @@ def demultiplex_fastq(fastq_file):
 
     with opener(fastq_file, 'r') as f:
 
+        print('\n=== Demultiplexing FASTQ input file by 5\' barcode ===')
+
         (file_root, file_ext) = (os.path.splitext(fastq_file))
 
         # barcode length
@@ -38,12 +43,11 @@ def demultiplex_fastq(fastq_file):
         b_len = 4
 
         # fastq record
-        #identifier =     record[0]
-        #sequence =       record[1]
-        #alt_identifier = record[2]
-        #quality =        record[3]
+        # identifier =     record[0]
+        # sequence =       record[1]
+        # alt_identifier = record[2]
+        # quality =        record[3]
         record = []
-
         for i,line in enumerate(f):
             record.append(line.rstrip('\n'))
             if i % 4 == 3:
@@ -51,8 +55,11 @@ def demultiplex_fastq(fastq_file):
                     with open('{0}_{1}{2}'.format(file_root, record[1][0:b_len], file_ext), 'a') as fo:
                         fo.write('\n'.join(record) + '\n')
                 record = []
-
-                """ Add a counter to show how many records have been processed """
+            if (i+1) % 1E+5 == 0:
+                if (i+1) % 1E+6 == 0:
+                    print('\n=== Demultiplexing FASTQ input file by 5\' barcode ===')
+                print('{0} records processed.'.format(i+1)) # index i starts at 0
+        print('{0} total records processed.'.format(i+1))
 
 
 def main():
