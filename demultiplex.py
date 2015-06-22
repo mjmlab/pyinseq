@@ -10,6 +10,8 @@ Future:
 Add argument parsing.
 Output report should be in same order as input barcodes.
 
+NOTE ERROR IN CALCULATIONS -- LISTS 40 RECORDS WHEN SHOULD LIST 10 (4x) DUE TO FASTQ LINE COUNTING.
+
 """
 
 import gzip
