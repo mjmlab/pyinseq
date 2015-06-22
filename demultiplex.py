@@ -7,8 +7,8 @@ e.g., file.fastq demultiplexes into file_CGAT.fastq, etc.
 
 
 Future:
-Output report should be in same order as input barcodes.
 Add argument parsing.
+Output report should be in same order as input barcodes.
 
 """
 
