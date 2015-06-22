@@ -10,8 +10,8 @@ barcodes = { \
 # Mariner transposon end sequences
 # In many cases the transposon sequence will be the same for both ends
 # XXXXX Insert comment about TA site
-transposon_left = ''
-transposon_right = ''
+transposon_left = 'ACAGGTTG'
+transposon_right = 'ACAGGTTG'
 
 # Genome files. Files in same order for all sections below (e.g., Ch1, plasmid)
 fasta = ''
