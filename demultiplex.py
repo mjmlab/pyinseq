@@ -10,8 +10,6 @@ Future:
 Add argument parsing.
 Output report should be in same order as input barcodes.
 
-NOTE ERROR IN CALCULATIONS -- LISTS 40 RECORDS WHEN SHOULD LIST 10 (4x) DUE TO FASTQ LINE COUNTING.
-
 """
 
 import gzip
@@ -99,16 +97,18 @@ def demultiplex_fastq(fastq_file, sample_file):
             if (i+1) % 1E+5 == 0:
                 if (i+1) % 1E+6 == 0:
                     print('\n===== Demultiplexing FASTQ input file by 5\' barcode =====')
-                print('{0} records processed.'.format(i+1)) # index i starts at 0
-        print('{0} total records processed.'.format(i+1))
+                # index i starts at 0
+                # 4 lines per FASTQ record
+                print('{0} records processed.'.format((i+1)/4))
+        print('{0} total records processed.'.format((i+1)/4))
 
         print('\n===== Demultiplexing Summary =====')
 
-        print('{0:,} out of {1:,} reads ({2:.1%}) were from a listed barcode'.format(sum(count_list.values()), i+1, float(sum(count_list.values()))/(i+1)))
+        print('{0:,} out of {1:,} reads ({2:.1%}) were from a listed barcode'.format(sum(count_list.values()), (i+1)/4, float(sum(count_list.values()))/((i+1)/4)))
         print('\nbarcode\trecords\t%_from_list')
         for c in count_list:
-            print('{0}\t{1:,}\t{2:.1%}'.format(c,count_list[c], float(count_list[c])/sum(count_list.values()), float(100*count_list[c])/(i+1)))
-        print('Other\t{0:,}\t'.format((i+1)-sum(count_list.values())))
+            print('{0}\t{1:,}\t{2:.1%}'.format(c,count_list[c], float(count_list[c])/sum(count_list.values()), float(100*count_list[c])/((i+1)/4)))
+        print('Other\t{0:,}\t'.format(((i+1)/4)-sum(count_list.values())))
 
 # ===== Start here ===== #
 
