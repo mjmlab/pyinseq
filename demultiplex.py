@@ -6,8 +6,9 @@ Output file includes the input file name and the barcode:
 e.g., file.fastq demultiplexes into file_CGAT.fastq, etc.
 
 
-Log the number of reads in the input file and the number in each barcode
-(and the number and percent that do not belong to one of those barcodes)
+Future:
+Output report should be in same order as input barcodes.
+Add argument parsing.
 
 """
 
@@ -63,9 +64,13 @@ def demultiplex_fastq(fastq_file, sample_file):
 
     # barcodes = list of barcodes (sequences only)
     # b_len = barcode length
-
     with open(sample_file, 'r') as input_sample_file:
         barcodes, b_len = barcodes_prep(input_sample_file)
+
+    # initialize to count reads per barcode
+    count_list = {}
+    for b in barcodes:
+        count_list[b] = 0
 
     with opener(fastq_file, 'r') as f:
 
@@ -82,9 +87,12 @@ def demultiplex_fastq(fastq_file, sample_file):
         for i,line in enumerate(f):
             record.append(line.rstrip('\n'))
             if i % 4 == 3:
+                # Write FASTQ record (4 lines) to file specific to its barcode
                 if record[1][0:b_len] in barcodes:
                     with open('{0}_{1}{2}'.format(file_root, record[1][0:b_len], file_ext), 'a') as fo:
                         fo.write('\n'.join(record) + '\n')
+                    # Count the read for the barcode
+                    count_list[record[1][0:b_len]] += 1
                 record = []
             if (i+1) % 1E+5 == 0:
                 if (i+1) % 1E+6 == 0:
@@ -92,6 +100,13 @@ def demultiplex_fastq(fastq_file, sample_file):
                 print('{0} records processed.'.format(i+1)) # index i starts at 0
         print('{0} total records processed.'.format(i+1))
 
+        print('\n===== Demultiplexing Summary =====')
+
+        print('{0:,} out of {1:,} reads ({2:.1%}) were from a listed barcode'.format(sum(count_list.values()), i+1, float(sum(count_list.values()))/(i+1)))
+        print('\nbarcode\trecords\t%_from_list')
+        for c in count_list:
+            print('{0}\t{1:,}\t{2:.1%}'.format(c,count_list[c], float(count_list[c])/sum(count_list.values()), float(100*count_list[c])/(i+1)))
+        print('Other\t{0:,}\t'.format((i+1)-sum(count_list.values())))
 
 # ===== Start here ===== #
 
