@@ -20,4 +20,4 @@ rnt = ''
 
 # Path to Bowtie
 bowtie = '/Users/markmandel/bowtie-1.1.1/bowtie'
-bowtie-build = '/Users/markmandel/bowtie-1.1.1/bowtie-build'
+bowtie_build = '/Users/markmandel/bowtie-1.1.1/bowtie-build'

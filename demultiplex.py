@@ -7,6 +7,8 @@ e.g., file.fastq demultiplexes into file_CGAT.fastq, etc.
 Unrecognized barcodes get written to file_Other.fastq
 
 Future:
+Do barcode errors work to exit the program?
+Flush the output files before appending to them.
 Add argument parsing.
 Output report should be in same order as input barcodes.
 Include option to not write unassigned barcodes (would run faster).
@@ -46,11 +48,11 @@ def barcodes_prep(samples):
         print(b)
         if len(b) != barcode_length:
             print('Error: barcodes are not the same length')
-            exit() # How to really do error handling???
+            exit(1)
 
     if len(barcode_list) != len(set(barcode_list)):
         print('Error: non-unique barcodes in samples list')
-        exit() # How to really do error handling???
+        exit(1)
 
     print('n={0} unique barcodes of same length ({1} nt)'.format(len(barcode_list), barcode_length))
 
@@ -117,7 +119,7 @@ def demultiplex_fastq(fastq_file, sample_file):
 # ===== Start here ===== #
 
 def main():
-    fastq_file = 'E689_400k_lines.fastq'
+    fastq_file = 'E689_40_lines.fastq'
     sample_file = 'samples.txt'
     demultiplex_fastq(fastq_file, sample_file)
 
