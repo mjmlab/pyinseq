@@ -4,12 +4,12 @@ Demultiplexes a FASTQ file into multiple files by 5' end barcode
 
 Output file includes the input file name and the barcode:
 e.g., file.fastq demultiplexes into file_CGAT.fastq, etc.
-
+Unrecognized barcodes get written to file_Other.fastq
 
 Future:
 Add argument parsing.
 Output report should be in same order as input barcodes.
-
+Include option to not write unassigned barcodes (would run faster).
 """
 
 import gzip
@@ -93,9 +93,13 @@ def demultiplex_fastq(fastq_file, sample_file):
                         fo.write('\n'.join(record) + '\n')
                     # Count the read for the barcode
                     count_list[record[1][0:b_len]] += 1
+                # Write unassigned barcodes to (root)_Other(extension) file
+                else:
+                    with open('{0}_{1}{2}'.format(file_root, 'Other', file_ext), 'a') as fo:
+                        fo.write('\n'.join(record) + '\n')
                 record = []
-            if (i+1) % 1E+5 == 0:
-                if (i+1) % 1E+6 == 0:
+            if (i+1) % 4E+5 == 0:
+                if (i+1) % 4E+6 == 0:
                     print('\n===== Demultiplexing FASTQ input file by 5\' barcode =====')
                 # index i starts at 0
                 # 4 lines per FASTQ record
