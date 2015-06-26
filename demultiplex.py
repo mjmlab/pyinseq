@@ -92,6 +92,21 @@ def demultiplex_fastq(fastq_file, sample_file):
         for i,line in enumerate(f):
             record.append(line.rstrip('\n'))
             if i % 4 == 3:
+                # should this be the barcode or the sample? probably sample a la fastx toolkit
+
+                # Write all to one file and see how fast that is.
+                print('{0}/{1}/transposon(direction)(position)'.format(record[0],record[1][0:b_len]))
+                print(record[1][b_len:])
+                print(record[2])
+                print(record[3])
+                record = []
+
+
+            #print record
+
+
+
+"""            if i % 4 == 3:
                 # Write FASTQ record (4 lines) to file specific to its barcode
                 if record[1][0:b_len] in barcodes:
                     with open('{0}_{1}{2}'.format(file_root, record[1][0:b_len], '.fastq'), 'a') as fo:
@@ -118,17 +133,14 @@ def demultiplex_fastq(fastq_file, sample_file):
         for c in count_list:
             print('{0}\t{1:,}\t{2:.1%}'.format(c,count_list[c], float(count_list[c])/sum(count_list.values()), float(100*count_list[c])/((i+1)/4)))
         print('Other\t{0:,}\t'.format(((i+1)/4)-sum(count_list.values())))
+"""
 
 # ===== Start here ===== #
 
 def main():
-    try:
-        fastq_file = sys.argv[1]
-        sample_file = sys.argv[2]
-        demultiplex_fastq(fastq_file, sample_file)
-    except:
-        print('format: python demultiplex.py [fastq_file] [sample_file]')
-        exit(0)
+    fastq_file = sys.argv[1]
+    sample_file = sys.argv[2]
+    demultiplex_fastq(fastq_file, sample_file)
 
 if __name__ == "__main__":
     main()
