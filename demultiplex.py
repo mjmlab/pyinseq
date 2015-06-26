@@ -119,7 +119,7 @@ def demultiplex_fastq(fastq_file, sample_file):
 # ===== Start here ===== #
 
 def main():
-    fastq_file = 'E689_40_lines.fastq'
+    fastq_file = 'E689_400k_lines.fastq'
     sample_file = 'samples.txt'
     demultiplex_fastq(fastq_file, sample_file)
 
