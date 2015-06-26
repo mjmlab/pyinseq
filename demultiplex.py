@@ -15,6 +15,7 @@ Include option to not write unassigned barcodes (would run faster).
 """
 
 import gzip
+import sys  # temporary - for command line arg
 import os
 import argparse
 
@@ -58,6 +59,8 @@ def barcodes_prep(samples):
 
     return barcode_list, barcode_length
 
+
+
 def demultiplex_fastq(fastq_file, sample_file):
     if fastq_file.endswith('.gz'):
         opener = gzip.open
@@ -91,13 +94,13 @@ def demultiplex_fastq(fastq_file, sample_file):
             if i % 4 == 3:
                 # Write FASTQ record (4 lines) to file specific to its barcode
                 if record[1][0:b_len] in barcodes:
-                    with open('{0}_{1}{2}'.format(file_root, record[1][0:b_len], file_ext), 'a') as fo:
+                    with open('{0}_{1}{2}'.format(file_root, record[1][0:b_len], '.fastq'), 'a') as fo:
                         fo.write('\n'.join(record) + '\n')
                     # Count the read for the barcode
                     count_list[record[1][0:b_len]] += 1
                 # Write unassigned barcodes to (root)_Other(extension) file
                 else:
-                    with open('{0}_{1}{2}'.format(file_root, 'Other', file_ext), 'a') as fo:
+                    with open('{0}_{1}{2}'.format(file_root, 'Other', '.fastq'), 'a') as fo:
                         fo.write('\n'.join(record) + '\n')
                 record = []
             if (i+1) % 4E+5 == 0:
@@ -119,9 +122,13 @@ def demultiplex_fastq(fastq_file, sample_file):
 # ===== Start here ===== #
 
 def main():
-    fastq_file = 'E689_400k_lines.fastq'
-    sample_file = 'samples.txt'
-    demultiplex_fastq(fastq_file, sample_file)
+    try:
+        fastq_file = sys.argv[1]
+        sample_file = sys.argv[2]
+        demultiplex_fastq(fastq_file, sample_file)
+    except:
+        print('format: python demultiplex.py [fastq_file] [sample_file]')
+        exit(0)
 
 if __name__ == "__main__":
     main()
