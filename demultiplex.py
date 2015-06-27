@@ -23,10 +23,10 @@ def barcodes_prep(samples):
     """
     Extract barcodes from an INSeq sample list and conduct basic quality checks
 
-    Input samples is a tab-delimited file. On each line the 5' barcode should
-    be listed, then after a tab the description of the sample. E.g.:
-    CGAT   Input1
-    GCTA   Input2
+    Input samples is a tab-delimited file. On each line the sample identifier
+    should be listed (no spaces), then after a tab the DNA barcode. E.g.:
+    Input1<tab>CGAT
+    Input2<tab>GCTA
     The function checks that all barcodes are the same length.
     The function returns a list of barcodes (no sample names) and the
     length of the barcodes.
@@ -35,25 +35,29 @@ def barcodes_prep(samples):
 
     # Extract barcode list from tab-delimited sample file.
     # Ensure uppercase and stripped
-    barcode_list = []
-    for line in samples:
-        barcode_raw = (line.rstrip().split('\t'))[0]
-        barcode_list.append(barcode_raw.upper().rstrip())
-
-    barcode_length = len(barcode_list[0])
-
     print('\n===== Checking barcodes =====')
+    barcode_list = {}
+    for line in samples:
+        new_barcode = line.rstrip().split('\t')[1]
+        if new_barcode in barcode_list:
+            print('Error: redundant barcode {}'.format(new_barcode))
+            exit(1)
+        new_sample = line.rstrip().split('\t')[0]
+        if new_sample in barcode_list.values():
+            print('Error: redundant sample identifier {}'.format(new_sample))
+            exit(1)
+        barcode_list[new_barcode] = new_sample
+        barcode_length = len(new_barcode)
+        print(barcode_length)
+        #barcode_length = len(barcode_list[0])
+        print(barcode_list)
 
     # Print barcodes and check for same length
-    for b in barcode_list:
-        print(b)
+    for b in sorted(barcode_list):
+        print('{0}\t{1}'.format(b, barcode_list[b]))
         if len(b) != barcode_length:
             print('Error: barcodes are not the same length')
             exit(1)
-
-    if len(barcode_list) != len(set(barcode_list)):
-        print('Error: non-unique barcodes in samples list')
-        exit(1)
 
     print('n={0} unique barcodes of same length ({1} nt)'.format(len(barcode_list), barcode_length))
 
@@ -95,6 +99,12 @@ def demultiplex_fastq(fastq_file, sample_file):
                 # should this be the barcode or the sample? probably sample a la fastx toolkit
 
                 # Write all to one file and see how fast that is.
+
+                # e.g. of data that gets written:
+                # identifier/barcode/transposon(direction)(position)
+                # sequence (lacking barcode and transposon)
+                # alt_identifier
+                # quality corresponding to the sequence
                 print('{0}/{1}/transposon(direction)(position)'.format(record[0],record[1][0:b_len]))
                 print(record[1][b_len:])
                 print(record[2])
