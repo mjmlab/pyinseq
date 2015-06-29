@@ -50,14 +50,30 @@ def gbk2fasta(infile):
 
 def gbk2ftt(infile):
     with open(infile, 'r') as fi:
+
+        # Initialize variables
         features = False # in the FEATURES section of the GenBank file
+        new_feature = False # feature to be written
+        location = '0..0'
+        strand = '+'
+        length = 0
+        protein_id = ''
+        gene = '-'
+        locus_tag = ''
+        cog = '-'
+        product = ''
+        product_append = False # append the current line to product
+
         for i, line in enumerate(fi):
 
             # Don't parse blank lines
             if line.strip():
                 parts = line.split()
 
-                # Locus (replicon) as header
+                # PRINT HEADER FOR THE LOCUS
+                # 2 LINES:
+                # LOCUS <tab> locus name
+                # Location <tab> Strand etc...
                 if(parts[0] == 'LOCUS'):
                     locus = parts[1]
                     print('LOCUS\t{}'.format(locus))
@@ -68,31 +84,75 @@ def gbk2ftt(infile):
                 if(parts[0] == 'ORIGIN'):
                     features = False  # Not in FEATURES any more
 
-                if features:
-                    if(parts[0] == 'CDS'):
 
+                if features:
+
+                    # Only features CDS, etc. here will flip the
+                    # new_feature to True and will be written in the ouput
+
+                    if(parts[0] == 'CDS'):
+                        new_feature = True
+                        # Remove any < or > characters
                         # Minus strand if the location begin with 'complement'/'c'
                         if parts[1][0] == 'c':
                             strand = '-'
-                            location = parts[1][parts[1].index('(')+1:-1]
-                            #location = re.split('..',parts[1])
+                            location = parts[1][parts[1].index('(')+1:-1].strip('<>')
                         else:
                             strand = '+'
-                            location = parts[1]
+                            location = parts[1].strip('<>')
 
+                        # Recall stripped out < and > so length may not be
+                        # divisible by 3 for CDS if gene is at end of contig.
+                        first = location[0:location.index('..')]
+                        last = location[location.index('..')+2:]
+                        length = int(last )- int(first) + 1
 
+                    if '/protein_id=' in parts[0]:
+                        protein_id = parts[0][13:-1]
 
-                        output = (strand, location)
-                        print('\t'.join(output))
+                    if '/gene=' in parts[0]:
+                        gene = parts[0][7:-1]
 
+                    if '/locus_tag=' in parts[0]:
+                        locus_tag = parts[0][12:-1]
 
+                    if product_append:
+                        # /product extends > 2 lines
+                        if not line.strip()[-1] == '\"':
+                            product = product + ' ' + line.strip()
+                            product_append = True
+                        # This is last line of the /product field
+                        else:
+                            product = product + ' ' + line.strip()[:-1]
+                            product_append = False
 
+                    if '/product=' in parts[0]:
+                        product = line.strip()[10:-1]
+                        if not line.strip()[-1] == '\"':
+                            product = line.strip()[10:]
+                            product_append = True
+
+                    # Print line if all data are present (gene, COG not required)
+                    # Reset flags/defaults
+                    if new_feature:
+                        if locus_tag:
+                            if protein_id:
+                                if not product_append:
+                                    output = (location, strand, str(length),
+                                        protein_id, gene, locus_tag, cog, product)
+                                    print('\t'.join(output))
+                                    new_feature = False
+                                    protein_id = ''
+                                    gene = '-'
+                                    locus_tag = ''
+                                    cog = '-'
+                                    product = ''
 
                 if(parts[0] == 'FEATURES'):
                     features = True
 
 
-                    if i > 5000:
+                    if i > 10000:
                         break
 
 
