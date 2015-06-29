@@ -96,16 +96,18 @@ def gbk2ftt(infile):
                         # Minus strand if the location begin with 'complement'/'c'
                         if parts[1][0] == 'c':
                             strand = '-'
-                            location = parts[1][parts[1].index('(')+1:-1].strip('<>')
+                            location_raw = parts[1][parts[1].index('(')+1:-1]
                         else:
                             strand = '+'
-                            location = parts[1].strip('<>')
+                            location_raw = parts[1]
 
-                        # Recall stripped out < and > so length may not be
-                        # divisible by 3 for CDS if gene is at end of contig.
-                        first = location[0:location.index('..')]
-                        last = location[location.index('..')+2:]
-                        length = int(last )- int(first) + 1
+                        # Process location info:
+                        # Strip out < and > and note that may not be
+                        # ... divisible by 3 for CDS if gene is at end of contig
+                        first = location_raw[0:location_raw.index('..')].strip('<>')
+                        last = location_raw[location_raw.index('..')+2:].strip('<>')
+                        location = '{0}..{1}'.format(first, last)
+                        length = int(last)- int(first) + 1
 
                     if '/protein_id=' in parts[0]:
                         protein_id = parts[0][13:-1]
@@ -152,8 +154,8 @@ def gbk2ftt(infile):
                     features = True
 
 
-                    if i > 10000:
-                        break
+                    #if i > 20000:
+                        #break
 
 
 # ===== Start here ===== #
