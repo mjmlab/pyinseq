@@ -7,6 +7,7 @@ GenBank conversion utilities for the pyinseq pipeline.
 Convert GenBank sequence to fasta sequence
 Multilocus GenBank converts to one multifasta GenBank file
 Locus headers are the fasta headers
+Maintains original newlines (typically leaving up to 60 nucleotides per line)
 
 # gbk2ftt()
 Convert GenBank to feature table
@@ -15,15 +16,16 @@ Format of .ptt and .rnt files, including the following features:
     rRNA
     tRNA
     misc_RNA
-Multilocus GenBank converts to multiple .ftt files
+Multilocus GenBank converts to multi-.ftt file
 Locus headers are the file names (locus.ftt)
 Unlike .ptt files that show the number of amino acids as 'length'
 
-(BETTER TO HAVE ONE FILE -- RIGHT?)
+Future: UPDATE INFO ABOVE. INFO ON FILE NAMES, ETC.
+Extract COG from /note field in Refseq GBK files
+Allow user to generate ptt files by filtering to CDS and dividing length by 3
+Or CDS + misc_RNA but exclude rRNA/tRNA
 
 """
-
-import re
 
 def gbk2fasta(infile):
     with open(infile, 'r') as fi:
@@ -53,13 +55,16 @@ def gbk2ftt(infile):
 
         # Initialize variables
         features = False # in the FEATURES section of the GenBank file
-        new_feature = False # feature to be written
+        new_feature = False # collecting data for a new feature
+        new_feature_type = ''
+        parse_types = ['CDS', 'tRNA', 'rRNA', 'misc_RNA']
         location = '0..0'
         strand = '+'
         length = 0
         protein_id = ''
         gene = '-'
         locus_tag = ''
+        code = '-'
         cog = '-'
         product = ''
         product_append = False # append the current line to product
@@ -81,17 +86,32 @@ def gbk2ftt(infile):
                         'Gene', 'Synonym', 'Code', 'COG', 'Product')
                     print('\t'.join(header))
 
-                if(parts[0] == 'ORIGIN'):
-                    features = False  # Not in FEATURES any more
-
-
                 if features:
 
-                    # Only features CDS, etc. here will flip the
-                    # new_feature to True and will be written in the ouput
+                    # Print line before get to next feature
+                    # (gene, COG, protein id not required)
+                    # Reset flags/defaults
+                    if line[5:21].rstrip():
+                        if new_feature:
+                            #if locus_tag:
+                            if not product_append:
+                                output = (location, strand, str(length),
+                                    protein_id, gene, locus_tag,
+                                    code, cog, product)
+                                print('\t'.join(output))
+                                new_feature = False
+                                new_feature_type = ''
+                                protein_id = ''
+                                gene = '-'
+                                locus_tag = ''
+                                code = '-'
+                                cog = '-'
+                                product = ''
 
-                    if(parts[0] == 'CDS'):
-                        new_feature = True
+                    if(line[5:21].rstrip() in parse_types):
+                        new_feature = True # Feature that should be written
+                        new_feature_type = line[5:21].rstrip()
+
                         # Remove any < or > characters
                         # Minus strand if the location begin with 'complement'/'c'
                         if parts[1][0] == 'c':
@@ -118,43 +138,27 @@ def gbk2ftt(infile):
                     if '/locus_tag=' in parts[0]:
                         locus_tag = parts[0][12:-1]
 
-                    if product_append:
+                    #if product_append:
                         # /product extends > 2 lines
-                        if not line.strip()[-1] == '\"':
-                            product = product + ' ' + line.strip()
-                            product_append = True
+                        #if not line.strip()[-1] == '\"':
+                            #product = product + ' ' + line.strip()
+                            #product_append = True
                         # This is last line of the /product field
-                        else:
-                            product = product + ' ' + line.strip()[:-1]
-                            product_append = False
-
+                        #else:
+                            #product = product + ' ' + line.strip()[:-1]
+                            #product_append = False"""
                     if '/product=' in parts[0]:
                         product = line.strip()[10:-1]
-                        if not line.strip()[-1] == '\"':
-                            product = line.strip()[10:]
-                            product_append = True
+                        #if not line.strip()[-1] == '\"':
+                            #product = line.strip()[10:]
+                            #product_append = True
 
-                    # Print line if all data are present (gene, COG not required)
-                    # Reset flags/defaults
-                    if new_feature:
-                        if locus_tag:
-                            if protein_id:
-                                if not product_append:
-                                    output = (location, strand, str(length),
-                                        protein_id, gene, locus_tag, cog, product)
-                                    print('\t'.join(output))
-                                    new_feature = False
-                                    protein_id = ''
-                                    gene = '-'
-                                    locus_tag = ''
-                                    cog = '-'
-                                    product = ''
-
+                if(parts[0] == 'ORIGIN'):
+                    features = False  # Not in FEATURES any more
                 if(parts[0] == 'FEATURES'):
                     features = True
 
-
-                    #if i > 20000:
+                    #if i > 5000:
                         #break
 
 
