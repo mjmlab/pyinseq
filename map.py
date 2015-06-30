@@ -18,23 +18,19 @@ def bowtie_build():
     subprocess.check_call([config.bowtie_build, '-q', fna, organism])
 
 def bowtie_map():
-
-
-    """
-
-    from Goodman:
-
-    # mismatch replaced with 0
-
-    $bowtie_path/bowtie -m 1 --best --strata -a --fullref -n 0 -l 17  $path\/indexes\/$index\/$index -f bcsortedseqs\/$input\_$codes_hash{$_}\.fas results\/$input\_$codes_hash{$_}\.bowtiemap\n
-
-    """
+    organism = 'k'
+    fna = organism + '.fna'
+    reads = 'Exp001_assigned.fasta'
+    bowtie_output = 'bowtie_output.txt'
+    print('\n===== Mapping reads to bowtie index for organism {} =====\n'.format(organism))
+    subprocess.check_call([config.bowtie, '-m 1 --best --strata -a --fullref -n 1 -l 17',
+        organism, '-f', reads, bowtie_output])
 
 
 # ===== Start here ===== #
 
 def main():
-    bowtie_build()
+    bowtie_map()
 
 if __name__ == "__main__":
     main()
