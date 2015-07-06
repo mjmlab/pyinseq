@@ -2,6 +2,8 @@
 """
 Counts the bowtie hits at each position in each sample
 
+Future - filter on the 16/17 bp positions before this step; maybe even before bowtie mapping
+
 """
 
 import sys
