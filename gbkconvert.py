@@ -11,7 +11,7 @@ Maintains original newlines (typically leaving up to 60 nucleotides per line)
 
 # gbk2ftt()
 Convert GenBank to feature table
-Format of .ptt and .rnt files, including the following features:
+Format similar to .ptt and .rnt files, including the following features:
     CDS
     rRNA
     tRNA
@@ -22,11 +22,12 @@ Unlike .ptt files that show the number of amino acids as 'length'
 
 Future:
 Update with argument passing
-Remove __main__ section and/or add argument passing
+Add argument passing
 UPDATE INFO ABOVE. INFO ON FILE NAMES, ETC.
 Extract COG from /note field in Refseq GBK files
 Allow user to generate ptt files by filtering to CDS and dividing length by 3
 Or CDS + misc_RNA but exclude rRNA/tRNA
+Consider parsing on fixed width rather than on space-delimited for LOCUS, etc
 
 """
 
@@ -175,8 +176,13 @@ def gbk2ftt(infile, organism):
 
 def main():
     inputfile = sys.argv[1]
-    organism = 'ES114v2'
+    organism = sys.argv[2]
+    #parser = argparse.ArgumentParser()
+    #parser.add_argument('-f', '--fasta', action="store_true", default=False)
+    #parser.add_argument('-t', '--table', action="store_true", default=False)
+
     gbk2fna(inputfile, organism)
+    gbk2ftt(inputfile, organism)
 
 if __name__ == "__main__":
     main()
