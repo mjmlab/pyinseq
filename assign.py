@@ -8,6 +8,7 @@ Unrecognized barcodes get written to file_Other.fastq
 
 Future:
 Logging of basic info.
+Temporary directory
 List sample name instead of barcode sequence in id line
 What is wrong with Excel sample files - no unicode line breaks? no extra \n at end?
 Make sure this id line works ok for bowtie; alter as needed
@@ -17,8 +18,7 @@ Richer statistics --
  - for each barcode, where does transposon fall?
 Add argument parsing.
 Output report should be in same order as input barcodes -- from Collections import OrderedDict ?
-Note that progress output in terminal only works with Python 3
-
+Works in Python2.7 now; Python 3 only for uncompressed files Encoding issue...
 """
 
 import gzip
@@ -26,6 +26,17 @@ import sys  # temporary - for command line arg
 import os
 import argparse
 
+
+
+def parse_args(args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input',
+        help='input Illumina reads file',
+        required=True)
+    parser.add_argument('-s', '--samples',
+        help='sample list with barcodes',
+        required=True)
+    return parser.parse_args(args)
 
 def barcodes_prep(samples):
     """
@@ -45,7 +56,7 @@ def barcodes_prep(samples):
 
     # Extract barcode list from tab-delimited sample file.
     # Ensure uppercase and stripped
-    print('\n===== Checking barcodes =====')
+    print('Checking barcodes:')
     barcode_list = {}
     for line in samples:
         if not line.startswith('#'):
@@ -73,7 +84,7 @@ def barcodes_prep(samples):
 
 
 
-def demultiplex_fastq(fastq_file, sample_file):
+def assign_and_trim(fastq_file, sample_file):
     if fastq_file.endswith('.gz'):
         opener = gzip.open
     else:
@@ -102,11 +113,9 @@ def demultiplex_fastq(fastq_file, sample_file):
 
         # truncates the file with the 'w' option before writing data below
         # in cases where the output file already exists
-        with open('{}assigned.fasta'.format(file_prefix), 'w') as fo:
-            pass
-        with open('{}assigned.fasta'.format(file_prefix), 'a') as fo:
+        with open('{}assigned.fastq'.format(file_prefix), 'w') as fo:
 
-            print('\n===== Assigning barcode and transposon information =====')
+            print('\n===== Assigning barcode and transposon information =====\n')
 
             # fastq record
             # identifier =     record[0]
@@ -131,9 +140,19 @@ def demultiplex_fastq(fastq_file, sample_file):
 
                     # Write in FASTA format
                     # >experiment:sample:barcode:tnloc_ta(Y/N)_tnend(I/L/R)
-                    fo.write('>{0}:{1}:{2}_{3}_{4}\n{5}\n'.format(
+                    #fo.write('>{0}:{1}:{2}_{3}_{4}\n{5}\n{6}\n{7}\n'.format(experiment,
+                        #bc,tn_loc,ta,tn_end,
+                        #record[1][b_len:(tn_loc+b_len)]
+                        #))
+
+                    # Write in FASTQ format
+                    # @ID//experiment:sample:barcode:tnloc_ta(Y/N)_tnend(I/L/R)
+                    fo.write('@{0}//{1}:{2}:{3}_{4}_{5}\n{6}\n{7}\n{8}\n'.format(record[0],
                         experiment,bc,tn_loc,ta,tn_end,
-                        record[1][b_len:(tn_loc+b_len)]))
+                        record[1][b_len:(tn_loc+b_len)],
+                        record[2],
+                        record[3][b_len:(tn_loc+b_len)]
+                        ))
 
                     record = []
                 if ((i+1.0)/4) % 1E6 == 0:
@@ -149,9 +168,12 @@ def demultiplex_fastq(fastq_file, sample_file):
 # ===== Start here ===== #
 
 def main():
-    fastq_file = sys.argv[1]
-    sample_file = sys.argv[2]
-    demultiplex_fastq(fastq_file, sample_file)
+    args = parse_args(sys.argv[1:])
+    print(args.input)
+    print(args.samples)
+    #fastq_file = sys.argv[1]
+    #sample_file = sys.argv[2]
+    assign_and_trim(args.input, args.samples)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
