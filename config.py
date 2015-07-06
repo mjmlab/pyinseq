@@ -1,28 +1,26 @@
 """ Configuration file for pyinseq.py package """
 
-# Mariner transposon end sequences
-# In many cases the transposon sequence will be the same for both ends
-# XXXXX Insert comment about TA site
+# Experiment name
+# Used as a prefix for naming files and samples
+# Alphanumeric characters only
+experiment = ''
+
+# Genome file in GenBank format (concatenated GenBank if multiple contigs)
+gb = ''
+
+# Barcodes (5' barcodes)
+sample_file = ''
+
+# Transposon end sequences
+# In many cases the transposon sequence will be the same for both ends.
+# This sequence is filtered from the reads prior to mapping.
+# For mariner transposons do not include the terminal TA. Mariner hops into
+# TA dinucleotides and adding the TA here will cause those nucleotides to
+# be filtered prior to quality checking and mapping. Defaults are sequences for
+# typical mariner ends.
 transposon_left = 'ACAGGTTG'
 transposon_right = 'ACAGGTTG'
 
-# Genome files. Files in same order for all sections below (e.g., Ch1, plasmid)
-fasta = ''
-ptt = ''
-rnt = ''
-
 # Path to Bowtie
-bowtie = '/Users/markmandel/bowtie-1.1.1/bowtie'
 bowtie_build = '/Users/markmandel/bowtie-1.1.1/bowtie-build'
-
-# Barcodes (5' barcodes)
-
-""" Currently demultiplex.py reads barcodes from the samples.txt file
-
-barcodes = { \
-'CGAT':'Input1', \
-'GCTA':'Input2', \
-'AGTC':'Output1', \
-'AAAA':'Output2'}
-
-"""
+bowtie = '/Users/markmandel/bowtie-1.1.1/bowtie'
