@@ -65,10 +65,15 @@ def TA_sites(fna):
             # START WORKING HERE
             ta_list = []
             i = 0   # nucleotide index
+            # Checks the linear molecule (i.e. all except the last base)
             while i < len(fna_string)-1:
                 if fna_string[i:i+2] == 'ta':
                     ta_list.append(i+1)
                 i += 1
+            # Checks last base circular around to first base
+            if i == len(fna_string)-1:
+                if (fna_string[-1] + fna_string[0]) == 'ta':
+                    ta_list.append(i+1)
             print(ta_list)
 
             # NEED TO RENAME IT AS THE CONTIG NAME.
@@ -78,7 +83,6 @@ def TA_sites(fna):
             contig_length = len(fna_string)
 
             print(contig_name)
-            print(fna_string[1:10])
             print(len(fna_string))
 
             # How best to return the list of lists (for a multifasta)?
