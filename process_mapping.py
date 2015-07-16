@@ -3,6 +3,7 @@
 Counts the bowtie hits at each position in each sample
 
 Future - filter on the 16/17 bp positions before this step; maybe even before bowtie mapping
+- change d to OrderedDict to keep contigs in order?
 
 """
 
@@ -12,7 +13,7 @@ from collections import Counter
 
 def multifasta2dict(fna):
     """
-    Returns a dictionary of fasta header and sequences
+    Returns a dictionary of fasta headers and sequences
 
     Input file in multifasta format
     >header1
@@ -22,9 +23,8 @@ def multifasta2dict(fna):
 
     Function returns the fasta data as a dictionary
     {'header1': 'agctag', 'header2': 'gattta'}
-
     """
-    sequence_dict = {}
+    d = {}
     with open(fna, 'r') as fi:
         header = ''
         first_line = False # next line is first line of sequence in contig
@@ -35,60 +35,41 @@ def multifasta2dict(fna):
                 first_line = True
             else: # sequence line
                 if first_line:
-                    sequence_dict[header] = line # create dictionary entry
+                    d[header] = line # create dictionary entry
                     first_line = False
                 # would this work in one step?
                 else:
-                    appended_sequence = sequence_dict[header] + line
-                    sequence_dict[header] = appended_sequence
-        print(sequence_dict)
-        return sequence_dict
+                    appended_sequence = d[header] + line
+                    d[header] = appended_sequence
+        return d
 
 def TA_sites(fna):
-    """ List TA dinucleotides in a fasta nucleotide file
+    """ Enumerate TA dinucleotides in a fasta nucleotide file
 
-    Returns a list of nucleotide positions for
-    5'-TA for each contig in the fna file
-    e.g., CP000020 = (20, 22, 24, ... 1401104)
-    #INSERT THE REAL DATA HERE! HOW DOES IT WORK FOR MULTIFASTA?
-    Assumes circular genome
-    i.e. will check if the last nucleotide is a T and the first is an A
+    Returns a dictionary of 5'-TA positions for each contig in a multifasta file.
+    Assumes circular genome; i.e. will check if the last [-1] nucleotide is a T
+    and the first [0] is an A
+
+    Function calls multifasta2dict() and returns the nucleotide positions
+    of TA sites in each contig as dictionary values:
+    {'header1': [20, 22, 24, ... 1401104], 'header2': [5, 16, 24, ... 39910]}
     """
-    with open(fna, 'r') as fi:
-        ta_list = []
+    di = multifasta2dict(fna)
+    do = {}
+    for header in di:
+        sequence = di[header]
+        do[header] = []
         i = 0   # nucleotide index
         # Checks the linear molecule (i.e. all except the last base)
-        while i < len(fna_string)-1:
-            if fna_string[i:i+2] == 'ta':
-                ta_list.append(i+1)
+        while i < len(sequence)-1:
+            if sequence[i:i+2] == 'ta':
+                do[header].append(i+1)
             i += 1
         # Checks last base circular around to first base
-        if i == len(fna_string)-1:
-            if (fna_string[-1] + fna_string[0]) == 'ta':
-                ta_list.append(i+1)
-        print(ta_list)
-
-        # NEED TO RENAME IT AS THE CONTIG NAME.
-
-
-        contig_length = len(fna_string)
-
-        print(contig_name)
-        print(len(fna_string))
-
-        """for n in line.rstrip():
-            print(len(n))
-            fna_list.append(n)
-            if(len(fna_list) == 2):
-                # special case of last base matching
-                # need robust way to count number of bases
-                # and print its position here
-                pass
-            else:
-                if fna_list[-2:] == ['t','a']:
-                    print(len(fna_list)-2)
-            if len(fna_list) > 100:
-                exit(0)"""
+        if i == len(sequence)-1:
+            if (sequence[-1] + sequence[0]) == 'ta':
+                do[header].append(i+1)
+    print(do)
 
 
 def count_bowtie(bowtie_output):
@@ -129,7 +110,7 @@ def map_to_gene(normalized_output):
 
 def main():
     fna = sys.argv[1]
-    multifasta2dict(fna)
+    TA_sites(fna)
 
 if __name__ == "__main__":
     main()
