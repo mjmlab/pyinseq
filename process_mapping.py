@@ -72,20 +72,74 @@ def TA_sites(fna):
     return do
 
 
-def count_bowtie(bowtie_output):
-    """ List counts of reads to the Left and Right of each TA site
+def insertion_nts(bowtie_output):
+    """ Define the TA dinucleotide of the insertion from the bowtie output
+
+    Note bowtie output, where bnt = bowtie nucleotide
+    + strand (sequence to L of Tn):
+    bnt_sequence_TA
+    - strand (sequence to R of Tn):
+    bnt_TA_sequence
+
+    Returns a list of tuples for the insertion nucleotides and orientations:
+    experiment, barcode, contig, TAnucleotide, orientation
+    [('Exp002', 'AAAA', 'contig1', 514141, 'R'), ('Exp003', 'GCTA', 'contig5', 8141, 'L')]
+
+    CHECK -- DID MY TEST FNA FILE SHIFT BY 1 NT?
+
+    """
+    with open(bowtie_output, 'r') as fi:
+        insertions = []
+        for line in fi:
+            # Redo this with regex
+            idline = line.rstrip().split('\t')[0]
+            loc1 = idline.rfind('//')
+            loc2 = idline[:idline.rfind(':')].rfind(':')
+            loc3 = idline.rfind(':')
+            experiment = idline[loc1+2:loc2]
+            sample = idline[loc2+1:loc3]
+            contig = line.rstrip().split('\t')[2]
+            # Read direction
+            if line.rstrip().split('\t')[1] == '+':
+                direction = True # positive strand read
+            else:
+                direction = False # minus strand read
+            # Calculate transposon insertion point
+            read_length = len(line.rstrip().split('\t')[4])
+            bnt = int(line.rstrip().split('\t')[3]) # bowtie nucleotide
+            if direction: # positive strand read
+                insertion_nt = bnt + read_length - 1 # -2 if I made a +1 error
+                orient = 'L'
+            else: # negative strand read
+                insertion_nt = bnt + 1 # delete +1 if I made a +1 error
+                orient = 'R'
+            new_insertion = (experiment, sample, contig, insertion_nt, orient)
+            insertions.append(new_insertion)
+    print(insertions)
+    return insertions
+
+def count_bowtie(bowtie_output, fna):
+    """ List counts for each TA site:
+
+    {'header': [[site1, left_count, right_count, total_count], [site2, left_count, right_count, total_count]]}
 
     future:
     default show_all=False
     show_all=True will show all of the sites even those will count=0
 
-    THIS MODULE STILL NEEDS TO BE WRITTEN!!!!!!!!
-
     """
-    with open(bowtie_output, 'r') as fi:
-        outfile = bowtie_output + '_counted'
-        with open(outfile, 'w') as fo:
-            count = {}
+    ta_di = TA_sites(fna)   # dictionary of ta sites in each contig
+    do = {}
+
+    # For each TA site in ta_di {'header1': [site1, site2]} ...
+    # Set up nested list in do {'header1': [[site1, 0, 0, 0], [site2, 0, 0, 0]]}
+
+
+
+    """for header in ta_di:
+        for ta
+
+        count = {}
             for line in fi:
                 sample_assignment = line.split('\t')[0].rfind('//')
                 read_data_to_count = ('{0}\t{1}\t{2}\t{3}'.format(
@@ -95,7 +149,7 @@ def count_bowtie(bowtie_output):
                     line.split('\t')[3]))
                 count[read_data_to_count] = count.get(read_data_to_count, 0) + 1
             for c in count:
-                print('{0}\t{1}'.format(c, count[c]))
+                print('{0}\t{1}'.format(c, count[c]))"""
 
 def normalize_cpm(bowtie_output):
     """ insert """
@@ -110,7 +164,7 @@ def map_to_gene(normalized_output):
 
 def main():
     fna = sys.argv[1]
-    TA_sites(fna)
+    bowtie_insertions(fna)
 
 if __name__ == "__main__":
     main()
