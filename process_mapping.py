@@ -69,7 +69,7 @@ def TA_sites(fna):
         if i == len(sequence)-1:
             if (sequence[-1] + sequence[0]) == 'ta':
                 do[header].append(i+1)
-    print(do)
+    return do
 
 
 def count_bowtie(bowtie_output):
