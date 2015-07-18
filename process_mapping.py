@@ -81,7 +81,8 @@ def insertion_nts(bowtie_output):
     - strand (sequence to R of Tn):
     bnt_TA_sequence
 
-    Returns a list of tuples for the insertion nucleotides and orientations:
+    Returns a list of tuples for the insertion nucleotides and orientations.
+    Each insertion read is listed separately:
     experiment, barcode, contig, TAnucleotide, orientation
     [('Exp002', 'AAAA', 'contig1', 514141, 'R'), ('Exp003', 'GCTA', 'contig5', 8141, 'L')]
 
@@ -115,24 +116,42 @@ def insertion_nts(bowtie_output):
                 orient = 'R'
             new_insertion = (experiment, sample, contig, insertion_nt, orient)
             insertions.append(new_insertion)
-    print(insertions)
     return insertions
 
-def count_bowtie(bowtie_output, fna):
-    """ List counts for each TA site:
+def insertion_counts(bowtie_output):
+    """ List counts for each transposon insertion:
 
-    {'header': [[site1, left_count, right_count, total_count], [site2, left_count, right_count, total_count]]}
-
-    future:
-    default show_all=False
-    show_all=True will show all of the sites even those will count=0
+    Returns a list of tuples in which the frequence of each orientation in the
+    dataset is listed:
+    experiment, barcode, contig, TAnucleotide, orientation, countL, countR, countTotal
+    [('Exp002', 'AAAA', 'contig1', 514141, 20, 14, 34),
+    ('Exp003', 'GCTA', 'contig5', 8141, 0, 1, 1)]
 
     """
-    ta_di = TA_sites(fna)   # dictionary of ta sites in each contig
-    do = {}
+    # list - each insertion read listed individually
+    li = insertion_nts(bowtie_output)
+    # counted list - each insertion once
+    lo = []
 
-    # For each TA site in ta_di {'header1': [site1, site2]} ...
-    # Set up nested list in do {'header1': [[site1, 0, 0, 0], [site2, 0, 0, 0]]}
+    #
+    # Might be better to loop from nt 1 through << length of the genome >>
+    # look for matches for left or right and count them up.
+    # Maybe when making fna files store the lengths of the contigs then?
+    #
+
+    # Count the occurrance of each L or R read per contig/nt for that experiment/sample
+    counts = {}
+    for tup in set(li):
+        counts[tup] = li.count(tup)
+
+    for key in counts:
+        print(key)
+        print(counts[key])
+
+
+    #s_li = sorted(counts)
+    #for i in counts:
+            #print(i)
 
 
 
@@ -164,7 +183,7 @@ def map_to_gene(normalized_output):
 
 def main():
     fna = sys.argv[1]
-    bowtie_insertions(fna)
+    insertion_counts(fna)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
