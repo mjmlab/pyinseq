@@ -71,7 +71,6 @@ def TA_sites(fna):
                 do[header].append(i+1)
     return do
 
-
 def insertion_nts(bowtie_output):
     """ Define the TA dinucleotide of the insertion from the bowtie output
 
@@ -130,45 +129,34 @@ def insertion_counts(bowtie_output):
     """
     # list - each insertion read listed individually
     li = insertion_nts(bowtie_output)
-    # counted list - each insertion once
-    lo = []
 
-    #
-    # Might be better to loop from nt 1 through << length of the genome >>
-    # look for matches for left or right and count them up.
-    # Maybe when making fna files store the lengths of the contigs then?
-    #
+    # list of hits in bowtie results independent of orientation
+    # add placeholder integers for L, R, and Total counts
+    unique_hits = list(set([tuple(x for x in y[0:4]) for y in li]))
 
-    # Count the occurrance of each L or R read per contig/nt for that experiment/sample
+    # dictionary of counts of L and R counts
+    # key is the index in the unique_hits list of tuples
     counts = {}
-    for tup in set(li):
-        counts[tup] = li.count(tup)
+    for i in range(0,len(unique_hits)):
+        counts[i] = [0, 0, 0]
 
-    for key in counts:
-        print(key)
-        print(counts[key])
+    # loop through the bowtie output of the insertions
+    # for each insertion...
+    # check the index of the read in the unique_hits list of tuples
+    # and incremement the L (or R) and Total counts
+    for i in li:
+        hits_index = unique_hits.index(i[0:4])
+        if i[4] == 'L':
+            counts[hits_index][0] += 1  # L
+            counts[hits_index][2] += 1  # Total
+        if i[4] == 'R':
+            counts[hits_index][1] += 1  # R
+            counts[hits_index][2] += 1  # Total
 
-
-    #s_li = sorted(counts)
-    #for i in counts:
-            #print(i)
-
-
-
-    """for header in ta_di:
-        for ta
-
-        count = {}
-            for line in fi:
-                sample_assignment = line.split('\t')[0].rfind('//')
-                read_data_to_count = ('{0}\t{1}\t{2}\t{3}'.format(
-                    line.split('\t')[0][sample_assignment+2:],
-                    line.split('\t')[1],
-                    line.split('\t')[2],
-                    line.split('\t')[3]))
-                count[read_data_to_count] = count.get(read_data_to_count, 0) + 1
-            for c in count:
-                print('{0}\t{1}'.format(c, count[c]))"""
+    lo = []
+    for i in range(0,len(unique_hits)):
+        lo.append(unique_hits[i] + tuple(counts[i]))
+    return(lo)
 
 def normalize_cpm(bowtie_output):
     """ insert """
@@ -182,8 +170,8 @@ def map_to_gene(normalized_output):
 # ===== Start here ===== #
 
 def main():
-    fna = sys.argv[1]
-    insertion_counts(fna)
+    bowtie_output = sys.argv[1]
+    insertion_counts(bowtie_output)
 
 if __name__ == '__main__':
     main()
