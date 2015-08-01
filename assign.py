@@ -189,8 +189,7 @@ def main():
     #print(args.input)
     #print(args.samples)
     #assign_and_trim(args.input, args.samples)
-    exper
-    experiment = 'Exp001'
+    experiment = 'E1'
 
     create_directories(experiment)
 
