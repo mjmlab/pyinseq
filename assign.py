@@ -6,27 +6,12 @@ Output file includes the input file name and the barcode:
 e.g., file.fastq demultiplexes into file_CGAT.fastq, etc.
 Unrecognized barcodes get written to file_Other.fastq
 
-Future:
-Logging of basic info.
-Temporary directory
-List sample name instead of barcode sequence in id line
-What is wrong with Excel sample files - no unicode line breaks? no extra \n at end?
-Make sure this id line works ok for bowtie; alter as needed
-Add code to do left vs. right transposon ends
-Optional argument to demultiplex
-Richer statistics --
- - for each barcode, where does transposon fall?
-Add argument parsing.
-Output report should be in same order as input barcodes -- from Collections import OrderedDict ?
-Works in Python2.7 now; Python 3 only for uncompressed files Encoding issue...
 """
 
 import gzip
-import sys  # temporary - for command line arg
+import sys
 import os
 import argparse
-
-
 
 def parse_args(args):
     parser = argparse.ArgumentParser()
@@ -36,7 +21,42 @@ def parse_args(args):
     parser.add_argument('-s', '--samples',
         help='sample list with barcodes',
         required=True)
+    parser.add_argument('-e', '--experiment',
+        help='experiment name (no spaces or special characters)',
+        required=True)
     return parser.parse_args(args)
+
+def create_directories(experiment):
+    """
+    Create the project directory and subdirectories
+
+    Attempt to create the directory structure:
+    /[experiment]
+        /genome
+        /indexes
+        /temp
+
+    If /experiment directory already exists exit and return error message and
+    the full path of the present directory to the user"""
+
+    # Check that experiment name has no special characters or spaces
+    pass
+
+    # ERROR MESSAGES
+    error_directory_exists = \
+    'PyINSeq Error: The directory already exists for experiment {0}\n' \
+    'Delete or rename the {0} directory, or provide a new experiment\n' \
+    'name for the current analysis'.format(experiment)
+
+    # Create path or exit with error if it exists.
+    try:
+        os.makedirs('{}/genome/'.format(experiment))
+        os.makedirs('{}/indexes/'.format(experiment))
+        os.makedirs('{}/temp/'.format(experiment))
+    except OSError:
+        print(error_directory_exists)
+        exit(1)
+
 
 def barcodes_prep(samples):
     """
@@ -81,8 +101,6 @@ def barcodes_prep(samples):
     print('n={0} unique barcodes of length {1} nt'.format(len(barcode_list), barcode_length))
 
     return barcode_list.keys(), barcode_length
-
-
 
 def assign_and_trim(fastq_file, sample_file):
     if fastq_file.endswith('.gz'):
@@ -147,7 +165,7 @@ def assign_and_trim(fastq_file, sample_file):
 
                     # Write in FASTQ format
                     # @ID//experiment:sample:barcode:tnloc_ta(Y/N)_tnend(I/L/R)
-                    fo.write('@{0}//{1}:{2}:{3}_{4}_{5}\n{6}\n{7}\n{8}\n'.format(record[0],
+                    fo.write('{0}//{1}:{2}:{3}_{4}_{5}\n{6}\n{7}\n{8}\n'.format(record[0],
                         experiment,bc,tn_loc,ta,tn_end,
                         record[1][b_len:(tn_loc+b_len)],
                         record[2],
@@ -168,12 +186,12 @@ def assign_and_trim(fastq_file, sample_file):
 # ===== Start here ===== #
 
 def main():
-    args = parse_args(sys.argv[1:])
-    print(args.input)
-    print(args.samples)
-    #fastq_file = sys.argv[1]
-    #sample_file = sys.argv[2]
-    assign_and_trim(args.input, args.samples)
+    #args = parse_args(sys.argv[1:])
+    #print(args.input)
+    #print(args.samples)
+    #assign_and_trim(args.input, args.samples)
+    experiment = 'Exp001'
+    create_directories(experiment)
 
 if __name__ == '__main__':
     main()
