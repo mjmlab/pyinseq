@@ -8,6 +8,8 @@ Convert GenBank sequence to fasta sequence
 Multilocus GenBank converts to one multifasta GenBank file
 Locus headers are the fasta headers
 Maintains original newlines (typically leaving up to 60 nucleotides per line)
+File is written to genome/ directory for the EXPERIMENT:
+    EXPERIMENT/genome/ORGANISM.fna
 
 # gbk2ftt()
 Convert GenBank to feature table
@@ -19,6 +21,8 @@ Format similar to .ptt and .rnt files, including the following features:
 Multilocus GenBank converts to multi-.ftt file
 Locus headers are the file names (locus.ftt)
 Unlike .ptt files that show the number of amino acids as 'length'
+File is written to genome/ directory for the EXPERIMENT:
+    EXPERIMENT/genome/ORGANISM.ftt
 
 """
 
@@ -159,19 +163,12 @@ def gbk2ftt(infile, organism, experiment):
                     if(parts[0] == 'FEATURES'):
                         features = True
 
-                        #if i > 5000:
-                            #break
-
-
 # ===== Start here ===== #
 
 def main():
     inputfile = sys.argv[1]
     organism = sys.argv[2]
-    experiment = 'Exp001'
-    #parser = argparse.ArgumentParser()
-    #parser.add_argument('-f', '--fasta', action="store_true", default=False)
-    #parser.add_argument('-t', '--table', action="store_true", default=False)
+    experiment = sys.argv[3]
 
     gbk2fna(inputfile, organism, experiment)
     gbk2ftt(inputfile, organism, experiment)
