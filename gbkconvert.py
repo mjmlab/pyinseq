@@ -24,9 +24,9 @@ Unlike .ptt files that show the number of amino acids as 'length'
 
 import sys
 
-def gbk2fna(infile, organism):
+def gbk2fna(infile, organism, experiment):
     with open(infile, 'r') as fi:
-        outfile = organism + '.fna'
+        outfile = '{0}/genome/{1}.fna'.format(experiment,organism)
         with open(outfile, 'w') as fo:
             dna_seq = False # in the DNA sequence of the file
             for i, line in enumerate(fi):
@@ -49,9 +49,9 @@ def gbk2fna(infile, organism):
                     if(parts[0] == 'ORIGIN'):
                         dna_seq = True
 
-def gbk2ftt(infile, organism):
+def gbk2ftt(infile, organism, experiment):
     with open(infile, 'r') as fi:
-        outfile = organism + '.ftt'
+        outfile = '{0}/genome/{1}.ftt'.format(experiment,organism)
         with open(outfile, 'w') as fo:
 
             # Initialize variables
@@ -168,12 +168,13 @@ def gbk2ftt(infile, organism):
 def main():
     inputfile = sys.argv[1]
     organism = sys.argv[2]
+    experiment = 'Exp001'
     #parser = argparse.ArgumentParser()
     #parser.add_argument('-f', '--fasta', action="store_true", default=False)
     #parser.add_argument('-t', '--table', action="store_true", default=False)
 
-    gbk2fna(inputfile, organism)
-    gbk2ftt(inputfile, organism)
+    gbk2fna(inputfile, organism, experiment)
+    gbk2ftt(inputfile, organism, experiment)
 
 if __name__ == "__main__":
     main()
