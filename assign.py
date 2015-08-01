@@ -8,7 +8,6 @@ Unrecognized barcodes get written to file_Other.fastq
 
 """
 
-import gzip
 import sys
 import os
 import argparse
@@ -43,7 +42,7 @@ def create_directories(experiment):
     pass
 
     # ERROR MESSAGES
-    error_directory_exists = \
+    _error_directory_exists = \
     'PyINSeq Error: The directory already exists for experiment {0}\n' \
     'Delete or rename the {0} directory, or provide a new experiment\n' \
     'name for the current analysis'.format(experiment)
@@ -54,7 +53,7 @@ def create_directories(experiment):
         os.makedirs('{}/indexes/'.format(experiment))
         os.makedirs('{}/temp/'.format(experiment))
     except OSError:
-        print(error_directory_exists)
+        print(_error_directory_exists)
         exit(1)
 
 
@@ -190,7 +189,9 @@ def main():
     #print(args.input)
     #print(args.samples)
     #assign_and_trim(args.input, args.samples)
+    exper
     experiment = 'Exp001'
+
     create_directories(experiment)
 
 if __name__ == '__main__':
