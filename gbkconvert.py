@@ -20,15 +20,6 @@ Multilocus GenBank converts to multi-.ftt file
 Locus headers are the file names (locus.ftt)
 Unlike .ptt files that show the number of amino acids as 'length'
 
-Future:
-Update with argument passing
-Add argument passing
-UPDATE INFO ABOVE. INFO ON FILE NAMES, ETC.
-Extract COG from /note field in Refseq GBK files
-Allow user to generate ptt files by filtering to CDS and dividing length by 3
-Or CDS + misc_RNA but exclude rRNA/tRNA
-Consider parsing on fixed width rather than on space-delimited for LOCUS, etc
-
 """
 
 import sys
