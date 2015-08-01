@@ -26,11 +26,14 @@ File is written to genome/ directory for the EXPERIMENT:
 
 """
 
-import sys
+import sys, os
 
 def gbk2fna(infile, organism, experiment):
     with open(infile, 'r') as fi:
         outfile = '{0}/genome/{1}.fna'.format(experiment,organism)
+        if not os.path.exists('{0}/genome/'.format(experiment)):
+            print('Error: {0}/genome/ directory was not created.'.format(experiment))
+            exit(1)
         with open(outfile, 'w') as fo:
             dna_seq = False # in the DNA sequence of the file
             for i, line in enumerate(fi):
@@ -173,5 +176,5 @@ def main():
     gbk2fna(inputfile, organism, experiment)
     gbk2ftt(inputfile, organism, experiment)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
