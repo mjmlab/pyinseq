@@ -28,11 +28,11 @@ File is written to genome/ directory for the EXPERIMENT:
 
 import sys, os
 
-def gbk2fna(infile, organism, experiment):
+def gbk2fna(infile, organism, experiment, outputdirectory=''):
     with open(infile, 'r') as fi:
-        outfile = '{0}/genome/{1}.fna'.format(experiment,organism)
-        if not os.path.exists('{0}/genome/'.format(experiment)):
-            print('Error: {0}/genome/ directory was not created.'.format(experiment))
+        outfile = '{0}{1}.fna'.format(outputdirectory, organism)
+        if not os.path.exists('{0}'.format(outputdirectory)):
+            print('Error: {0} directory was not created.'.format(outputdirectory))
             exit(1)
         with open(outfile, 'w') as fo:
             dna_seq = False # in the DNA sequence of the file
@@ -56,9 +56,9 @@ def gbk2fna(infile, organism, experiment):
                     if(parts[0] == 'ORIGIN'):
                         dna_seq = True
 
-def gbk2ftt(infile, organism, experiment):
+def gbk2ftt(infile, organism, experiment, outputdirectory=''):
     with open(infile, 'r') as fi:
-        outfile = '{0}/genome/{1}.ftt'.format(experiment,organism)
+        outfile = '{0}{1}.ftt'.format(outputdirectory, organism)
         with open(outfile, 'w') as fo:
 
             # Initialize variables
