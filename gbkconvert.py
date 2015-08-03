@@ -28,7 +28,7 @@ File is written to genome/ directory for the EXPERIMENT:
 
 import sys, os
 
-def gbk2fna(infile, organism, experiment, outputdirectory=''):
+def gbk2fna(infile, organism, outputdirectory=''):
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.fna'.format(outputdirectory, organism)
         if not os.path.exists('{0}'.format(outputdirectory)):
@@ -56,7 +56,7 @@ def gbk2fna(infile, organism, experiment, outputdirectory=''):
                     if(parts[0] == 'ORIGIN'):
                         dna_seq = True
 
-def gbk2ftt(infile, organism, experiment, outputdirectory=''):
+def gbk2ftt(infile, organism, outputdirectory=''):
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.ftt'.format(outputdirectory, organism)
         with open(outfile, 'w') as fo:
@@ -171,10 +171,9 @@ def gbk2ftt(infile, organism, experiment, outputdirectory=''):
 def main():
     inputfile = sys.argv[1]
     organism = sys.argv[2]
-    experiment = sys.argv[3]
 
-    gbk2fna(inputfile, organism, experiment)
-    gbk2ftt(inputfile, organism, experiment)
+    gbk2fna(inputfile, organism)
+    gbk2ftt(inputfile, organism)
 
 if __name__ == '__main__':
     main()
