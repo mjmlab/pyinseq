@@ -55,8 +55,8 @@ def main():
     create_directories(experiment)
 
     # Prepare genome files from the GenBank input
-    gbk2fna(gbkfile, organism, experiment, temp_dir)
-    gbk2ftt(gbkfile, organism, experiment, temp_dir)
+    gbk2fna(gbkfile, organism, temp_dir)
+    gbk2ftt(gbkfile, organism, temp_dir)
 
     # Assign and trim barcodes
     assign_and_trim(reads, samples, experiment, temp_dir)
