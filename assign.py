@@ -32,7 +32,6 @@ def create_directories(experiment):
     Attempt to create the directory structure:
     /[experiment]
         /genome
-        /indexes
         /temp
 
     If /experiment directory already exists exit and return error message and
@@ -49,8 +48,6 @@ def create_directories(experiment):
 
     # Create path or exit with error if it exists.
     try:
-        os.makedirs('{}/genome/'.format(experiment))
-        os.makedirs('{}/indexes/'.format(experiment))
         os.makedirs('{}/temp/'.format(experiment))
     except OSError:
         print(_error_directory_exists)
@@ -101,7 +98,7 @@ def barcodes_prep(samples):
 
     return barcode_list.keys(), barcode_length
 
-def assign_and_trim(fastq_file, sample_file):
+def assign_and_trim(fastq_file, sample_file, experiment, temp_dir):
     if fastq_file.endswith('.gz'):
         opener = gzip.open
     else:
@@ -120,19 +117,20 @@ def assign_and_trim(fastq_file, sample_file):
 
     with opener(fastq_file, 'r') as f:
 
-        experiment = 'Exp001'   # supply in command line arguments; check alphanumeric only
+        # Not needed anymore now that the experiment name gets passed in
+        """experiment = 'Exp001'   # supply in command line arguments; check alphanumeric only
         if experiment:
             if not experiment.isalnum():
                 print('Error: Experiment name should be alphanumeric only. You entered {}'.format(file_prefix))
                 exit(1)
             file_prefix = experiment + '_'
-            print(file_prefix)
+            print(file_prefix)"""
 
         # truncates the file with the 'w' option before writing data below
         # in cases where the output file already exists
-        with open('{}assigned.fastq'.format(file_prefix), 'w') as fo:
+        with open('{0}{1}_assigned.fastq'.format(temp_dir, experiment), 'w') as fo:
 
-            print('\n===== Assigning barcode and transposon information =====\n')
+            print('Assigning barcode and transposon information.')
 
             # fastq record
             # identifier =     record[0]
