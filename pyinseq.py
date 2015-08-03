@@ -59,6 +59,8 @@ def main():
     gbk2ftt(gbkfile, organism, temp_dir)
 
     # Assign and trim barcodes
+    # Now currently filtering by default (16-17 bp, TA at end)
+    # In future could add as command line option
     assign_and_trim(reads, samples, experiment, temp_dir)
 
 

@@ -143,40 +143,50 @@ def assign_and_trim(fastq_file, sample_file, experiment, temp_dir):
                 if i % 4 == 3:
                     # barcode sequence in read
                     bc = record[1][0:b_len]
-                    if bc in barcodes:
-                        count_list[bc] += 1
 
                     # Tn location as number of nuceotides after the barcode
                     tn_loc = record[1].find('ACAGGTTG') - b_len # Tn location
-                    tn_end = 'I'    # Left / Right / Identical
-                    ta = 'N'    # Insertion at a TA dinucleotide
+
+                    # (L) Left / (R) Right / (I) Identical
+                    # No code yet for L/R
+                    tn_end = 'I'
+
+                    # Insertion at a TA dinucleotide
+                    ta = 'N'
                     if (record[1][(tn_loc+b_len-2):(tn_loc+b_len)]) == "TA":
                         ta = 'Y'
 
-                    # Write in FASTA format
-                    # >experiment:sample:barcode:tnloc_ta(Y/N)_tnend(I/L/R)
-                    #fo.write('>{0}:{1}:{2}_{3}_{4}\n{5}\n{6}\n{7}\n'.format(experiment,
-                        #bc,tn_loc,ta,tn_end,
-                        #record[1][b_len:(tn_loc+b_len)]
-                        #))
-
                     # Write in FASTQ format
-                    # @ID//experiment:sample:barcode:tnloc_ta(Y/N)_tnend(I/L/R)
-                    fo.write('{0}//{1}:{2}:{3}_{4}_{5}\n{6}\n{7}\n{8}\n'.format(record[0],
-                        experiment,bc,tn_loc,ta,tn_end,
-                        record[1][b_len:(tn_loc+b_len)],
-                        record[2],
-                        record[3][b_len:(tn_loc+b_len)]
-                        ))
+                    # @ID//experiment:barcode:tnloc_ta(Y/N)_tnend(I/L/R)
+
+                    # Quality filter:
+                    # 16-17 bp of putative chromosomal DNA with terminal TA
+                    if ta == 'Y' and tn_loc in range(16, 18):
+
+                        # Write only if passes filtering
+                        fo.write('{0}//{1}:{2}:{3}_{4}_{5}\n{6}\n{7}\n{8}\n'.format(record[0],
+                            experiment,bc,tn_loc,ta,tn_end,
+                            record[1][b_len:(tn_loc+b_len)],
+                            record[2],
+                            record[3][b_len:(tn_loc+b_len)]
+                            ))
+
+                        # Count only if passes filtering
+                        if bc in barcodes:
+                            count_list[bc] += 1
 
                     record = []
+
                 if ((i+1.0)/4) % 1E6 == 0:
                     print('Reads processed: {:,}'.format(int((i+1)/4)))
+
             print('Reads processed: {:,}'.format(int((i+1)/4)))
 
+            filtered_sum = 0
             for b in count_list:
                 print('{0}\t{1:,}'.format(b,count_list[b]))
-                    #print('{} records processed.'.format((i+1)/4))
+                filtered_sum = filtered_sum + count_list[b]
+            print('{0:,} ({1:.2%}) reads passed filtering for length and TA terminus'.format(filtered_sum, float(filtered_sum)/((i+1)/4)))
 
         # Return output file name for bowtie call
 
