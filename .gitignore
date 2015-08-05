@@ -2,3 +2,18 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Input data files for experiment
+input*
+
+# Genome reference files
+*.gbk
+*.ftt
+
+# Data output directories
+old/
+Exp*/
+
+# Roadmap
+# Clean this file up and then commit it!
+roadmap.txt
