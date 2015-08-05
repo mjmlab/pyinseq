@@ -92,12 +92,12 @@ def insertionNucleotides(bowtieOutput):
         insertions = []
         for line in fi:
             # Redo this with regex
-            idline = line.rstrip().split('\t')[0]
-            loc1 = idline.rfind('//')
-            loc2 = idline[:idline.rfind(':')].rfind(':')
-            loc3 = idline.rfind(':')
-            experiment = idline[loc1+2:loc2]
-            sample = idline[loc2+1:loc3]
+            idLine = line.rstrip().split('\t')[0]
+            loc1 = idLine.rfind('//')
+            loc2 = idLine[:idLine.rfind(':')].rfind(':')
+            loc3 = idLine.rfind(':')
+            experiment = idLine[loc1+2:loc2]
+            sample = idLine[loc2+1:loc3]
             contig = line.rstrip().split('\t')[2]
             # Read direction
             if line.rstrip().split('\t')[1] == '+':
