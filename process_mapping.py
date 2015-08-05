@@ -158,9 +158,31 @@ def insertion_counts(bowtie_output):
         lo.append(unique_hits[i] + tuple(counts[i]))
     return(lo)
 
+def filter_counts(bowtie_output):
+    """ Filter for min 5 reads total (1 each L/R) and maximum 10-fold L/R differential
+
+    """
+    li = insertion_counts(bowtie_output)
+    lo = []
+    for i in li:
+        # minimum 5 total reads and minimum 1 read in each direction.
+        if i[4] >= 1 and i[5] >= 1 and i[6] >= 5:
+            # maximum 10-fold L/R differential
+            # L=1 R=10 ok, but not L=1 R=11
+            if not (11 * min(i[4],i[5])) < (i[6]):
+                print(i)
+                lo.append(i)
+    print(len(lo))
+
 def normalize_cpm(bowtie_output):
-    """ insert """
-    pass
+    """ Normalize every sample to 1E6 CPM
+
+    START HERE!!
+
+    """
+    # list - each insertion read listed individually
+    li = insertion_counts(bowtie_output)
+    total_counts = [sum(i[6]) for i in zip(*li)]
 
 def map_to_gene(normalized_output):
     """ insert """
@@ -171,7 +193,7 @@ def map_to_gene(normalized_output):
 
 def main():
     bowtie_output = sys.argv[1]
-    insertion_counts(bowtie_output)
+    filter_counts(bowtie_output)
 
 if __name__ == '__main__':
     main()
