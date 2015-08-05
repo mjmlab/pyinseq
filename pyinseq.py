@@ -6,13 +6,13 @@ Main script for running the pyinseq package
 
 from assign import *
 from gbkconvert import *
-from map_reads import *
-from process_mapping import *
+from mapReads import *
+from processMapping import *
 import sys
 import os
 import argparse
 
-def parse_args(args):
+def parseArgs(args):
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input',
         help='input Illumina reads file',
@@ -23,52 +23,50 @@ def parse_args(args):
     parser.add_argument('-e', '--experiment',
         help='experiment name (no spaces or special characters)',
         required=True)
-    return parser.parse_args(args)
+    return parser.parseArgs(args)
 
-# Change to the genome directory and run bowtie_build() and bowtie_map()
-class cd_bowtie:
-    def __init__(self, temp_dir, organism, reads, bowtie_output):
+# Change to the genome directory and run bowtieBuild() and bowtieMap()
+class cdCallBowtie:
+    def __init__(self, tempDir, organism, reads, bowtieOutput):
         self.savedPath = os.getcwd()
-        os.chdir(temp_dir)
-        #bowtie_build(organism)
-        bowtie_map(organism, reads, bowtie_output)
+        os.chdir(tempDir)
+        bowtieBuild(organism)
+        bowtieMap(organism, reads, bowtieOutput)
     def __del__(self):
         os.chdir(self.savedPath)
 
 # ===== Start here ===== #
 
 def main():
-    #args = parse_args(sys.argv[1:])
+    #args = parseArgs(sys.argv[1:])
     #print(args.input)
     #print(args.samples)
-    #assign_and_trim(args.input, args.samples)
     gbkfile = sys.argv[1]
     organism = sys.argv[2]
     experiment = sys.argv[3]
     reads = sys.argv[4]
     samples = sys.argv[5]
 
-    #pyinseq_directory = os.getcwd()
-    temp_dir = '{0}/temp/'.format(experiment)
+    #pyinseqDirectory = os.getcwd()
+    tempDir = '{0}/temp/'.format(experiment)
 
     # Create the directory struture based on the experiment name
-    create_directories(experiment)
+    createDirectories(experiment)
 
     # Prepare genome files from the GenBank input
-    gbk2fna(gbkfile, organism, temp_dir)
-    gbk2ftt(gbkfile, organism, temp_dir)
+    gbk2fna(gbkfile, organism, tempDir)
+    gbk2ftt(gbkfile, organism, tempDir)
 
     # Assign and trim barcodes
     # Now currently filtering by default (16-17 bp, TA at end)
     # In future could add as command line option
-    assign_and_trim(reads, samples, experiment, temp_dir)
-
+    assignAndTrim(reads, samples, experiment, tempDir)
 
     # Prepare the bowtie indexes
     # Map the reads using bowtie_map
-    reads_assigned = '{0}_assigned.fastq'.format(experiment) # already exsists
-    bowtie_output = '{0}_bowtieoutput.txt'.format(experiment) # will get created at next step
-    x = cd_bowtie(temp_dir, organism, reads_assigned, bowtie_output)
+    readsAssigned = '{0}_Assigned.fastq'.format(experiment) # already exsists
+    bowtieOutput = '{0}_BowtieOutput.txt'.format(experiment) # will get created at next step
+    x = cdCallBowtie(tempDir, organism, readsAssigned, bowtieOutput)
 
 
 

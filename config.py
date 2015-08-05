@@ -9,7 +9,7 @@ experiment = ''
 gb = ''
 
 # Barcodes (5' barcodes)
-sample_file = ''
+sampleFile = ''
 
 # Transposon end sequences
 # In many cases the transposon sequence will be the same for both ends.
@@ -18,9 +18,9 @@ sample_file = ''
 # TA dinucleotides and adding the TA here will cause those nucleotides to
 # be filtered prior to quality checking and mapping. Defaults are sequences for
 # typical mariner ends.
-transposon_left = 'ACAGGTTG'
-transposon_right = 'ACAGGTTG'
+transposonLeft = 'ACAGGTTG'
+transposonRight = 'ACAGGTTG'
 
 # Path to Bowtie
-bowtie_build = '/Users/markmandel/bowtie-1.1.1/bowtie-build'
+bowtieBuild = '/Users/markmandel/bowtie-1.1.1/bowtie-build'
 bowtie = '/Users/markmandel/bowtie-1.1.1/bowtie'
