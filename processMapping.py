@@ -27,23 +27,23 @@ def multifasta2dict(fna):
     d = {}
     with open(fna, 'r') as fi:
         header = ''
-        first_line = False # next line is first line of sequence in contig
+        firstLine = False # next line is first line of sequence in contig
         for line in fi:
             line = line.rstrip()
             if line.startswith('>'): # header line; therefore new contig
                 header = line[1:] # new header
-                first_line = True
+                firstLine = True
             else: # sequence line
-                if first_line:
+                if firstLine:
                     d[header] = line # create dictionary entry
-                    first_line = False
+                    firstLine = False
                 # would this work in one step?
                 else:
-                    appended_sequence = d[header] + line
-                    d[header] = appended_sequence
+                    appendedSequence = d[header] + line
+                    d[header] = appendedSequence
         return d
 
-def TA_sites(fna):
+def taSites(fna):
     """ Enumerate TA dinucleotides in a fasta nucleotide file
 
     Returns a dictionary of 5'-TA positions for each contig in a multifasta file.
@@ -71,7 +71,7 @@ def TA_sites(fna):
                 do[header].append(i+1)
     return do
 
-def insertion_nts(bowtie_output):
+def insertionNucleotides(bowtieOutput):
     """ Define the TA dinucleotide of the insertion from the bowtie output
 
     Note bowtie output, where bnt = bowtie nucleotide
@@ -88,7 +88,7 @@ def insertion_nts(bowtie_output):
     CHECK -- DID MY TEST FNA FILE SHIFT BY 1 NT?
 
     """
-    with open(bowtie_output, 'r') as fi:
+    with open(bowtieOutput, 'r') as fi:
         insertions = []
         for line in fi:
             # Redo this with regex
@@ -105,19 +105,19 @@ def insertion_nts(bowtie_output):
             else:
                 direction = False # minus strand read
             # Calculate transposon insertion point
-            read_length = len(line.rstrip().split('\t')[4])
+            readLength = len(line.rstrip().split('\t')[4])
             bnt = int(line.rstrip().split('\t')[3]) # bowtie nucleotide
             if direction: # positive strand read
-                insertion_nt = bnt + read_length - 1 # -2 if I made a +1 error
+                insertionNt = bnt + readLength - 1 # -2 if I made a +1 error
                 orient = 'L'
             else: # negative strand read
-                insertion_nt = bnt + 1 # delete +1 if I made a +1 error
+                insertionNt = bnt + 1 # delete +1 if I made a +1 error
                 orient = 'R'
-            new_insertion = (experiment, sample, contig, insertion_nt, orient)
-            insertions.append(new_insertion)
+            newInsertion = (experiment, sample, contig, insertionNt, orient)
+            insertions.append(newInsertion)
     return insertions
 
-def insertion_counts(bowtie_output):
+def insertionCounts(bowtieOutput):
     """ List counts for each transposon insertion:
 
     Returns a list of tuples in which the frequence of each orientation in the
@@ -128,41 +128,41 @@ def insertion_counts(bowtie_output):
 
     """
     # list - each insertion read listed individually
-    li = insertion_nts(bowtie_output)
+    li = insertionNucleotides(bowtieOutput)
 
     # list of hits in bowtie results independent of orientation
     # add placeholder integers for L, R, and Total counts
-    unique_hits = list(set([tuple(x for x in y[0:4]) for y in li]))
+    uniqueHits = list(set([tuple(x for x in y[0:4]) for y in li]))
 
     # dictionary of counts of L and R counts
-    # key is the index in the unique_hits list of tuples
+    # key is the index in the uniqueHits list of tuples
     counts = {}
-    for i in range(0,len(unique_hits)):
+    for i in range(0,len(uniqueHits)):
         counts[i] = [0, 0, 0]
 
     # loop through the bowtie output of the insertions
     # for each insertion...
-    # check the index of the read in the unique_hits list of tuples
+    # check the index of the read in the uniqueHits list of tuples
     # and incremement the L (or R) and Total counts
     for i in li:
-        hits_index = unique_hits.index(i[0:4])
+        hitsIndex = uniqueHits.index(i[0:4])
         if i[4] == 'L':
-            counts[hits_index][0] += 1  # L
-            counts[hits_index][2] += 1  # Total
+            counts[hitsIndex][0] += 1  # L
+            counts[hitsIndex][2] += 1  # Total
         if i[4] == 'R':
-            counts[hits_index][1] += 1  # R
-            counts[hits_index][2] += 1  # Total
+            counts[hitsIndex][1] += 1  # R
+            counts[hitsIndex][2] += 1  # Total
 
     lo = []
-    for i in range(0,len(unique_hits)):
-        lo.append(unique_hits[i] + tuple(counts[i]))
+    for i in range(0,len(uniqueHits)):
+        lo.append(uniqueHits[i] + tuple(counts[i]))
     return(lo)
 
-def filter_counts(bowtie_output):
+def filterCounts(bowtieOutput):
     """ Filter for min 5 reads total (1 each L/R) and maximum 10-fold L/R differential
 
     """
-    li = insertion_counts(bowtie_output)
+    li = insertionCounts(bowtieOutput)
     lo = []
     for i in li:
         # minimum 5 total reads and minimum 1 read in each direction.
@@ -174,17 +174,17 @@ def filter_counts(bowtie_output):
                 lo.append(i)
     print(len(lo))
 
-def normalize_cpm(bowtie_output):
+def normalizeCpm(bowtieOutput):
     """ Normalize every sample to 1E6 CPM
 
     START HERE!!
 
     """
     # list - each insertion read listed individually
-    li = insertion_counts(bowtie_output)
-    total_counts = [sum(i[6]) for i in zip(*li)]
+    li = insertionCounts(bowtieOutput)
+    totalCounts = [sum(i[6]) for i in zip(*li)]
 
-def map_to_gene(normalized_output):
+def mapToGene(normalizedOutput):
     """ insert """
     pass
 
@@ -192,8 +192,8 @@ def map_to_gene(normalized_output):
 # ===== Start here ===== #
 
 def main():
-    bowtie_output = sys.argv[1]
-    filter_counts(bowtie_output)
+    bowtieOutput = sys.argv[1]
+    filterCounts(bowtieOutput)
 
 if __name__ == '__main__':
     main()
