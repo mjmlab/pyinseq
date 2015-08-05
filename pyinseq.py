@@ -51,23 +51,26 @@ def main():
     tempDir = '{0}/temp/'.format(experiment)
 
     # Create the directory struture based on the experiment name
-    createDirectories(experiment)
+#    createDirectories(experiment)
 
     # Prepare genome files from the GenBank input
-    gbk2fna(gbkfile, organism, tempDir)
-    gbk2ftt(gbkfile, organism, tempDir)
+#    gbk2fna(gbkfile, organism, tempDir)
+#    gbk2ftt(gbkfile, organism, tempDir)
 
     # Assign and trim barcodes
     # Now currently filtering by default (16-17 bp, TA at end)
     # In future could add as command line option
-    assignAndTrim(reads, samples, experiment, tempDir)
+#    assignAndTrim(reads, samples, experiment, tempDir)
 
     # Prepare the bowtie indexes
     # Map the reads using bowtie_map
-    readsAssigned = '{0}_Assigned.fastq'.format(experiment) # already exsists
-    bowtieOutput = '{0}_BowtieOutput.txt'.format(experiment) # will get created at next step
-    x = cdCallBowtie(tempDir, organism, readsAssigned, bowtieOutput)
+    readsAssigned = '{0}_assigned.fastq'.format(experiment) # already exsists
+    bowtieOutput = '{0}_bowtieOutput.txt'.format(experiment) # will get created at next step
+#    x = cdCallBowtie(tempDir, organism, readsAssigned, bowtieOutput)
 
+    # Summarize the bowtie results
+    # Need more consistency in how directory locations are handled
+    insertionCounts(tempDir + bowtieOutput, experiment)
 
 
 if __name__ == '__main__':
