@@ -2,7 +2,7 @@
 
 # Experiment name
 # Used as a prefix for naming files and samples
-# Alphanumeric characters only
+# Alphanumeric characters only, no spaces
 experiment = ''
 
 # Genome file in GenBank format (concatenated GenBank if multiple contigs)
