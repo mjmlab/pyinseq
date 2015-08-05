@@ -7,6 +7,7 @@ Main script for running the pyinseq package
 from assign import *
 from gbkconvert import *
 from map_reads import *
+from process_mapping import *
 import sys
 import os
 import argparse
@@ -29,7 +30,7 @@ class cd_bowtie:
     def __init__(self, temp_dir, organism, reads, bowtie_output):
         self.savedPath = os.getcwd()
         os.chdir(temp_dir)
-        bowtie_build(organism)
+        #bowtie_build(organism)
         bowtie_map(organism, reads, bowtie_output)
     def __del__(self):
         os.chdir(self.savedPath)
@@ -50,7 +51,6 @@ def main():
     #pyinseq_directory = os.getcwd()
     temp_dir = '{0}/temp/'.format(experiment)
 
-
     # Create the directory struture based on the experiment name
     create_directories(experiment)
 
@@ -64,10 +64,12 @@ def main():
     assign_and_trim(reads, samples, experiment, temp_dir)
 
 
-
     # Prepare the bowtie indexes
     # Map the reads using bowtie_map
-    #x = cd_bowtie(temp_dir, organism, reads, '../bowtie_output.txt')
+    reads_assigned = '{0}_assigned.fastq'.format(experiment) # already exsists
+    bowtie_output = '{0}_bowtieoutput.txt'.format(experiment) # will get created at next step
+    x = cd_bowtie(temp_dir, organism, reads_assigned, bowtie_output)
+
 
 
 if __name__ == '__main__':
