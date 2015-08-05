@@ -8,6 +8,7 @@ Unrecognized barcodes get written to file_Other.fastq
 
 """
 
+import gzip
 import sys
 import os
 import argparse
