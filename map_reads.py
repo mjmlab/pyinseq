@@ -28,9 +28,6 @@ def bowtie_map(organism, reads, bowtie_output):
     # that will appear in the shell as space-separated
     subprocess.check_call(bash_command.split(' '))
 
-def map_bowtie_to_gene():
-    pass
-
 # ===== Start here ===== #
 
 def main():
