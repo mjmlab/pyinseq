@@ -10,6 +10,7 @@ Future - filter on the 16/17 bp positions before this step; maybe even before bo
 import sys
 import re
 from collections import Counter
+from operator import itemgetter
 
 def multifasta2dict(fna):
     """
@@ -117,7 +118,7 @@ def insertionNucleotides(bowtieOutput):
             insertions.append(newInsertion)
     return insertions
 
-def insertionCounts(bowtieOutput):
+def insertionCounts(bowtieOutput, experiment=''):
     """ List counts for each transposon insertion:
 
     Returns a list of tuples in which the frequence of each orientation in the
@@ -125,6 +126,8 @@ def insertionCounts(bowtieOutput):
     experiment, barcode, contig, TAnucleotide, orientation, countL, countR, countTotal
     [('Exp002', 'AAAA', 'contig1', 514141, 20, 14, 34),
     ('Exp003', 'GCTA', 'contig5', 8141, 0, 1, 1)]
+
+    Print the output to a file called <experiment>_bowtieOutputSummarized.txt
 
     """
     # list - each insertion read listed individually
@@ -156,7 +159,12 @@ def insertionCounts(bowtieOutput):
     lo = []
     for i in range(0,len(uniqueHits)):
         lo.append(uniqueHits[i] + tuple(counts[i]))
-    return(lo)
+
+    with open('{0}_bowtieOutputSummarized.fastq'.format(experiment), 'w') as fo:
+        # Sort list by first 4 columns
+        for i in sorted(lo, key=itemgetter(0,1,2,3)):
+            fo.write('\t'.join(str(item) for item in i) + '\n')
+    #return(lo)
 
 def filterCounts(bowtieOutput):
     """ Filter for min 5 reads total (1 each L/R) and maximum 10-fold L/R differential
@@ -193,7 +201,8 @@ def mapToGene(normalizedOutput):
 
 def main():
     bowtieOutput = sys.argv[1]
-    filterCounts(bowtieOutput)
+    experiment = sys.argv[2]
+    insertionCounts(bowtieOutput, experiment)
 
 if __name__ == '__main__':
     main()
