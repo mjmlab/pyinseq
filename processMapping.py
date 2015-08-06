@@ -155,7 +155,7 @@ def insertionNucleotidesCount(experiment=''):
 
     # Count the insertions (unique per experiment/sample/contig/nucleotide/orientation)
 
-    """counter = collections.Counter()
+    counter = collections.Counter()
 
     # read the raw insertion data.
     # Count identical experiment/sample/contig/nucleotide/orientation
@@ -171,7 +171,7 @@ def insertionNucleotidesCount(experiment=''):
         for tup in counter:
             for x in tup:
                 fo.write('{0}\t'.format(x.strip()))
-            fo.write('{0}\n'.format(counter[tup]))"""
+            fo.write('{0}\n'.format(counter[tup]))
 
     # read the raw count data: experiment/sample/contig/nucleotide/orientation/counts
     with open('{0}/temp/{0}_bowtieOutput_InsertionDetailCount__Temp.txt'.format(experiment), 'r') as fi2:
@@ -205,23 +205,48 @@ def insertionNucleotidesCount(experiment=''):
                 fo2.write('{0}\t'.format(str(y)))
             fo2.write('\n')
 
+def filterSortCounts(experiment=''):
+    """ Filter for min 3 reads total (1 each L/R) and maximum 10-fold L/R differential
 
-
-def filterCounts(bowtieOutput):
-    """ Filter for min 5 reads total (1 each L/R) and maximum 10-fold L/R differential
-
+    Also sort by the first four fields
     """
-    li = insertionCounts(bowtieOutput)
-    lo = []
-    for i in li:
-        # minimum 5 total reads and minimum 1 read in each direction.
-        if i[4] >= 1 and i[5] >= 1 and i[6] >= 5:
-            # maximum 10-fold L/R differential
-            # L=1 R=10 ok, but not L=1 R=11
-            if not (11 * min(i[4],i[5])) < (i[6]):
-                print(i)
-                lo.append(i)
-    print(len(lo))
+    with open('{0}/temp/{0}_bowtieOutput_InsertionDetailCount.txt'.format(experiment), 'r') as fi:
+        li = []
+        for line in fi:
+            # experiment/sample/contig/nucleotide/Lcount/Rcount/totalCount
+            tupi = tuple(line.rstrip().split('\t'))
+            li.append(tupi)
+        #print(li)
+
+        # FILTER COUNT DATA
+        lo = []
+        for l in li:
+            experiment = l[0]
+            samples = l[1]
+            contig = l[2]
+            nucleotide = l[3]
+            Lcounts = l[4]
+            Rcounts = l[5]
+            totalCounts = l[6]
+            # minimum 3 total reads and minimum 1 read in each direction.
+            if Lcounts >= 1 and Rcounts >= 1 and totalCounts >= 3:
+                # maximum 10-fold L/R differential
+                # L=1 R=10 ok, but not L=1 R=11
+                if not (11 * min(Lcounts, Rcounts)) < (totalCounts):
+                    lo.append(l)
+
+        # SORT COUNT DATA
+        loSorted = sorted(lo, key=itemgetter(0,1,2,3))
+
+        # Write sorted/filtered data to tab-delimited file
+        # experiment/sample/contig/nucleotide/Lcount/Rcount/totalCount
+        with open('{0}/temp/{0}_bowtieOutput_InsertionDetailCountFilteredSorted.txt'.format(experiment), 'w') as fo:
+            for e in loSorted:
+                for x in e:
+                    fo.write('{0}\t'.format(x.strip()))
+                fo.write('\n')
+
+
 
 def normalizeCpm(bowtieOutput):
     """ Normalize every sample to 1E6 CPM
