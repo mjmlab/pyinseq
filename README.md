@@ -1,30 +1,42 @@
 # pyinseq
 
-**Developing Python software with the following goals**
+## Description
 
-1. Reproduce the functionality in [Andy Goodman's INSeq Perl pipeline](http://www.nature.com/nprot/journal/v6/n12/extref/nprot.2011.417-S2.zip) (15 MB .zip download) with additional improvements listed below.
-2. Learn to be a better Python programmer.
+Python package to map transposon insertion sequencing (INSeq) data in bacteria
 
+## Roadmap
+
+Summarize this here and then move the rest somewhere else. Wiki?
+
+**Project purpose**
+
+Reproduce the functionality in [Andy Goodman's INSeq Perl pipeline](http://www.nature.com/nprot/journal/v6/n12/extref/nprot.2011.417-S2.zip) (15 MB .zip download) in Python to serve as a platform for additional functionality for normalization, plotting, sample management, and data analysis.
 
 **Implemented**
 
-3. Read in FASTQ files instead of SCARF. (Note that David Cronin implemented this previously for us in Perl but in a complicated way.)
-4. Demultiplex into separate files per barcode - will facilitate data deposition and analysis when samples from multiple experiments are run in the same Illumina run.
+1. Read in FASTQ files instead of SCARF. (Note that David Cronin implemented this previously for us in Perl but in a manner that is now yielding multiple errors.)
+2. Demultiplex into separate files per barcode - will facilitate data deposition and analysis when samples from multiple experiments are run in the same Illumina run.
+  - *This has since been removed from the main branch for speed but can be added back in as needed (perhaps with optimized software). It was not necessary to analyze samples from only a single run but will be necessary to analyze samples from separate runs.*
+3. Run bowtie seemlessly from within the software instead of requiring complicated index setup. Improves upon the previous software by reading a GenBank file, generating appropriately names files for Bowtie, calling bowtie-build to build indexes, and then calling bowtie for mapping. Additionally the .ftt files generated mimic the .ptt file format but additionally include RNA genes.
 
-**Need to implement for functionality**
+**Remaining to be implemented**
 
-3. Run Bowtie (or Bowtie2?) seemlessly from within the software instead of requiring complicated index setup.
-4. Finish the mapping to genes a la Goodman.
-5. Ability to analyze Left & Right transposon ends separately (may as well incorporate this up front since we will need to do this soon).
-6. Summarize analysis results in a single table (for all chromosomes/plasmids; and for all samples under analysis).
+4. Normalization. Do CPM normalization to mimic previous analysis.
+4. Map number of hits per gene.
+5. Summarize analysis results in a single table (for all chromosomes/plasmids; and for all samples under analysis).
 
-**Wish list**
+**Next steps/wish list**
 
-5. Include RNA genes.
-5. Count TA sites per gene and normalize genes per number of TA sites.
+5. Add back in demultiplexes and general method to organize samples in folders.
+6. Ability to analyze Left & Right transposon ends separately.
+  - Some code for this is already in to note L/R side on the identifier line but it has not been used.
+7. Count TA sites per gene and normalize gene size per number of TA sites.
 7. LOESS normalization to correct for more hits at origin and fewer hits at terminus.
-8. Statistical analysis of results (method TBD).
-9. Plotting of results (specific plots TBD); likely an analysis of essential and conditionally essential genes.
-10. Detailed report per sample and for entire analysis (e.g., fraction of reads that mapped successfully; variation from other samples))
+8. Statistical analysis of results (method TBD; consider DESeq2 and other RNA-seq methods).
+9. Plotting of results (specific plots TBD); likely an analysis of essential and conditionally essential genes. Consider assigning samples.
+10. Detailed reporting and logging (e.g., fraction of reads that mapped successfully; variation from other samples))
+11. Overall optimization
 
-<img src="https://cloud.githubusercontent.com/assets/8669125/8175914/1dcad01c-13b8-11e5-8ceb-1b4f64a99f13.png" width="500">
+## License
+
+Need some guidance here. Want people to be able to adapt it to their needs with attribution here as appropriate.
