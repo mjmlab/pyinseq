@@ -70,8 +70,12 @@ def main():
 
     # Summarize the bowtie results
     # Need more consistency in how directory locations are handled
-    insertionCounts(tempDir + bowtieOutput, experiment)
-
+#    insertionNucleotides(tempDir + bowtieOutput, experiment)
+#    insertionNucleotidesCount(experiment)
+#    filterSortCounts(experiment)
+    #insertionCounts(experiment) ## FOR TESTING ONLY - DOES NOT WRITE DATA
+#    normalizeCpm(experiment)
+    mapToGene(organism, experiment)
 
 if __name__ == '__main__':
     main()
