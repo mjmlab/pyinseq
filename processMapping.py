@@ -293,6 +293,13 @@ def insertionCounts(experiment=''):
 def normalizeCpm(experiment):
     """ Normalize every sample to 1E6 CPM
 
+    Returns a list of tuples:
+
+    [
+    ('Exp001', 'TTTT', 'contig1', '999401', 80.00268809031984)
+    ]
+
+    experiment, barcode, contig, TAnucleotide, normalized_counts
     """
     # list of tuples of each mapped insertion, counted
     counts = insertionCounts(experiment)
@@ -327,13 +334,14 @@ def normalizeCpm(experiment):
     #  Note that Left and Right counts are not carried through.
     normCountsAll = []
     for tupi in counts:
+        # note: can add back rawCounts if it would be valuable
+        # to have them in the output
         rawCounts = int(tupi[6])
         sample = (tupi[0], tupi[1])
         totalSampleCounts = ddTotalCountBySample[sample]
         normCounts = float(1E6) * rawCounts / totalSampleCounts
-        newTup = (tupi[0], tupi[1], tupi[2], tupi[3],
-                    rawCounts, normCounts)
-
+        newTup = (tupi[0], tupi[1], tupi[2], tupi[3], normCounts)
+        normCountsAll.append(newTup)
     return normCountsAll
 
 def mapToGene(organism, experiment=''):
@@ -348,10 +356,13 @@ def mapToGene(organism, experiment=''):
     ending nucleotide
     insertion location in gene (5' end = 0.0, 3' end = 1.0)
 
+    Note that insertions that hit multiple (overlapping) genes will have
+    multiple output lines printed.
+
     """
 
+    # Import the ftt file and process as a lookup table
     fttLookup = []
-
     with open('{0}/temp/{1}.ftt'.format(experiment, organism), 'r') as ftt:
         for line in ftt:
             # Capture contig information
@@ -368,15 +379,35 @@ def mapToGene(organism, experiment=''):
                 # 1014..4617 > 1014, 4617
                 start, end = fttImport[0].split('..')[0:2]
                 fttTemp = [contig] + [start] + [end] + fttImport[1:]
-                print(fttTemp)
                 fttLookup.append(fttTemp)
 
-    #for entry in fttLookup:
-    #    print(entry)
-
+    # Import the insertion data
     normCountsAll = normalizeCpm(experiment)
+    for sample in normCountsAll:
+        insertionContig = sample[2]
+        insertionNucleotide = int(sample[3])
+        # find which gene/feature it is in
+        for feature in fttLookup:
+            genomeContig = ''
+            featureStart = 0
+            featureEnd = 0
+            genomeContig = feature[0]
+            # number of genes/features hit.
+            # 0 = intergenic. 1 = a gene. 2 = overlapping genes.
+            # if 2, will print 2 entries in the output.
+            genesHit = 0
+            if insertionContig == genomeContig:
+                featureStart, featureEnd = int(feature[1]), int(feature[2])
+                # when looping through features save the previous one.
+                # if < featurestart then assign to previous intergenic region
+                # if >= featurestart then check in <= featureEnd.
+                #   if yes assign to that gene. Increment count
+                #   to find out if it falls in multiple genes.
+                #   Calculate where it gene it falls 5' (0.0) - 3' (1.0)
 
-
+                if featureStart <= insertionNucleotide <= featureEnd:
+                    print(sample)
+                    print(feature)
 
 def mapToGeneSummary(geneMappedInsertions, cutoff=1.0):
     """
