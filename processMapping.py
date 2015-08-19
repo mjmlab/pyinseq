@@ -386,7 +386,6 @@ def mapToGene(organism, experiment=''):
     for sample in normCountsAll:
         insertionContig = sample[2]
         insertionNucleotide = int(sample[3])
-        # find which gene/feature it is in
         for feature in fttLookup:
             genomeContig = ''
             featureStart = 0
@@ -396,18 +395,42 @@ def mapToGene(organism, experiment=''):
             # 0 = intergenic. 1 = a gene. 2 = overlapping genes.
             # if 2, will print 2 entries in the output.
             genesHit = 0
+            # flag to break out of the loop if an intergenic region is called
+            igFlag = 0
             if insertionContig == genomeContig:
                 featureStart, featureEnd = int(feature[1]), int(feature[2])
                 # when looping through features save the previous one.
-                # if < featurestart then assign to previous intergenic region
-                # if >= featurestart then check in <= featureEnd.
+                # if < featureStart then assign to previous intergenic region
+                # if >= featureStart then check in <= featureEnd.
                 #   if yes assign to that gene. Increment count
                 #   to find out if it falls in multiple genes.
                 #   Calculate where it gene it falls 5' (0.0) - 3' (1.0)
+                if insertionNucleotide >= featureStart:
+                    if insertionNucleotide <= featureEnd:
+                        genesHit += 1
+                        # TODO: Seems to be working but only the
+                        #       second hit gets noted as a double FYI!
+                        if genesHit > 1:
+                            print('***** OVERLAP *****')
+                    if igFlag == 0 and genesHit == 0:
+                        print('***** INTERGENIC ******')
+                        print(sample)
+                        print(feature)
+                        igFlag = 1
+        genesHit = 0
 
-                if featureStart <= insertionNucleotide <= featureEnd:
-                    print(sample)
-                    print(feature)
+# Not used. Considered calling from mapToGene() to simplify
+def featureLookup(queryContig, queryNucleotide, fttLookup):
+    """
+
+    fttLookup is an ftt-based lookup list of lists in the format:
+    XXXXX UPDATE HERE XXXXX
+
+    """
+    pass
+
+
+
 
 def mapToGeneSummary(geneMappedInsertions, cutoff=1.0):
     """
