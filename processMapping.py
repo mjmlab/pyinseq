@@ -308,22 +308,24 @@ def normalizeCpm(experiment):
         # Add to the total counts for that sample (barcode)
         ddTotalCountBySample[(experiment, barcode)] += readCount
 
-    # Print counts for logging
+    # TODO: Write counts for logging
+    """
     for entry in ddTotalCountBySample:
         experiment, barcode = entry
         print('{exp}\t{bc}\t{counts}'.
             format(exp=experiment, bc=barcode, counts=str(ddTotalCountBySample[entry])))
+    """
 
     # Transform the original counts data (total only) by dividing each count by
     # the total for the sample and multiplying by 1E6.
-    # resulting dataset normCountsTotal. For each tuple:
+    # resulting dataset normCountsAll. For each tuple:
     #[0] = experiment
     #[1] = barcode
     #[2] = contig
     #[3] = TAnucleotide
     #[4] = countTotal (from tupi[6] totalCounts)
     #  Note that Left and Right counts are not carried through.
-    normCountsTotal = []
+    normCountsAll = []
     for tupi in counts:
         rawCounts = int(tupi[6])
         sample = (tupi[0], tupi[1])
@@ -331,15 +333,55 @@ def normalizeCpm(experiment):
         normCounts = float(1E6) * rawCounts / totalSampleCounts
         newTup = (tupi[0], tupi[1], tupi[2], tupi[3],
                     rawCounts, normCounts)
-        print(newTup)
 
-    return normCountsTotal
+    return normCountsAll
+
+def mapToGene(organism, experiment=''):
+    """
+    Given a set of insertions with nucleotide data, provide the corresponding
+    detail from the .ftt file:
+    contig
+    locus tag
+    gene
+    product
+    beginning nucleotide
+    ending nucleotide
+    insertion location in gene (5' end = 0.0, 3' end = 1.0)
+
+    """
+
+    fttLookup = []
+
+    with open('{0}/temp/{1}.ftt'.format(experiment, organism), 'r') as ftt:
+        for line in ftt:
+            # Capture contig information
+            if line.startswith('LOCUS'):
+                contig = line.rstrip().split('\t')[1]
+            # Only print if first digit is numeric.
+            # Note that on ptt files sometimes the first digit will be a
+            # less-than sign (<) but currently we exclude those characters
+            # in generating the .ftt file. Return to this criterion if necessary.
+            # Alternate way would be first character is not 'L' (from Locus or Location)
+            if line[0].isnumeric():
+                fttImport = line.rstrip().split('\t')
+                # Split the location into separate elements:
+                # 1014..4617 > 1014, 4617
+                start, end = fttImport[0].split('..')[0:2]
+                fttTemp = [contig] + [start] + [end] + fttImport[1:]
+                print(fttTemp)
+                fttLookup.append(fttTemp)
+
+    #for entry in fttLookup:
+    #    print(entry)
+
+    normCountsAll = normalizeCpm(experiment)
 
 
 
-def mapToGene(normalizedOutput):
-    """ insert """
-    pass
+def mapToGeneSummary(geneMappedInsertions, cutoff=1.0):
+    """
+
+    """
 
 
 # ===== Start here ===== #
