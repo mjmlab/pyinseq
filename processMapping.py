@@ -2,8 +2,7 @@
 """
 Counts the bowtie hits at each position in each sample
 
-Future - filter on the 16/17 bp positions before this step; maybe even before bowtie mapping
-- change d to OrderedDict to keep contigs in order?
+Future - change d to OrderedDict to keep contigs in order?
 
 """
 
@@ -13,6 +12,7 @@ import csv
 import collections
 from operator import itemgetter
 
+# Not currently called in the pipeline.
 def multifasta2dict(fna):
     """
     Returns a dictionary of fasta headers and sequences
@@ -45,6 +45,7 @@ def multifasta2dict(fna):
                     d[header] = appendedSequence
         return d
 
+# Not currently called in the pipeline.
 def taSites(fna):
     """ Enumerate TA dinucleotides in a fasta nucleotide file
 
@@ -132,13 +133,21 @@ def insertionNucleotides(bowtieOutput, experiment=''):
 def insertionNucleotidesCount(experiment=''):
     """ List counts for each transposon insertion:
 
-    NOT PRECISE ANYMORE -- UPDATE THIS DOCSTRING
+    Prints a tab-delimited file {experiment}/temp/{experiment}_bowtieOutput_InsertionDetailCount.txt
+    in which the count of each insertion, for each orientation (left/right) is listed
+    as follows (unsorted):
+    Exp002  AAAA  contig1  514141  20  14  34
+    Exp003  GCTA  contig5  8141  0  1  1
+    Columns represent:
+    experiment | barcode | contig | TAnucleotide | countL | countR | countTotal
 
-    Returns a list of tuples in which the frequence of each orientation in the
-    dataset is listed:
-    experiment, barcode, contig, TAnucleotide, orientation, countL, countR, countTotal
-    [('Exp002', 'AAAA', 'contig1', 514141, 20, 14, 34),
-    ('Exp003', 'GCTA', 'contig5', 8141, 0, 1, 1)]
+    ---
+
+    As an intermediate step the data are first written to file
+    {experiment}/temp/{experiment}_bowtieOutput_InsertionDetailCount__Temp.txt'
+    in the following format (unsorted):
+    Exp002  AAAA  contig1  514141  L  20
+    Exp002  AAAA  contig1  514141  R  14
 
     Print output tab-delimited in a file called <experiment>_bowtieOutput_InsertionDetailCount.txt
 
