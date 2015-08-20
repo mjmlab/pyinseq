@@ -383,10 +383,13 @@ def mapToGene(organism, experiment=''):
 
     # Import the insertion data
     normCountsAll = normalizeCpm(experiment)
+    mappedHitList = []
     for sample in normCountsAll:
         insertionContig = sample[2]
         insertionNucleotide = int(sample[3])
-        for feature in fttLookup:
+        # Used to save previous feature for intergenic calling
+        prevFeature = ''
+        for i, feature in enumerate(fttLookup):
             genomeContig = ''
             featureStart = 0
             featureEnd = 0
@@ -395,42 +398,64 @@ def mapToGene(organism, experiment=''):
             # 0 = intergenic. 1 = a gene. 2 = overlapping genes.
             # if 2, will print 2 entries in the output.
             genesHit = 0
-            # flag to break out of the loop if an intergenic region is called
-            igFlag = 0
             if insertionContig == genomeContig:
                 featureStart, featureEnd = int(feature[1]), int(feature[2])
-                # when looping through features save the previous one.
-                # if < featureStart then assign to previous intergenic region
-                # if >= featureStart then check in <= featureEnd.
-                #   if yes assign to that gene. Increment count
-                #   to find out if it falls in multiple genes.
-                #   Calculate where it gene it falls 5' (0.0) - 3' (1.0)
+                orientation = feature[3]
+                TAnucleotide = float(sample[3])
                 if insertionNucleotide >= featureStart:
                     if insertionNucleotide <= featureEnd:
+                        # 0.0 = 5'end ; 1.0 = 3'end
+
+                        """Scratch for calculating threePrimeness:
+                        Hypothetical gene coordinates of start 1000, end 5000
+                        >>>>>>>>>>>
+                        insertion @2000 should be 1000 into a 4001 bp gene. Therefore
+                        1000/4001 = 0.25
+                        <<<<<<<<<<<
+                        @2000 should be 3001 into a 4001 bp gene Therefore
+                        3000/4000 = 0.75
+                        pseudocode...
+                        if orientation +:
+                        (insertion - start) / (end + 1 - start)
+                        if orientation -:
+                        (end + 1 - insertion) / (end + 1 -start)"""
+
+                        if orientation == '+':
+                            threePrimeness = (TAnucleotide - featureStart) / \
+                                (featureEnd + 1 - featureStart)
+                        if orientation == '-':
+                            threePrimeness = (featureEnd + 1 - TAnucleotide) / \
+                                (featureEnd + 1 - featureStart)
+                        sampleDetails = [sample[0], sample[1], sample[2], \
+                            sample[3], sample[4], threePrimeness]
+                        featureDetails = [feature[6], feature[7], \
+                            feature[10], feature[1], feature[2], \
+                            feature[3], feature[4], feature[5]]
+
+                        # experiment, barcode, contig, TAnucleotide, CPM,
+                        # threePrimeness, gene, locusTag, description,
+                        # featureStart, featureEnd, strand, length, PID
+                        mappedHit = sampleDetails + featureDetails
+                        #mappedHitList.append(mappedHit)
+                        print(mappedHit)
+                        # counts for overlap. Not being used currently
                         genesHit += 1
-                        # TODO: Seems to be working but only the
-                        #       second hit gets noted as a double FYI!
-                        if genesHit > 1:
-                            print('***** OVERLAP *****')
-                    if igFlag == 0 and genesHit == 0:
-                        print('***** INTERGENIC ******')
-                        print(sample)
-                        print(feature)
-                        igFlag = 1
+                        
+                    # TODO: Intergenic regions
+                    # The logic here is only a start.
+                    # Also note that intergenic hits at the end of a contig
+                    # should be listed as between the last gene of the contig
+                    # and the first gene of the *same* contig.
+                    else:
+                        pass
+                        #if genesHit == 0
+                        #    try:
+                        #        print(fttLookup[i+1])  # the feature after (feature)
+                        #    except:
+                        #        print(fttLookup[0])
+            prevFeature = feature
         genesHit = 0
-
-# Not used. Considered calling from mapToGene() to simplify
-def featureLookup(queryContig, queryNucleotide, fttLookup):
-    """
-
-    fttLookup is an ftt-based lookup list of lists in the format:
-    XXXXX UPDATE HERE XXXXX
-
-    """
-    pass
-
-
-
+    print(mappedHitList)
 
 def mapToGeneSummary(geneMappedInsertions, cutoff=1.0):
     """
