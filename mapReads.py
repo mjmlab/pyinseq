@@ -26,6 +26,7 @@ def bowtieMap(organism, reads, bowtieOutput):
         .format(config.bowtie, organism, reads, bowtieOutput)
     # Convert bash command to run properly - no spaces; instead list of entries
     # that will appear in the shell as space-separated
+    # Consider shlex.split() instead of split() -- any benefit here?
     subprocess.check_call(bashCommand.split(' '))
 
 # ===== Start here ===== #
