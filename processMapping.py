@@ -344,24 +344,15 @@ def normalizeCpm(experiment):
         normCountsAll.append(newTup)
     return normCountsAll
 
-def mapToGene(organism, experiment=''):
+def fttLookupTable(organism, experiment=''):
     """
-    Given a set of insertions with nucleotide data, provide the corresponding
-    detail from the .ftt file:
-    contig
-    locus tag
-    gene
-    product
-    beginning nucleotide
-    ending nucleotide
-    insertion location in gene (5' end = 0.0, 3' end = 1.0)
+    Import the ftt file and process as a lookup table
 
-    Note that insertions that hit multiple (overlapping) genes will have
-    multiple output lines printed.
+    No headers
+    Includes the contig in every row
+    Separates out the start..end to separate start, end
 
     """
-
-    # Import the ftt file and process as a lookup table
     fttLookup = []
     with open('{0}/temp/{1}.ftt'.format(experiment, organism), 'r') as ftt:
         for line in ftt:
@@ -380,6 +371,26 @@ def mapToGene(organism, experiment=''):
                 start, end = fttImport[0].split('..')[0:2]
                 fttTemp = [contig] + [start] + [end] + fttImport[1:]
                 fttLookup.append(fttTemp)
+    return fttLookup
+
+def mapToGene(organism, experiment=''):
+    """
+    Given a set of insertions with nucleotide data, provide the corresponding
+    detail from the .ftt file:
+    contig
+    locus tag
+    gene
+    product
+    beginning nucleotide
+    ending nucleotide
+    insertion location in gene (5' end = 0.0, 3' end = 1.0)
+
+    Note that insertions that hit multiple (overlapping) genes will have
+    multiple output lines printed.
+
+    """
+
+    fttLookup = fttLookupTable(organism, experiment)
 
     # Import the insertion data
     normCountsAll = normalizeCpm(experiment)
@@ -406,26 +417,13 @@ def mapToGene(organism, experiment=''):
                     if insertionNucleotide <= featureEnd:
                         # 0.0 = 5'end ; 1.0 = 3'end
 
-                        """Scratch for calculating threePrimeness:
-                        Hypothetical gene coordinates of start 1000, end 5000
-                        >>>>>>>>>>>
-                        insertion @2000 should be 1000 into a 4001 bp gene. Therefore
-                        1000/4001 = 0.25
-                        <<<<<<<<<<<
-                        @2000 should be 3001 into a 4001 bp gene Therefore
-                        3000/4000 = 0.75
-                        pseudocode...
-                        if orientation +:
-                        (insertion - start) / (end + 1 - start)
-                        if orientation -:
-                        (end + 1 - insertion) / (end + 1 -start)"""
-
+                        # TODO: Should featureEnd had +1 added?
                         if orientation == '+':
                             threePrimeness = (TAnucleotide - featureStart) / \
-                                (featureEnd + 1 - featureStart)
+                                (featureEnd - featureStart)
                         if orientation == '-':
-                            threePrimeness = (featureEnd + 1 - TAnucleotide) / \
-                                (featureEnd + 1 - featureStart)
+                            threePrimeness = (featureEnd - TAnucleotide) / \
+                                (featureEnd - featureStart)
                         sampleDetails = [sample[0], sample[1], sample[2], \
                             sample[3], sample[4], threePrimeness]
                         featureDetails = [feature[6], feature[7], \
@@ -436,11 +434,11 @@ def mapToGene(organism, experiment=''):
                         # threePrimeness, gene, locusTag, description,
                         # featureStart, featureEnd, strand, length, PID
                         mappedHit = sampleDetails + featureDetails
-                        #mappedHitList.append(mappedHit)
+                        mappedHitList.append(mappedHit)
                         print(mappedHit)
                         # counts for overlap. Not being used currently
                         genesHit += 1
-                        
+
                     # TODO: Intergenic regions
                     # The logic here is only a start.
                     # Also note that intergenic hits at the end of a contig
@@ -455,12 +453,19 @@ def mapToGene(organism, experiment=''):
                         #        print(fttLookup[0])
             prevFeature = feature
         genesHit = 0
-    print(mappedHitList)
+    #print(mappedHitList)
 
 def mapToGeneSummary(geneMappedInsertions, cutoff=1.0):
     """
+    For each entry in a feature table (.ftt) list the summary of hits
+    for each sample in the experiment
 
+    Count only those hits that fall at or below the cutoff specified.
+    e.g., cutoff=0.9 means that genes with threePrimess <= 0.9 will be counted
+    and hits in the 3-prime most ~10% of the gene will not be included.
     """
+
+
 
 
 # ===== Start here ===== #
