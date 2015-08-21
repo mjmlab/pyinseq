@@ -27,7 +27,7 @@ Reproduce the functionality in [Andy Goodman's INSeq Perl pipeline](http://www.n
 
 **Next steps/wish list**
 
-5. Add back in demultiplexes and general method to organize samples in folders.
+5. Add back in demultiplexing and general method to organize samples in folders.
 6. Ability to analyze Left & Right transposon ends separately.
   - Some code for this is already in to note L/R side on the identifier line but it has not been used.
 7. Count TA sites per gene and normalize gene size per number of TA sites.
