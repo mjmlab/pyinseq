@@ -455,18 +455,36 @@ def mapToGene(organism, experiment=''):
         genesHit = 0
     #print(mappedHitList)
 
-def mapToGeneSummary(geneMappedInsertions, cutoff=1.0):
+def mapToGeneSummary(cutoff, organism, experiment=''):
     """
     For each entry in a feature table (.ftt) list the summary of hits
     for each sample in the experiment
 
     Count only those hits that fall at or below the cutoff specified.
-    e.g., cutoff=0.9 means that genes with threePrimess <= 0.9 will be counted
+    e.g., cutoff=0.9 means that genes with threePrimeness <= 0.9 will be counted
     and hits in the 3-prime most ~10% of the gene will not be included.
     """
 
+    featureTable = fttLookupTable(organism, experiment)
+    baseHeader = ['Contig', 'Start', 'End', 'Strand', 'Length', 'PID',
+        'Gene', 'Synonym', 'Code', 'COG', 'Product']
 
+    # Add header row to ftt file
+    featureTable.insert(0, baseHeader)
 
+    # Get individual mapped hits
+    mappedHitList = mapToGene(organism, experiment)
+
+    ## IF barcode is in header[:-1] then check gene and threePrimeness.
+    ## IF barcode is not in header, add it. Then check gene....
+
+    i = 0
+    for feature in featureTable:
+            print(i, feature)
+            print(len(feature))
+            i += 1
+            if i > 20:
+                break
 
 # ===== Start here ===== #
 
