@@ -476,7 +476,9 @@ def mapToGeneSummary(cutoff, organism, experiment=''):
     mappedHitList = mapToGene(organism, experiment)
 
     ## IF barcode is in header[:-1] then check gene and threePrimeness.
-    ## IF barcode is not in header, add it. Then check gene....
+    ## IF barcode is not in header, add it + [barcode]. Then check gene....
+    ## For each gene do the math in a variable. Then add the result of that variable
+    ## before moving on to the next feature. Every feature needs a 0 or a higher value.
 
     i = 0
     for feature in featureTable:
