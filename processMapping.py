@@ -452,6 +452,11 @@ def mapToGene(organism, experiment=''):
                         #        print(fttLookup[0])
             prevFeature = feature
         genesHit = 0
+    with open('{0}/temp/{0}_bowtieOutput_MappedToGeneDetail.txt'.format(experiment), 'w') as fo:
+        for hit in mappedHitList:
+            for entry in hit:
+                fo.write('{0}\t'.format(entry))
+            fo.write('\n')
     return mappedHitList
 
 def mapToGeneSummary(cutoff, organism, experiment=''):
@@ -514,8 +519,11 @@ def mapToGeneSummary(cutoff, organism, experiment=''):
                 # In future should I instead create an index field in the .ftt?
                 if hit[7] == f[7]:
                     featureTable[i][currentColumn] += hit[4]
-    #with open('{0}/temp/{1}.ftt'.format(experiment, organism), 'r') as ftt:
-    print(featureTable)
+    with open('{0}/temp/{0}_bowtieOutput_MappedToGeneSummary.txt'.format(experiment), 'w') as fo:
+        for line in featureTable:
+            for entry in line:
+                fo.write('{0}\t'.format(entry))
+            fo.write('\n')
 
 
 # ===== Start here ===== #
