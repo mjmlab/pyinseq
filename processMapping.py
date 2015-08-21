@@ -435,7 +435,6 @@ def mapToGene(organism, experiment=''):
                         # featureStart, featureEnd, strand, length, PID
                         mappedHit = sampleDetails + featureDetails
                         mappedHitList.append(mappedHit)
-                        print(mappedHit)
                         # counts for overlap. Not being used currently
                         genesHit += 1
 
@@ -453,7 +452,7 @@ def mapToGene(organism, experiment=''):
                         #        print(fttLookup[0])
             prevFeature = feature
         genesHit = 0
-    #print(mappedHitList)
+    return mappedHitList
 
 def mapToGeneSummary(cutoff, organism, experiment=''):
     """
@@ -466,6 +465,9 @@ def mapToGeneSummary(cutoff, organism, experiment=''):
     """
 
     featureTable = fttLookupTable(organism, experiment)
+
+    # Header will be extended in the future to
+    # list the experiment and barcode of each sample of interest
     baseHeader = ['Contig', 'Start', 'End', 'Strand', 'Length', 'PID',
         'Gene', 'Synonym', 'Code', 'COG', 'Product']
 
@@ -480,13 +482,41 @@ def mapToGeneSummary(cutoff, organism, experiment=''):
     ## For each gene do the math in a variable. Then add the result of that variable
     ## before moving on to the next feature. Every feature needs a 0 or a higher value.
 
-    i = 0
-    for feature in featureTable:
-            print(i, feature)
-            print(len(feature))
-            i += 1
-            if i > 20:
-                break
+    # - featureTable[0][-1] barcode.         For feature in table....:
+    #Set up table with index, start, end.
+    # Match for all in a barcode then add to entries. Repeat for next barcode.
+
+    # current column, sample being matched
+    # sample format is experiment:barcode
+    currentColumn = len(featureTable[0])-1
+    currentSample = ''
+
+    for hit in mappedHitList:
+        currentSample = featureTable[0][-1]
+        sample = ('{exp}:{sample}'.format(exp=str(hit[0]), sample=str(hit[1])))
+        threePrimeness = int(hit[5])
+        if currentSample != sample:
+            # Add the new sample (experiment:barcode) as a new column the table
+            # and fill in entire column with 0's
+            currentColumn += 1
+            featureTable[0].append(sample)
+            # Fill the rest of the new column with 0 as the count for each gene
+            for feature in featureTable[1:]:
+                feature.append(0)
+        # Go through each hit in the mappedHitList for that barcode and
+        # add the normalized counts to the respective gene if the hit falls
+        # within the 5' cutoff
+        if threePrimeness <= cutoff:
+            for i, f in enumerate(featureTable):
+                hitLocusTag = hit[7]
+                fttLocusTag = f[7]
+                # matches based on locusTag.
+                # In future should I instead create an index field in the .ftt?
+                if hit[7] == f[7]:
+                    featureTable[i][currentColumn] += hit[4]
+    #with open('{0}/temp/{1}.ftt'.format(experiment, organism), 'r') as ftt:
+    print(featureTable)
+
 
 # ===== Start here ===== #
 
