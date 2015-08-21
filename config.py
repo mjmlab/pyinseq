@@ -22,5 +22,5 @@ transposonLeft = 'ACAGGTTG'
 transposonRight = 'ACAGGTTG'
 
 # Path to Bowtie
-bowtieBuild = '/Users/markmandel/bowtie-1.1.1/bowtie-build'
 bowtie = '/Users/markmandel/bowtie-1.1.1/bowtie'
+bowtieBuild = '/Users/markmandel/bowtie-1.1.1/bowtie-build'
