@@ -74,8 +74,9 @@ def main():
 #    insertionNucleotidesCount(experiment)
 #    filterSortCounts(experiment)
     #insertionCounts(experiment) ## FOR TESTING ONLY - DOES NOT WRITE DATA
-#    normalizeCpm(experiment)
-    mapToGene(organism, experiment)
+#    normalizeCpm(experiment) ## FOR TESTING ONLY UNLESS WE WANT IT TO WRITE DATA
+#    mapToGene(organism, experiment) ## FOR TESTING ONLY UNLESS WE WANT IT TO WRITE DATA
+    mapToGeneSummary(1.0, organism, experiment)  # First parameter is threePrimeness cutoff
 
 if __name__ == '__main__':
     main()
