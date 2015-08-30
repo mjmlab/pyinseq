@@ -38,6 +38,8 @@ Start at `pyinseq.py` and that calls the other scripts/modules as needed. Lines 
 10. Detailed reporting and logging (e.g., fraction of reads that mapped successfully; variation from other samples))
 11. Overall optimization
 
+See the [Roadmap file](roadmap.md) for info on specific items to be implemented, including bugs in this version.
+
 # License
 
 Want people to be able to adapt it to their needs with attribution here as appropriate. So I should find an appropriate license that captures that...
