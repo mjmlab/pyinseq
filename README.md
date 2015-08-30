@@ -26,8 +26,6 @@ Start at `pyinseq.py` and that calls the other scripts/modules as needed. Lines 
 4. Map number of hits per gene.
 5. Summarize analysis results in a single table (for all chromosomes/plasmids; and for all samples under analysis).
 
-See the [Roadmap file](roadmap.md) for info on specific items to be implemented, including bugs in this version.
-
 # Next steps/wish list
 
 5. Add back in demultiplexing and general method to organize samples in folders.
