@@ -22,7 +22,7 @@ Reproduce the functionality in [Andy Goodman's INSeq Perl pipeline](http://www.n
 4. Map number of hits per gene.
 5. Summarize analysis results in a single table (for all chromosomes/plasmids; and for all samples under analysis).
 
-See the [Roadmap file](Roadmap.md) for info on specific items to be implemented, including bugs in this version.
+See the [Roadmap file](roadmap.md) for info on specific items to be implemented, including bugs in this version.
 
 # Next steps/wish list
 
