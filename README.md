@@ -12,6 +12,8 @@ I've been using this in-house but there are still some bugs. Many steps are comm
 
 Reproduce the functionality in [Andy Goodman's INSeq Perl pipeline](http://www.nature.com/nprot/journal/v6/n12/extref/nprot.2011.417-S2.zip) (15 MB .zip download) in Python to serve as a platform for additional functionality for normalization, plotting, sample management, and data analysis.
 
+Immediate next steps will include multiple quality checks on the run and distinguishing the directionality of the transposon for a new transposon being built. 
+
 Start at `pyinseq.py` and that calls the other scripts/modules as needed. Lines commented out at the far left need to be uncommented, then checked with a full run with test data.
 
 # Implemented
