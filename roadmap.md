@@ -1,10 +1,5 @@
 # Highest priority / bugs
-- [ ] **Generate test datasets to assess the software**
-- [ ] **CPM are binning at 10/100/1000** Is this a float() error in the code?
-- [ ] **Barcodes are being included even if they are not in barcode list**
-- [ ] **Summary of results and logging**
-- [ ] **`filterSortCounts()` - sorts nucleotide 150000 before 180 (incorrectly sorting as string?).**
-- [ ] Add command line flags
+- [ ] Add command line flags (move away from argv)
 - [ ] Remove need to name the organism; instead call the files genome.ftt etc. Parse the organism/contig names from the GenBank file and FNA file and add it to the log information.
 
 # Documentation
