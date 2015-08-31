@@ -6,7 +6,7 @@ Python package to map transposon insertion sequencing (INSeq) data in bacteria
 
 # Current status
 
-I've been using this in-house but there are still some bugs. Many steps are commented out.
+I've been using this in-house but there are still some bugs. Many steps are commented out. Need to take a quick break and will return to work on it ~Sep 12.
 
 # Project purpose
 
