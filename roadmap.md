@@ -1,3 +1,5 @@
+# Once the pipeline is operational, all of these items will get transitioned to either Issues or the Wiki. These are my semi-organized ongoing notes and I haven't had a chance to sort through all of them yet.
+
 # Highest priority / bugs
 - [ ] Add command line flags (move away from argv)
 - [ ] Remove need to name the organism; instead call the files genome.ftt etc. Parse the organism/contig names from the GenBank file and FNA file and add it to the log information.
@@ -42,4 +44,4 @@
 - [ ] Extract COG from /note field in Refseq GBK files?
 
 # Low priority/next steps
-- [ ] Multiprocessing
+- [ ] Multiprocessing/multithreading
