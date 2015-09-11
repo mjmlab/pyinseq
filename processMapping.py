@@ -364,7 +364,7 @@ def fttLookupTable(organism, experiment=''):
             # less-than sign (<) but currently we exclude those characters
             # in generating the .ftt file. Return to this criterion if necessary.
             # Alternate way would be first character is not 'L' (from Locus or Location)
-            if line[0].isnumeric():
+            if unicode(line[0], 'utf-8').isnumeric():
                 fttImport = line.rstrip().split('\t')
                 # Split the location into separate elements:
                 # 1014..4617 > 1014, 4617
