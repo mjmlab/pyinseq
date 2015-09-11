@@ -240,7 +240,7 @@ def filterSortCounts(experiment=''):
             Rcounts = l[5]
             totalCounts = l[6]
             # minimum 3 total reads and minimum 1 read in each direction.
-            if Lcounts >= 1 and Rcounts >= 1 and totalCounts >= 3:
+            if int(Lcounts) >= 1 and int(Rcounts) >= 1 and int(totalCounts) >= 3:
                 # maximum 10-fold L/R differential
                 # L=1 R=10 ok, but not L=1 R=11
                 if not (11 * min(Lcounts, Rcounts)) < (totalCounts):
