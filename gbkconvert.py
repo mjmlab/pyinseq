@@ -8,8 +8,8 @@ Convert GenBank sequence to fasta sequence
 Multilocus GenBank converts to one multifasta GenBank file
 Locus headers are the fasta headers
 Maintains original newlines (typically leaving up to 60 nucleotides per line)
-File is written to genome/ directory for the EXPERIMENT:
-    EXPERIMENT/genome/ORGANISM.fna
+File is written to temp/ directory for the EXPERIMENT:
+    EXPERIMENT/temp/genome.fna
 
 # gbk2ftt()
 Convert GenBank to feature table
@@ -21,12 +21,14 @@ Format similar to .ptt and .rnt files, including the following features:
 Multilocus GenBank converts to multi-.ftt file
 Locus headers are the file names (locus.ftt)
 Unlike .ptt files that show the number of amino acids as 'length'
-File is written to genome/ directory for the EXPERIMENT:
-    EXPERIMENT/genome/ORGANISM.ftt
+File is written to temp/ directory for the EXPERIMENT:
+    EXPERIMENT/temp/genome.ftt
 
 """
 
-import sys, os
+import sys
+import os
+import re
 
 def gbk2fna(infile, organism, outputdirectory=''):
     with open(infile, 'r') as fi:
@@ -120,7 +122,8 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                             new_feature = True # Feature that should be written
                             new_feature_type = line[5:21].rstrip()
 
-                            # Remove any < or > characters
+
+                            # SIMPLE FEATURES - TWO COORDINATES, FORWARD OR COMPLEMENT
                             # Minus strand if the location begin with 'complement'/'c'
                             if parts[1][0] == 'c':
                                 strand = '-'
@@ -129,13 +132,38 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                                 strand = '+'
                                 location_raw = parts[1]
 
+
+                            # MILDLY COMPLICATED FEATURES
+                            # e.g., join(481257..481331,481333..482355)
+                            # it just reports outer bounds: 481257..482355
+                            # assumes not too complicated! - feature on same strand, on same contig
+
+                            # Regex to pull out start location = (?<=\()(\d+)(?=\.\.)
+                                # Matches digits in: (digits..
+                            # Regex to pull out end location = (?<=\.\.)(\d+)(?=\))
+                                # Matches digits in: ..digits)
+
+                            # Addressses this case: 'join(481257..481331,481333..482355)'
+                            # TODO: join(complement(1..5,7..10))
+                            if parts[1].startswith('join'):
+                                start_match = re.search(r'(?<=\()(\d+)(?=\.\.)', parts[1])
+                                end_match = re.search(r'(?<=\.\.)(\d+)(?=\))', parts[1])
+                                try:
+                                    location_raw = '{0}..{1}'.format(start_match.group(), end_match.group())
+                                except AttributeError:
+                                    errorComplexFeature = \
+                                    'PyINSeq Error: Complex feature coordinates at or near {0} ' \
+                                    'in GenBank file. Additional attention required.'.format(locus_tag)
+                                    print(errorComplexFeature)
+                                    exit(0)
+
                             # Process location info:
                             # Strip out < and > and note that may not be
                             # ... divisible by 3 for CDS if gene is at end of contig
-                            first = location_raw[0:location_raw.index('..')].strip('<>')
-                            last = location_raw[location_raw.index('..')+2:].strip('<>')
+                            first = location_raw[:location_raw.find('..')].strip('<>')
+                            last = location_raw[location_raw.rfind('..')+2:].strip('<>')
                             location = '{0}..{1}'.format(first, last)
-                            length = int(last)- int(first) + 1
+                            length = int(last) - int(first) + 1
 
                         if '/protein_id=' in parts[0]:
                             protein_id = parts[0][13:-1]
