@@ -49,8 +49,6 @@ def main():
     reads = args.input
     samples = args.samples
 
-    print(gbkfile, experiment, reads, samples)
-
     # originally this was to name the organism, e.g. VF for Vfischeri
     # it really only was used to name the genome files so it doesn't
     # seem worth to use it as a variable. Will replace it simply
