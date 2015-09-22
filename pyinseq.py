@@ -23,7 +23,10 @@ def parseArgs(args):
     parser.add_argument('-e', '--experiment',
         help='experiment name (no spaces or special characters)',
         required=True)
-    return parser.parseArgs(args)
+    parser.add_argument('-g', '--genome',
+        help='genome in GenBank format (one concatenated file for multiple contigs/chromosomes)',
+        required=True)
+    return parser.parse_args(args)
 
 # Change to the specified directory
 # http://stackoverflow.com/a/13197763
@@ -40,13 +43,13 @@ class cd:
 # ===== Start here ===== #
 
 def main():
-    #args = parseArgs(sys.argv[1:])
-    #print(args.input)
-    #print(args.samples)
-    gbkfile = sys.argv[1]
-    experiment = sys.argv[2]
-    reads = sys.argv[3]
-    samples = sys.argv[4]
+    args = parseArgs(sys.argv[1:])
+    gbkfile = args.genome
+    experiment = args.experiment
+    reads = args.input
+    samples = args.samples
+
+    print(gbkfile, experiment, reads, samples)
 
     # originally this was to name the organism, e.g. VF for Vfischeri
     # it really only was used to name the genome files so it doesn't
@@ -80,9 +83,6 @@ def main():
     with cd(tempDir):
         bowtieBuild(organism)
         bowtieMap(organism, readsAssigned, bowtieOutput)
-
-
-    #x = cdCallBowtie(tempDir, organism, readsAssigned, bowtieOutput)
 
     # Summarize the bowtie results
     # Need more consistency in how directory locations are handled
