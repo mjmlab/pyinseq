@@ -213,7 +213,7 @@ def insertionNucleotidesCount(experiment=''):
             fo2.write('\n')
 
 def filterSortCounts(experiment=''):
-    """ Filter for min 3 reads total (1 each L/R) and maximum 10-fold L/R differential
+    """ Filter for min 1 L read, 1 R read and maximum 10-fold L/R differential
 
     Also sort by the first four fields
 
@@ -232,19 +232,16 @@ def filterSortCounts(experiment=''):
         # FILTER COUNT DATA
         lo = []
         for l in li:
-            experiment = l[0]
-            samples = l[1]
-            contig = l[2]
-            nucleotide = l[3]
-            Lcounts = l[4]
-            Rcounts = l[5]
-            totalCounts = l[6]
-            # minimum 3 total reads and minimum 1 read in each direction.
-            if int(Lcounts) >= 1 and int(Rcounts) >= 1 and int(totalCounts) >= 3:
+            experiment, samples, contig, nucleotide, Lcounts, Rcounts, \
+                totalCounts = l[0:7]
+            lo.append(l)
+            # TODO: RETURN TO FILTERING BELOW
+            """# minimum 1 read in each direction.
+            if int(Lcounts) >= 1 and int(Rcounts) >= 1:
                 # maximum 10-fold L/R differential
                 # L=1 R=10 ok, but not L=1 R=11
                 if not (11 * min(Lcounts, Rcounts)) < (totalCounts):
-                    lo.append(l)
+                    lo.append(l)"""
 
         # SORT COUNT DATA
         loSorted = sorted(lo, key=itemgetter(0,1,2,3))
