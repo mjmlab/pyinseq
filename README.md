@@ -1,20 +1,53 @@
 # pyinseq
 
-## Description
+# Description
 
 Python package to map transposon insertion sequencing (INSeq) data in bacteria
 
+# Installation
+
+**Dependencies**
+[bowtie](http://bowtie-bio.sourceforge.net/index.shtml) - Latest version tested here is bowtie 1.1.1.
+
+**Download**
+Download and open the zip file for the pyinseq package (or git clone).
+
+**Config**
+Edit the `config.py` file with the path to your bowtie installation and any other relevant changes.
+
+# Running the software
+
+In general, place all input files in the `pyinseq/` directory. Each time the software is run an experiment directory is created that contains the analysis files for that experiment.
+
+`$ python2.7 pyinseq.py -i reads.fastq -s samples.txt -g genome.gb -e exp01`
+
+`python2.7` - Python 2.7 required
+`pyinseq.py` - main script
+`-i` / `--input` - concatenated genbank file for all contigs for the genome
+`-e` / `--experiment` - all results files will be created in the subfolder of this name
+`-i` / `--input` - Illumina reads file in FASTQ format
+`-s` / `--samples` - sample list where each line is the `sample_name`tab`barcode(4bp)`
+
+Run with example data:
+
+`$ python2.7 pyinseq.py -i example01.fastq -s example01.txt -g ES114v2.gb -e example01`
+
+# Example data sets included
+
+**example01 : Artificial data to test math with a limited dataset**
+Genome: Vibrio fischeri ES114 genome (2 chromsomes, 1 plasmid).
+Reads: [TEST DATA COMING SOON. HOPEFULLY TONIGHT]
+
 # Current status
 
-I've been using this in-house but there are still some bugs. Many steps are commented out. Need to take a quick break and will return to work on it ~Sep 12. At that point I will get the base pipeline operational. Information in the README.md and Roadmap.md files will transition to the Issues page or to the Wiki page. There will then be some basic documentation here about how to run the software with the test data sets.
+**Highest priority right now -- getting test data sets ready.**
 
 # Project purpose
 
 Reproduce the functionality in [Andy Goodman's INSeq Perl pipeline](http://www.nature.com/nprot/journal/v6/n12/extref/nprot.2011.417-S2.zip) (15 MB .zip download) in Python to serve as a platform for additional functionality for normalization, plotting, sample management, and data analysis.
 
-Immediate next steps will include multiple quality checks on the run and distinguishing the directionality of the transposon for a new transposon being built. 
+Immediate next steps will include multiple quality checks on the run and distinguishing the directionality of the transposon for a new transposon being built.
 
-Start at `pyinseq.py` and that calls the other scripts/modules as needed. Lines commented out at the far left need to be uncommented, then checked with a full run with test data.
 
 # Implemented
 
@@ -42,4 +75,4 @@ See the [Roadmap file](roadmap.md) for info on specific items to be implemented,
 
 # License
 
-Want people to be able to adapt it to their needs with attribution here as appropriate. So I should find an appropriate license that captures that...
+BSD license as detailed in the [license file](LICENSE.md).
