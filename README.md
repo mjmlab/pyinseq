@@ -7,12 +7,15 @@ Python package to map transposon insertion sequencing (INSeq) data in bacteria
 # Installation
 
 **Dependencies**
+
 [bowtie](http://bowtie-bio.sourceforge.net/index.shtml) - Latest version tested here is bowtie 1.1.1.
 
 **Download**
+
 Download and open the zip file for the pyinseq package (or git clone).
 
 **Config**
+
 Edit the `config.py` file with the path to your bowtie installation and any other relevant changes.
 
 # Running the software
@@ -22,10 +25,15 @@ In general, place all input files in the `pyinseq/` directory. Each time the sof
 `$ python2.7 pyinseq.py -i reads.fastq -s samples.txt -g genome.gb -e exp01`
 
 `python2.7` - Python 2.7 required
+
 `pyinseq.py` - main script
+
 `-i` / `--input` - concatenated genbank file for all contigs for the genome
+
 `-e` / `--experiment` - all results files will be created in the subfolder of this name
+
 `-i` / `--input` - Illumina reads file in FASTQ format
+
 `-s` / `--samples` - sample list where each line is the `sample_name`tab`barcode(4bp)`
 
 Run with example data:
