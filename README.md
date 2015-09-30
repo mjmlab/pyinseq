@@ -55,7 +55,7 @@ Optional arguments:
 
 `$ python2.7 pyinseq.py -i _exampleData/example01.fastq -s _exampleData/example01.txt -g _exampleData/ES114v2.gb -e example01`
 
-[Example details](_exampleData/Example.md)
+[Example details](_exampleData/exampleData.md)
 
 # Current status
 
