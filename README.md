@@ -57,10 +57,6 @@ Optional arguments:
 
 [Example details](_exampleData/exampleData.md)
 
-# Current status
-
-**Highest priority right now -- getting test data sets ready.**
-
 # Project purpose
 
 Reproduce the functionality in [Andy Goodman's INSeq Perl pipeline](http://www.nature.com/nprot/journal/v6/n12/extref/nprot.2011.417-S2.zip) (15 MB .zip download) in Python to serve as a platform for additional functionality for normalization, plotting, sample management, and data analysis.
