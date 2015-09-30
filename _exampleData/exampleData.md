@@ -9,19 +9,20 @@ sampleName  | barcode
 E001_01  | GAAG
 E001_02  | CTTT
 
-| feature (gene) | index | GAAG reads (L+R) | GAAG CPM (-d 1.0) | GAAG CPM (-d 0.9) |
-|--|--|--|--:|--:|
-| VF_0012 | 0.04 | 2 | 1.0E6 | 0.5E6
-| VF_0012 | 0.98 | 2 | """""" | |
-| Intergenic following VF_0012 | -- | 6
-| VF_0033 | 0.21 | 2 | 0.5E6 | 0.5E6
-| VF_A0492 | 0.03 | 6 | 3.0E6 | 1.5E6
-| VF_A0492 | 0.98 | 6 | """""" | |
-| Intergenic following VF_A0492 | -- | 2
-| VF_B0007 | 0.04 | 8 | 3.0E6 | 2.5E6
-| VF_B0007 | 0.60 | 2 | """"""| """""" |
-| VF_B0007 | 0.96 | 2 | """"""| |
-| Intergenic following VF_B0007 | -- | 2
+
+feature | index | GAAG reads | GAAG CPM (d 1.0) | GAAG CPM (d 0.9)
+---- | ---- | ---- | ----: | ----:
+VF_0012 | 0.04 | 2 | 1.0E6 | 0.5E6
+VF_0012 | 0.98 | 2 | """""" | .
+Intergenic following VF_0012 | -- | 6 | . | .
+VF_0033 | 0.21 | 2 | 0.5E6 | 0.5E6
+VF_A0492 | 0.03 | 6 | 3.0E6 | 1.5E6
+VF_A0492 | 0.98 | 6 | """""" | .
+Intergenic following VF_A0492 | -- | 2 | . | .
+VF_B0007 | 0.04 | 8 | 3.0E6 | 2.5E6
+VF_B0007 | 0.60 | 2 | """""" | """"""
+VF_B0007 | 0.96 | 2 | """""" | .
+Intergenic following VF_B0007 | -- | 2 | . | .
 
 The CTTT barcode has 2 fewer reads in VF_A0492 (-d 0.03) and 2 additional reads in VF_0033
 
