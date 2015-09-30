@@ -28,13 +28,23 @@ In general, place all input files in the `pyinseq/` directory. Each time the sof
 
 `pyinseq.py` - main script
 
-`-i` / `--input` - concatenated genbank file for all contigs for the genome
+Required arguments:
 
-`-e` / `--experiment` - all results files will be created in the subfolder of this name
+`-i`  `--input` - concatenated genbank file for all contigs for the genome
 
-`-i` / `--input` - Illumina reads file in FASTQ format
+`-e`  `--experiment` - all results files will be created in the subfolder of this name
 
-`-s` / `--samples` - sample list where each line is the `sample_name`tab`barcode(4bp)`
+`-i`  `--input` - Illumina reads file in FASTQ format
+
+`-s`  `--samples` - sample list where each line is the `sample_name`tab`barcode(4bp)`
+
+Optional arguments:
+
+`-d`  `--disruption` - fraction of gene disrupted (0.0 - 1.0).
+
+`-d 1.0` is default (insertions anywhere in gene are counted)
+
+`-d 0.9` includes only insertions in 5'-most 90% of each gene for scoring disruption.
 
 Run with example data:
 
@@ -42,9 +52,12 @@ Run with example data:
 
 # Example data sets included
 
-**example01 : Artificial data to test math with a limited dataset**
-Genome: Vibrio fischeri ES114 genome (2 chromsomes, 1 plasmid).
-Reads: [TEST DATA COMING SOON. HOPEFULLY TONIGHT]
+**example01 : Contrived data to test software with a limited dataset**
+
+- Genome: Vibrio fischeri ES114 genome (2 chromsomes, 1 plasmid).
+- Reads: 80 reads (contrived) across two samples.
+
+[Example details](Example.md)
 
 # Current status
 
