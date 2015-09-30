@@ -46,10 +46,6 @@ Optional arguments:
 
 `-d 0.9` includes only insertions in 5'-most 90% of each gene for scoring disruption.
 
-Run with example data:
-
-`$ python2.7 pyinseq.py -i example01.fastq -s example01.txt -g ES114v2.gb -e example01`
-
 # Example data sets included
 
 **example01 : Contrived data to test software with a limited dataset**
@@ -57,7 +53,9 @@ Run with example data:
 - Genome: Vibrio fischeri ES114 genome (2 chromsomes, 1 plasmid).
 - Reads: 80 reads (contrived) across two samples.
 
-[Example details](Example.md)
+`$ python2.7 pyinseq.py -i _exampleData/example01.fastq -s _exampleData/example01.txt -g _exampleData/ES114v2.gb -e example01`
+
+[Example details](_exampleData/Example.md)
 
 # Current status
 
