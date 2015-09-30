@@ -26,6 +26,9 @@ def parseArgs(args):
     parser.add_argument('-g', '--genome',
         help='genome in GenBank format (one concatenated file for multiple contigs/chromosomes)',
         required=True)
+    parser.add_argument('-d', '--disruption',
+        help='fraction of gene disrupted (0.0 - 1.0)',
+        default=1.0)
     return parser.parse_args(args)
 
 # Change to the specified directory
@@ -48,6 +51,7 @@ def main():
     experiment = args.experiment
     reads = args.input
     samples = args.samples
+    disruption = float(args.disruption)
 
     # originally this was to name the organism, e.g. VF for Vfischeri
     # it really only was used to name the genome files so it doesn't
@@ -90,7 +94,7 @@ def main():
     #insertionCounts(experiment) ## FOR TESTING ONLY - DOES NOT WRITE DATA
     #normalizeCpm(experiment) ## FOR TESTING ONLY UNLESS WE WANT IT TO WRITE DATA
     #mapToGene(organism, experiment) ## FOR TESTING ONLY UNLESS WE WANT IT TO WRITE DATA
-    mapToGeneSummary(1.0, organism, experiment)  # First parameter is threePrimeness cutoff
+    mapToGeneSummary(disruption, organism, experiment)
 
 if __name__ == '__main__':
     main()
