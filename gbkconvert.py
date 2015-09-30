@@ -71,12 +71,12 @@ def gbk2ftt(infile, organism, outputdirectory=''):
             location = '0..0'
             strand = '+'
             length = 0
-            protein_id = ''
+            protein_id = '-'
             gene = '-'
-            locus_tag = ''
+            locus_tag = '-'
             code = '-'
             cog = '-'
-            product = ''
+            product = '-'
             product_append = False # append the current line to product
 
             for i, line in enumerate(fi):
@@ -111,12 +111,12 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                                     fo.write('\t'.join(output) + '\n')
                                     new_feature = False
                                     new_feature_type = ''
-                                    protein_id = ''
+                                    protein_id = '-'
                                     gene = '-'
-                                    locus_tag = ''
+                                    locus_tag = '-'
                                     code = '-'
                                     cog = '-'
-                                    product = ''
+                                    product = '-'
 
                         if(line[5:21].rstrip() in parse_types):
                             new_feature = True # Feature that should be written
