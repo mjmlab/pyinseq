@@ -1,11 +1,11 @@
 # Once the pipeline is operational, all of these items will get transitioned to either Issues or the Wiki. These are my semi-organized ongoing notes and I haven't had a chance to sort through all of them yet.
 
 # Highest priority / bugs
-- [ ] Add command line flags (move away from argv)
-- [ ] Remove need to name the organism; instead call the files genome.ftt etc. Parse the organism/contig names from the GenBank file and FNA file and add it to the log information.
+- [x] Add command line flags (move away from argv)
+- [x] Remove need to name the organism; instead call the files genome.ftt etc. Parse the organism/contig names from the GenBank file and FNA file and add it to the log information.
 
 # Documentation
-- [ ] Add documentation on the `README.md` on how to install and run the software
+- [x] Add documentation on the `README.md` on how to install and run the software
 - [ ] Name all of the filters/steps and use consistently in the software: e.g., sequence quality filter; minimum reads per insertion filter; left/right bias filter (need a better name here!)
 - [ ] See run_info.json example here: http://pachterlab.github.io/kallisto/starting.html
 
