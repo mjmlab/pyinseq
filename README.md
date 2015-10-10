@@ -8,11 +8,11 @@ Python package to map transposon insertion sequencing (INSeq) data in bacteria
 
 Move toward a modular approach. General picture to split into three steps:
 
-
+![modular approach](https://cloud.githubusercontent.com/assets/8669125/10409855/18925d7a-6ef5-11e5-9304-9f24eb868b80.png)
 
 | Highest Priority Items |  
 | -------------------------------- |  
-| Rework beginning of pipeline: First demultiplex into individual samples to be processed separately |  
+| Rework beginning of pipeline: First demultiplex into individual samples to be processed separately [#13](https://github.com/mandel01/pyinseq/issues/13) |  
 | Start using pandas dataframes to facilitate statistics and plotting of results |
 | *Note: lower priority items in [issues](issues) or the somewhat-outdated [roadmap file](roadmap.md)* |
 
