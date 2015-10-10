@@ -14,7 +14,7 @@ Move toward a modular approach. General picture to split into three steps:
 | -------------------------------- |  
 | Rework beginning of pipeline: First demultiplex into individual samples to be processed separately [#13](https://github.com/mandel01/pyinseq/issues/13) |  
 | Start using pandas dataframes to facilitate statistics and plotting of results |
-| *Note: lower priority items in [issues](issues) or the somewhat-outdated [roadmap file](roadmap.md)* |
+| *Note: lower priority items in [issues](https://github.com/mandel01/pyinseq/issues) or the somewhat-outdated [roadmap file](roadmap.md)* |
 
 
 # Installation
