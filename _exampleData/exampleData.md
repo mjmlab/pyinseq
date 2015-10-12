@@ -2,6 +2,10 @@
 
 # example01 - 80 reads across 2 samples
 
+`example01.fastq`
+
+Reads are in this repository.
+
 `example01.txt`
 
 sampleName  | barcode
@@ -24,52 +28,32 @@ VF_B0007 | 0.60 | 2 | """""" | """"""
 VF_B0007 | 0.96 | 2 | """""" | .
 Intergenic following VF_B0007 | -- | 2 | . | .
 
-The CTTT barcode has 2 fewer reads in VF_A0492 (-d 0.03) and 2 additional reads in VF_0033
+The CTTT barcode has 2 fewer reads in VF_A0492 (-d 0.03) and 2 additional reads in VF_0033  
+
+The sample set also includes 1 hit (2 reads) that map to VF_0012 on barcode TTTT, which should not be displayed since that barcode is not in the sample list.
 
 
-```
->chr1_0012_04_for
-CGACACCGACGACGGTA
->chr1_0012_04_rev
-TGTGGTGAAGACCTGTA
->chr1_0012_98_for
-AGTTGAACCTCGTCGTA
->chr1_0012_98_rev
-TCTCTTCAATGAAGTTA
->chr1_igr0012_for
-CAATTTATCTCAACTTA
->chr1_igr0012_rev
-CATATATCTAAATTCTA
->chr1_0033_21_for
-CAGAACAAGCAGACTTA
->chr1_0033_21_rev
-TATAATCTGTTGCTCTA
->chr2_A0492_98_for
-ACACCTAAACTCGCATA
->chr2_A0492_98_rev
-ACAGGTGCTTCTCGTTA
->chr2_A0492_03_for
-ACTGGTTCCAGACATTA
->chr2_A0492_03_rev
-AAAAATACATTGGCTTA
->chr2_igrA0492_for
-CTATATTACTCACACTA
->chr2_igrA0492_rev
-GCAATTTTATGTCAATA
->plas_B0007_96_for
-AGATCCAACCTCTTTTA
->plas_B0007_96_rev
-AACGGTCTCTTTTGCTA
->plas_B0007_60_for
-AATGCAGCACAGATTTA
->plas_B0007_60_rev
-CCCAAGAGAAGTGCTTA
->plas_B0007_04_for
-GTTGAGGTCTTGGATTA
->plas_B0007_04_rev
-TGCACTGGTCGGGAATA
->plas_igrB0007_for
-TTCTCTTATGAACATTA
->plas_igrB0007_rev
-CACATTAACCTCATTTA
-```
+
+# example02 - 100,769,798 reads across 5 samples
+
+`example02.fastq`
+
+Download all 100,769,798 reads, [4.09 GB gzipped](http://bit.ly/1MnBq18).
+MD5 checksum (.fastq.gz) = 52a1775768c1c1cb759dd6154b0ec237   
+MD5 checksum (.fastq) = 28fa47bc1f6b0b09710e6bd8e8027297  
+
+`example02_AAAA.fastq`  
+
+Download only the 20,956,625 reads in barcode AAAA, [843 MB gzipped](http://bit.ly/1WXYJWK).
+MD5 checksum (.fastq.gz) = c6975f7f93896250be5302b0af7e8a7b  
+MD5 checksum (.fastq) = b7424f831ff6ffc20ba0016968b25c69
+
+`example02.txt`
+
+sampleName  | barcode
+------------- | -------------
+E137_1	| TTTT
+E137_2	| AGGA
+E137_3	| ATCG
+E137_4	| GTCA
+E137_5	| AAAA
