@@ -1,6 +1,6 @@
 # pyinseq example data
 
-# example01 - 80 reads across 2 samples
+# example01 - 80 reads across 2 samples (plus 2 reads on an untracked sample)
 
 `example01.fastq`
 
@@ -30,7 +30,7 @@ Intergenic following VF_B0007 | -- | 2 | . | .
 
 The CTTT barcode has 2 fewer reads in VF_A0492 (-d 0.03) and 2 additional reads in VF_0033  
 
-The sample set also includes 1 hit (2 reads) that map to VF_0012 on barcode TTTT, which should not be displayed since that barcode is not in the sample list.
+The sample set also includes 1 hit (2 reads) that map to VF_0012 on barcode TTTT, which should not be displayed since that barcode is not in the sample list. [known bug](https://github.com/mandel01/pyinseq/issues/5)
 
 
 
