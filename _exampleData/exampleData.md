@@ -1,12 +1,12 @@
 # pyinseq example data
 
-# example01 - 80 reads across 2 samples (plus 2 reads on an untracked sample)
+# example01
 
-`example01.fastq`
+### 80 reads across 2 samples (plus 2 reads on an untracked sample)
 
-Reads are in this repository.
+`example01.fastq` In this repository.  
 
-`example01.txt`
+`example01.txt` In this repository.
 
 sampleName  | barcode
 ------------- | -------------
@@ -34,21 +34,19 @@ The sample set also includes 1 hit (2 reads) that map to VF_0012 on barcode TTTT
 
 
 
-# example02 - 100,769,798 reads across 5 samples
+# example02
 
-`example02.fastq`
+### 100,769,798 reads across 5 samples
 
-Download all 100,769,798 reads, [4.09 GB gzipped](http://bit.ly/1MnBq18).
+`example02.fastq` Download all 100,769,798 reads, [4.09 GB gzipped](http://bit.ly/1MnBq18).  
 MD5 checksum (.fastq.gz) = 52a1775768c1c1cb759dd6154b0ec237   
 MD5 checksum (.fastq) = 28fa47bc1f6b0b09710e6bd8e8027297  
 
-`example02_AAAA.fastq`  
-
-Download only the 20,956,625 reads in barcode AAAA, [843 MB gzipped](http://bit.ly/1WXYJWK).
+`example02_AAAA.fastq` Download only the 20,956,625 reads in barcode AAAA, [843 MB gzipped](http://bit.ly/1WXYJWK).  
 MD5 checksum (.fastq.gz) = c6975f7f93896250be5302b0af7e8a7b  
 MD5 checksum (.fastq) = b7424f831ff6ffc20ba0016968b25c69
 
-`example02.txt`
+`example02.txt` In this repository.
 
 sampleName  | barcode
 ------------- | -------------
