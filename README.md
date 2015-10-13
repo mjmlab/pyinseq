@@ -4,6 +4,8 @@
 
 Python package to map transposon insertion sequencing (INSeq) data in bacteria
 
+**Warning to biologists...this is close, but not quite ready for prime time!**
+
 # Development Priorities
 
 Move toward a modular approach. General picture to split into three steps:
