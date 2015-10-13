@@ -64,7 +64,7 @@ Optional arguments:
 
 `$ python2.7 pyinseq.py -i _exampleData/example01.fastq -s _exampleData/example01.txt -g _exampleData/ES114v2.gb -e example01`
 
-**example01 : large dataset of ~100,000,000 reads**
+**example02 : large dataset of 100 million reads**
 
 [Example details and additional examples](_exampleData/exampleData.md)
 
