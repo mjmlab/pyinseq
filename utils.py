@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import re
 
 def createSamplesDirectory():
     """
@@ -12,6 +13,24 @@ def createSamplesDirectory():
         os.makedirs('samples/')
     except:
         pass
+
+def createSamplesExperimentDirectory(experiment):
+    """
+    Create the samples/{experiment} directory; abort if already present
+    """
+
+    # ERROR MESSAGES
+    errorSamplesDirectoryExists = \
+    'PyINSeq Error: The directory already exists for samples/{0}\n' \
+    'Delete or rename the samples/{0} directory, or provide a new experiment\n' \
+    'name for the current analysis'.format(experiment)
+
+    # Create /pyinseq/samples/ path if does not exist already
+    try:
+        os.makedirs('samples/{}'.format(experiment))
+    except OSError:
+        print(errorSamplesDirectoryExists)
+        exit(1)
 
 def createExperimentDirectories(experiment):
     """
