@@ -14,6 +14,7 @@ Output report should be in same order as input barcodes -- from Collections impo
 Include option to not write unassigned barcodes (would run faster).
 """
 
+from utils import *
 import re
 import gzip
 import sys  # temporary - for command line arg
@@ -21,7 +22,7 @@ import os
 import argparse
 import screed
 
-def barcodes_prep(samples):
+def barcodes_prep(sample_file):
     """
     Extract barcodes from an INSeq sample list and conduct basic quality checks
 
@@ -41,23 +42,25 @@ def barcodes_prep(samples):
     # Ensure uppercase and stripped
     print('\n===== Checking barcodes =====')
     barcode_dict = {}
-    for line in samples:
-        if not line.startswith('#'):
-            new_barcode = line.rstrip().split('\t')[1]
-            if new_barcode in barcode_dict:
-                print('Error: redundant barcode {}'.format(new_barcode))
-                exit(1)
-            new_sample = line.rstrip().split('\t')[0]
-            if new_sample in barcode_dict.values():
-                print('Error: redundant sample identifier {}'.format(new_sample))
-                exit(1)
-            barcode_dict[new_barcode] = new_sample
-            barcode_length = len(new_barcode)
+    with open(sample_file, 'r') as fi:
+        for line in fi:
+            if not line.startswith('#'):
+                new_sample = line.rstrip().split('\t')[0]
+                new_sample = convert_to_filename(new_sample)
+                if new_sample in barcode_dict:
+                    print('Error: redundant sample identifier {}'.format(new_sample))
+                    exit(1)
+                new_barcode = line.rstrip().split('\t')[1].upper()
+                if new_barcode in barcode_dict.values():
+                    print('Error: redundant barcode {}'.format(new_barcode))
+                    exit(1)
+                barcode_dict[new_sample] = new_barcode
+                barcode_length = len(new_barcode)
 
     # Print barcodes and check for same length
     for b in sorted(barcode_dict):
         print('{0}\t{1}'.format(b, barcode_dict[b]))
-        if len(b) != barcode_length:
+        if len(barcode_dict[b]) != barcode_length:
             print('Error: barcodes are not the same length')
             exit(1)
 
@@ -65,38 +68,34 @@ def barcodes_prep(samples):
 
     return barcode_dict
 
-def convert_to_filename(sample_name):
+def demultiplex_fastq(fastq_file, sample_file, experiment):
     """
-    Convert to a valid filename.
+    Demultiplex a fastq input file by 5' barcode into separate files
 
-    Remove leading/trailing whitespace, convert internal spaces to underscores.
-    Allow only alphanumeric, dashes, underscores, unicode.
     """
-    return re.sub(r'(?u)[^-\w]', '', sample_name.strip().replace(' ', '_'))
 
-def demultiplex_fastq(fastq_file, sample_file):
     #if fastq_file.endswith('.gz'):
     #    opener = gzip.open
     #else:
     #    opener = open
 
-    # barcodes = list of barcodes (sequences only)
-    # b_len = barcode length
-    with open(sample_file, 'r') as input_sample_file:
-        barcodes, b_len = barcodes_prep(input_sample_file)
+    barcodes_dict = barcodes_prep(sample_file)
 
-    for b in barcodes:
+    # Dictionary of lists to hold FASTQ reads until they are written to files
+    demultiplex_dict = {}
 
+    for sampleName, barcode in barcodes_dict.items():
+        # create the /pyinseq/samples/{experiment}/{sample} files
+        # exit if any of the files already exist
+        createDemultiplexFiles(experiment, sampleName)
+        # create a dictionary to hold fastq data before it is written
+        # key = barcode (NOT THE SAMPLE)
+        # values = list of fastq records
+        demultiplex_dict[barcode] = []
+    # Repeat above for '_other' for unassigned barcodes
+    createDemultiplexFiles(experiment, '_other')
+    demultiplex_dict['_other'] = []
 
-
-
-
-
-
-
-    for i, record in enumerate(screed.open(fastq_file)):
-        if i % 10 == 0:
-            print('...', n, file=sys.stderr)
 
 
 
@@ -197,8 +196,8 @@ def demultiplex_fastq(fastq_file, sample_file):
 
 def main():
     fastq_file = sys.argv[1]
-    #sample_file = sys.argv[2]
-    demultiplex_fastq(fastq_file, 'sample_file')
+    sample_file = sys.argv[2]
+    demultiplex_fastq(fastq_file, sample_file, 'E001')
 
 if __name__ == "__main__":
     main()

@@ -26,34 +26,6 @@ def parseArgs(args):
         required=True)
     return parser.parse_args(args)
 
-def createDirectories(experiment):
-    """
-    Create the project directory and subdirectories
-
-    Attempt to create the directory structure:
-    /[experiment]
-        /temp
-
-    If /experiment directory already exists exit and return error message and
-    the full path of the present directory to the user"""
-
-    # Check that experiment name has no special characters or spaces
-    pass
-
-    # ERROR MESSAGES
-    errorDirectoryExists = \
-    'PyINSeq Error: The directory already exists for experiment {0}\n' \
-    'Delete or rename the {0} directory, or provide a new experiment\n' \
-    'name for the current analysis'.format(experiment)
-
-    # Create path or exit with error if it exists.
-    try:
-        os.makedirs('{}/temp/'.format(experiment))
-    except OSError:
-        print(errorDirectoryExists)
-        exit(1)
-
-
 def barcodesPrep(samples):
     """
     Extract barcodes from an INSeq sample list and conduct basic quality checks

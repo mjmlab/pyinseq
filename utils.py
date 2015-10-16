@@ -14,23 +14,29 @@ def createSamplesDirectory():
     except:
         pass
 
-def createSamplesExperimentDirectory(experiment):
+def createDemultiplexFiles(experiment, sample_name):
     """
-    Create the samples/{experiment} directory; abort if already present
+    Create blank samples/{experiment}/{sample_name}.fastq files
     """
 
-    # ERROR MESSAGES
-    errorSamplesDirectoryExists = \
-    'PyINSeq Error: The directory already exists for samples/{0}\n' \
-    'Delete or rename the samples/{0} directory, or provide a new experiment\n' \
-    'name for the current analysis'.format(experiment)
+    #TODO: Future, ask if user wants files overwritten?
 
-    # Create /pyinseq/samples/ path if does not exist already
+    # Create /pyinseq/samples/experiment/sample_name.fastq if does not exist already
+    directory = 'samples/{0}/'.format(experiment)
+    filename = '{0}.fastq'.format(sample_name)
+    filepath = '{0}{1}'.format(directory, filename)
+
     try:
-        os.makedirs('samples/{}'.format(experiment))
+        os.makedirs(directory)
     except OSError:
-        print(errorSamplesDirectoryExists)
+        pass
+
+    if not os.path.exists(filepath):
+        open(filepath, 'w').close()
+    else:
+        print('Error: File {} exists already.'.format(filepath))
         exit(1)
+
 
 def createExperimentDirectories(experiment):
     """

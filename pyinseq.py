@@ -8,6 +8,7 @@ from assign import *
 from gbkconvert import *
 from mapReads import *
 from processMapping import *
+from utils import *
 import sys
 import os
 import argparse
@@ -48,7 +49,7 @@ class cd:
 def main():
     args = parseArgs(sys.argv[1:])
     gbkfile = args.genome
-    experiment = args.experiment
+    experiment = convert_to_filename(args.experiment)
     reads = args.input
     samples = args.samples
     disruption = float(args.disruption)
@@ -65,7 +66,7 @@ def main():
     tempDir = '{0}/temp/'.format(experiment)
 
     # Create the directory struture based on the experiment name
-    createDirectories(experiment)
+    createExperimentDirectories(experiment)
 
     # Prepare genome files from the GenBank input
     gbk2fna(gbkfile, organism, tempDir)
