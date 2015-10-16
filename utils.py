@@ -25,7 +25,7 @@ def createExperimentDirectories(experiment):
     the full path of the present directory to the user"""
 
     # Check that experiment name has no special characters or spaces
-    pass
+    experiment = convert_to_filename(experiment)
 
     # ERROR MESSAGES
     errorDirectoryExists = \
@@ -40,6 +40,14 @@ def createExperimentDirectories(experiment):
         print(errorDirectoryExists)
         exit(1)
 
+def convert_to_filename(sample_name):
+    """
+    Convert to a valid filename.
+
+    Removes leading/trailing whitespace, converts internal spaces to underscores.
+    Allows only alphanumeric, dashes, underscores, unicode.
+    """
+    return re.sub(r'(?u)[^-\w]', '', sample_name.strip().replace(' ', '_'))
 
 
 # ===== Start here ===== #
