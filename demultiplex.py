@@ -14,10 +14,12 @@ Output report should be in same order as input barcodes -- from Collections impo
 Include option to not write unassigned barcodes (would run faster).
 """
 
+import re
 import gzip
 import sys  # temporary - for command line arg
 import os
 import argparse
+import screed
 
 def barcodes_prep(samples):
     """
@@ -38,46 +40,67 @@ def barcodes_prep(samples):
     # Extract barcode list from tab-delimited sample file.
     # Ensure uppercase and stripped
     print('\n===== Checking barcodes =====')
-    barcode_list = {}
+    barcode_dict = {}
     for line in samples:
         if not line.startswith('#'):
             new_barcode = line.rstrip().split('\t')[1]
-            if new_barcode in barcode_list:
+            if new_barcode in barcode_dict:
                 print('Error: redundant barcode {}'.format(new_barcode))
                 exit(1)
             new_sample = line.rstrip().split('\t')[0]
-            if new_sample in barcode_list.values():
+            if new_sample in barcode_dict.values():
                 print('Error: redundant sample identifier {}'.format(new_sample))
                 exit(1)
-            barcode_list[new_barcode] = new_sample
+            barcode_dict[new_barcode] = new_sample
             barcode_length = len(new_barcode)
 
     # Print barcodes and check for same length
-    for b in sorted(barcode_list):
-        print('{0}\t{1}'.format(b, barcode_list[b]))
+    for b in sorted(barcode_dict):
+        print('{0}\t{1}'.format(b, barcode_dict[b]))
         if len(b) != barcode_length:
             print('Error: barcodes are not the same length')
             exit(1)
 
-    print('n={0} unique barcodes of length {1} nt'.format(len(barcode_list), barcode_length))
+    print('n={0} unique barcodes of length {1} nt'.format(len(barcode_dict), barcode_length))
 
-    return barcode_list.keys(), barcode_length
+    return barcode_dict
 
+def convert_to_filename(sample_name):
+    """
+    Convert to a valid filename.
 
+    Remove leading/trailing whitespace, convert internal spaces to underscores.
+    Allow only alphanumeric, dashes, underscores, unicode.
+    """
+    return re.sub(r'(?u)[^-\w]', '', sample_name.strip().replace(' ', '_'))
 
 def demultiplex_fastq(fastq_file, sample_file):
-    if fastq_file.endswith('.gz'):
-        opener = gzip.open
-    else:
-        opener = open
+    #if fastq_file.endswith('.gz'):
+    #    opener = gzip.open
+    #else:
+    #    opener = open
 
     # barcodes = list of barcodes (sequences only)
     # b_len = barcode length
-
     with open(sample_file, 'r') as input_sample_file:
         barcodes, b_len = barcodes_prep(input_sample_file)
 
-    # initialize to count reads per barcode
+    for b in barcodes:
+
+
+
+
+
+
+
+
+    for i, record in enumerate(screed.open(fastq_file)):
+        if i % 10 == 0:
+            print('...', n, file=sys.stderr)
+
+
+
+"""
     count_list = {}
     for b in barcodes:
         count_list[b] = 0
@@ -139,7 +162,7 @@ def demultiplex_fastq(fastq_file, sample_file):
 
             #print record
 
-
+"""
 
 """            if i % 4 == 3:
                 # Write FASTQ record (4 lines) to file specific to its barcode
@@ -174,8 +197,8 @@ def demultiplex_fastq(fastq_file, sample_file):
 
 def main():
     fastq_file = sys.argv[1]
-    sample_file = sys.argv[2]
-    demultiplex_fastq(fastq_file, sample_file)
+    #sample_file = sys.argv[2]
+    demultiplex_fastq(fastq_file, 'sample_file')
 
 if __name__ == "__main__":
     main()
