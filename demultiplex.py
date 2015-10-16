@@ -117,14 +117,14 @@ def writeReads(demultiplex_dict, barcodes_dict, experiment):
     Write the fastq data to the correct (demultiplexed) file
     """
     for sampleName, barcode in barcodes_dict.items():
-        with open('samples/{experiment}/{sampleName}.fastq'.format( \
+        with gzip.open('samples/{experiment}/{sampleName}.fastq.gz'.format( \
             experiment = experiment,
             sampleName = sampleName), 'a') as fo:
             for fastqRead in demultiplex_dict[barcode]:
-                fo.write('@{n}\n{s}\n+\n{q}\n'.format( \
+                fo.write(bytes('@{n}\n{s}\n+\n{q}\n'.format( \
                     n = fastqRead.name,
                     s = fastqRead.sequence,
-                    q = fastqRead.quality))
+                    q = fastqRead.quality), 'UTF-8'))
 
 # ===== Start here ===== #
 

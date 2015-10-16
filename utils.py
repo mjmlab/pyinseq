@@ -23,7 +23,7 @@ def createDemultiplexFiles(experiment, sample_name):
 
     # Create /pyinseq/samples/experiment/sample_name.fastq if does not exist already
     directory = 'samples/{0}/'.format(experiment)
-    filename = '{0}.fastq'.format(sample_name)
+    filename = '{0}.fastq.gz'.format(sample_name)
     filepath = '{0}{1}'.format(directory, filename)
 
     try:
