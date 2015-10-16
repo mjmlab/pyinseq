@@ -80,6 +80,8 @@ def demultiplex_fastq(fastq_file, sample_file, experiment):
     #    opener = open
 
     barcodes_dict = barcodes_prep(sample_file)
+    # holder for unassigned barcodes
+    barcodes_dict['_other'] = '_other'
 
     # Dictionary of lists to hold FASTQ reads until they are written to files
     demultiplex_dict = {}
@@ -92,105 +94,44 @@ def demultiplex_fastq(fastq_file, sample_file, experiment):
         # key = barcode (NOT THE SAMPLE)
         # values = list of fastq records
         demultiplex_dict[barcode] = []
-    # Repeat above for '_other' for unassigned barcodes
-    createDemultiplexFiles(experiment, '_other')
-    demultiplex_dict['_other'] = []
 
+    # count of reads
+    nreads = 0
+    # Read in the FASTQ file
+    # Assign to barcode
+    # Write to the appropriate output file
+    with screed.open(fastq_file) as seqfile:
+        for read in seqfile:
 
+            #TODO: generalize for other length barcodes
+            try:
+                barcode = read.sequence[0:4]
+                demultiplex_dict[barcode].append(read)
+            except:
+                demultiplex_dict['_other'].append(read)
+            # Every 10^5 sequences write and clear the dictionary
+            nreads += 1
+            if nreads % 10000 == 0:
+                writeReads(demultiplex_dict, barcodes_dict, experiment)
+                print(nreads, 'records processed')
+    writeReads(demultiplex_dict, barcodes_dict, experiment)
+    print(nreads, 'records processed')
 
+def writeReads(demultiplex_dict, barcodes_dict, experiment):
+    """
+    Write the fastq data to the correct (demultiplexed) file
+    """
+    for sampleName, barcode in barcodes_dict.items():
+        with open('samples/{experiment}/{sampleName}.fastq'.format( \
+            experiment = experiment,
+            sampleName = sampleName), 'a') as fo:
+            for fastqRead in demultiplex_dict[barcode]:
+                fo.write('@{n}\n{s}\n+\n{q}\n'.format( \
+                    n = fastqRead.name,
+                    s = fastqRead.sequence,
+                    q = fastqRead.quality))
 
-"""
-    count_list = {}
-    for b in barcodes:
-        count_list[b] = 0
-
-    with opener(fastq_file, 'r') as f:
-
-        file_prefix = 'Exp001'   # supply in command line arguments; check alphanumeric only
-        if file_prefix:
-            if not file_prefix.isalnum():
-                print('Error: File prefix should be alphanumeric only. You entered {}'.format(file_prefix))
-                exit(1)
-            file_prefix += '_'
-            print(file_prefix)
-
-        # truncates the file with the 'w' option before writing data below
-        # in cases where the output file already exists
-        with open('{}assigned.fastq'.format(file_prefix), 'w') as fo:
-            pass
-        with open('{}assigned.fastq'.format(file_prefix), 'a') as fo:
-
-            print('\n===== Assigning barcode and transposon information =====')
-
-            # fastq record
-            # identifier =     record[0]
-            # sequence =       record[1]
-            # alt_identifier = record[2]
-            # quality =        record[3]
-            record = []
-            for i,line in enumerate(f):
-                record.append(line.rstrip('\n'))
-                if i % 4 == 3:
-
-                    # barcode sequence in read
-                    bc = record[1][0:b_len]
-                    if bc in barcodes:
-                        count_list[bc] += 1
-
-                    # Tn location as number of nuceotides after the barcode
-                    tn_loc = record[1].find('ACAGGTTG') - b_len # Tn location
-                    tn_end = 'I'    # Left / Right / Identical
-                    ta = 'N'    # Insertion at a TA dinucleotide
-                    if (record[1][(tn_loc+b_len-2):(tn_loc+b_len)]) == "TA":
-                        ta = 'Y'
-
-                    print('{0}/barcode:{1}/Tn:{2}_{3}_{4}'.format(record[0],bc,tn_loc,ta,tn_end))
-                    print(record[1][b_len:(tn_loc+b_len)])
-                    print(record[2])
-                    print(record[3][b_len:(tn_loc+b_len)])
-
-                    fo.write('{0}/barcode:{1}/Tn:{2}_{3}_{4}\n{5}\n{6}\n{7}\n'.format(
-                        record[0],bc,tn_loc,ta,tn_end,
-                        record[1][b_len:(tn_loc+b_len)],
-                        record[2],
-                        record[3][b_len:(tn_loc+b_len)]))
-
-                    record = []
-
-    print(count_list)
-
-            #print record
-
-"""
-
-"""            if i % 4 == 3:
-                # Write FASTQ record (4 lines) to file specific to its barcode
-                if record[1][0:b_len] in barcodes:
-                    with open('{0}_{1}{2}'.format(file_root, record[1][0:b_len], '.fastq'), 'a') as fo:
-                        fo.write('\n'.join(record) + '\n')
-                    # Count the read for the barcode
-                    count_list[record[1][0:b_len]] += 1
-                # Write unassigned barcodes to (root)_Other(extension) file
-                else:
-                    with open('{0}_{1}{2}'.format(file_root, 'Other', '.fastq'), 'a') as fo:
-                        fo.write('\n'.join(record) + '\n')
-                record = []
-            if (i+1) % 4E+5 == 0:
-                if (i+1) % 4E+6 == 0:
-                    print('\n===== Demultiplexing FASTQ input file by 5\' barcode =====')
-                # index i starts at 0
-                # 4 lines per FASTQ record
-                print('{0} records processed.'.format((i+1)/4))
-        print('{0} total records processed.'.format((i+1)/4))
-
-        print('\n===== Demultiplexing Summary =====')
-
-        print('{0:,} out of {1:,} reads ({2:.1%}) were from a listed barcode'.format(sum(count_list.values()), (i+1)/4, float(sum(count_list.values()))/((i+1)/4)))
-        print('\nbarcode\trecords\t%_from_list')
-        for c in count_list:
-            print('{0}\t{1:,}\t{2:.1%}'.format(c,count_list[c], float(count_list[c])/sum(count_list.values()), float(100*count_list[c])/((i+1)/4)))
-        print('Other\t{0:,}\t'.format(((i+1)/4)-sum(count_list.values())))
-"""
+#fo.write('@{n}\n{s}\n+{a}\n{q}\n'.format \
 
 # ===== Start here ===== #
 
