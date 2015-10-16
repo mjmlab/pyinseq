@@ -13,7 +13,7 @@ Move toward a modular approach. General picture to split into three steps:
 ![modular approach](https://cloud.githubusercontent.com/assets/8669125/10409855/18925d7a-6ef5-11e5-9304-9f24eb868b80.png)
 
 ### Highest Priority Items
-1. Rework beginning of pipeline: First demultiplex into individual samples to be processed separately [#13](https://github.com/mandel01/pyinseq/issues/13)
+1. ~~Rework beginning of pipeline: First demultiplex into individual samples to be processed separately [#13](https://github.com/mandel01/pyinseq/issues/13)~~
 2. Rework the mapping so that it scales to the size of the real datasets [#14](https://github.com/mandel01/pyinseq/issues/14)
 3. Start using pandas dataframes to facilitate statistics and plotting of results (either directly for the INSeq mapping or import those results into a dataframe for the analysis... also see note for possible use in the table of genome features [#14](https://github.com/mandel01/pyinseq/issues/14))
 4. *Note: lower priority items in [issues](https://github.com/mandel01/pyinseq/issues) or the somewhat-outdated [roadmap file](roadmap.md)*
