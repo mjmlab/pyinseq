@@ -2,16 +2,9 @@
 """
 Demultiplexes a FASTQ file into multiple files by 5' end barcode
 
-Output file includes the input file name and the barcode:
-e.g., file.fastq demultiplexes into file_CGAT.fastq, etc.
-Unrecognized barcodes get written to file_Other.fastq
+Output path includes the experiment and sample name:
+(pysinseq)/samples/{experiment}/{sample}.fastq
 
-Future:
-Do barcode errors work to exit the program?
-Flush the output files before appending to them.
-Add argument parsing.
-Output report should be in same order as input barcodes -- from Collections import OrderedDict ?
-Include option to not write unassigned barcodes (would run faster).
 """
 
 from utils import *
@@ -97,12 +90,11 @@ def demultiplex_fastq(fastq_file, sample_file, experiment):
 
     # count of reads
     nreads = 0
-    # Read in the FASTQ file
-    # Assign to barcode
-    # Write to the appropriate output file
+    # For each line in the FASTQ file:
+    #   Assign to barcode (fastq record into the dictionary)
+    #   Then write to the appropriate output file
     with screed.open(fastq_file) as seqfile:
         for read in seqfile:
-
             #TODO: generalize for other length barcodes
             try:
                 barcode = read.sequence[0:4]
@@ -111,11 +103,11 @@ def demultiplex_fastq(fastq_file, sample_file, experiment):
                 demultiplex_dict['_other'].append(read)
             # Every 10^5 sequences write and clear the dictionary
             nreads += 1
-            if nreads % 10000 == 0:
+            if nreads % 1E6 == 0:
                 writeReads(demultiplex_dict, barcodes_dict, experiment)
-                print(nreads, 'records processed')
+                sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
     writeReads(demultiplex_dict, barcodes_dict, experiment)
-    print(nreads, 'records processed')
+    sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
 
 def writeReads(demultiplex_dict, barcodes_dict, experiment):
     """
@@ -131,14 +123,12 @@ def writeReads(demultiplex_dict, barcodes_dict, experiment):
                     s = fastqRead.sequence,
                     q = fastqRead.quality))
 
-#fo.write('@{n}\n{s}\n+{a}\n{q}\n'.format \
-
 # ===== Start here ===== #
 
 def main():
     fastq_file = sys.argv[1]
     sample_file = sys.argv[2]
-    demultiplex_fastq(fastq_file, sample_file, 'E001')
+    demultiplex_fastq(fastq_file, sample_file, 'E1001')
 
 if __name__ == "__main__":
     main()
