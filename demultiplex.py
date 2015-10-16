@@ -105,6 +105,9 @@ def demultiplex_fastq(fastq_file, sample_file, experiment):
             nreads += 1
             if nreads % 1E6 == 0:
                 writeReads(demultiplex_dict, barcodes_dict, experiment)
+                # Clear the dictionary after writing to file
+                for sampleName in demultiplex_dict:
+                    demultiplex_dict[sampleName] = []
                 sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
     writeReads(demultiplex_dict, barcodes_dict, experiment)
     sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
