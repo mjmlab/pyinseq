@@ -13,13 +13,23 @@ from operator import itemgetter
 
 
 # Probably move this to the wrapper script to iterate through demultiplexed files
-def processOutput(bowtieOutput, sample_file, experiment):
+def samplesToProcess(sample_file, experiment):
+    """
+    Returns a list of the sample paths to process in the current analysis.
+
+    e.g.:
+    ['samples/E001/E001_01.fastq.gz', 'samples/E001/E001_02.fastq.gz']
+
+    """
     barcodes_dict = barcodes_prep(sample_file)
+    sampleFile_list = []
     for sample in sorted(barcodes_dict):
-        print('samples/{experiment}/{sample}.fastq.gz'.format(
+        sampleFile_list.append('samples/{experiment}/{sample}.fastq.gz'.format(
             experiment=experiment,
             sample=sample
             ))
+
+    return sampleFile_list
 
 def mapSites(bowtieOutput):
     pass
@@ -542,7 +552,7 @@ def main():
     bowtieOutput = sys.argv[1]
     sample_file = sys.argv[2]
     experiment = sys.argv[3]
-    processOutput(bowtieOutput, sample_file, experiment)
+    samplesToProcess(sample_file, experiment)
 
 if __name__ == '__main__':
     main()
