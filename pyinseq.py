@@ -4,7 +4,8 @@ Main script for running the pyinseq package
 
 """
 
-from assign import *
+#from assign import *
+from demultiplex import *
 from gbkconvert import *
 from mapReads import *
 from processMapping import *
@@ -62,20 +63,42 @@ def main():
     # In the future this can be streamlined.
     organism = 'genome'
 
-    #pyinseqDirectory = os.getcwd()
-    tempDir = '{0}/temp/'.format(experiment)
-
+    # pyinseqDirectory = os.getcwd()
+    tempDir = '{experiment}/temp/'.format(experiment=experiment)
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
+
+    #demultiplex based on barcodes defined in the sample file
+    demultiplex_fastq(reads, samples, experiment)
 
     # Prepare genome files from the GenBank input
     gbk2fna(gbkfile, organism, tempDir)
     gbk2ftt(gbkfile, organism, tempDir)
 
+    # List of file paths of the demultiplexed files
+    demultiplexedSample_list = samplesToProcess(sample_file, experiment)
+
+    # Process sample
+    ## *** TRIM BARCODE, TRIM TRANSPOSON **
+    ## *** ... AND FILTER OUT IF TRIMMING NOT SUCCESSFUL ***
+    ## *** WRITE TO NEW FILE ***
+    ## CAN I ADD THIS PROCESSING TO THE WRITE STEP DURING DEMULTIPLEX?????
+    ## HAVE IT WRITE INTO TWO SEPARATE FILES??
+    ## *** RUN BOWTIE ON NEW FILE ***
+    ## *** DELETE TRIMMED FASTQ FILE? PROBABLY UNLESS (K)EEP TEMPORARY FILES SELECTED ***
+    ## -k --keep could keep every file generated
+
+    ## THEN DO MATH ON EACH LINE OF THE BOWTIE OUTPUT:
+    ## {(contig, position) : [Lcount, Rcount]}
+    ## d.setdefault((contig,position),[0,0])[0] += 1   # L
+    ## d.setdefault((contig,position),[0,0])[1] += 2   # R
+
+
+
     # Assign and trim barcodes
     # Now currently filtering by default (16-17 bp, TA at end)
     # In future could add as command line option
-    assignAndTrim(reads, samples, experiment, tempDir)
+    #assignAndTrim(reads, samples, experiment, tempDir)
 
     # Prepare the bowtie indexes
     # Map the reads using bowtie_map
@@ -89,13 +112,13 @@ def main():
 
     # Summarize the bowtie results
     # Need more consistency in how directory locations are handled
-    insertionNucleotides(tempDir + bowtieOutput, experiment)
-    insertionNucleotidesCount(experiment)
-    filterSortCounts(experiment)
+#    insertionNucleotides(tempDir + bowtieOutput, experiment)
+#    insertionNucleotidesCount(experiment)
+#    filterSortCounts(experiment)
     #insertionCounts(experiment) ## FOR TESTING ONLY - DOES NOT WRITE DATA
     #normalizeCpm(experiment) ## FOR TESTING ONLY UNLESS WE WANT IT TO WRITE DATA
     #mapToGene(organism, experiment) ## FOR TESTING ONLY UNLESS WE WANT IT TO WRITE DATA
-    mapToGeneSummary(disruption, organism, experiment)
+#    mapToGeneSummary(disruption, organism, experiment)
 
 if __name__ == '__main__':
     main()
