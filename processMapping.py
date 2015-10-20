@@ -28,7 +28,6 @@ def samplesToProcess(sample_file, experiment):
             experiment=experiment,
             sample=sample
             ))
-
     return sampleFile_list
 
 def mapSites(bowtieOutput):
@@ -552,7 +551,9 @@ def main():
     bowtieOutput = sys.argv[1]
     sample_file = sys.argv[2]
     experiment = sys.argv[3]
-    samplesToProcess(sample_file, experiment)
+    processList = samplesToProcess(sample_file, experiment)
+    for s in processList:
+        print(s)
 
 if __name__ == '__main__':
     main()

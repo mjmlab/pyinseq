@@ -8,11 +8,10 @@ Output path includes the experiment and sample name:
 """
 
 from utils import *
-import re
+import re # I THINK I CAN DELETE THIS
+import os # I THINK I CAN DELETE THIS
 import gzip
-import sys  # temporary - for command line arg
-import os
-import argparse
+import sys
 import screed
 
 def barcodes_prep(sample_file):
@@ -95,13 +94,14 @@ def demultiplex_fastq(fastq_file, sample_file, experiment):
     #   Then write to the appropriate output file
     with screed.open(fastq_file) as seqfile:
         for read in seqfile:
-            #TODO: generalize for other length barcodes
+            #TODO: generalize for other length barcodes using
+            # the length of the barcode and slice()
             try:
                 barcode = read.sequence[0:4]
                 demultiplex_dict[barcode].append(read)
             except:
                 demultiplex_dict['_other'].append(read)
-            # Every 10^5 sequences write and clear the dictionary
+            # Every 10^6 sequences write and clear the dictionary
             nreads += 1
             if nreads % 1E6 == 0:
                 writeReads(demultiplex_dict, barcodes_dict, experiment)
@@ -125,6 +125,23 @@ def writeReads(demultiplex_dict, barcodes_dict, experiment):
                     n = fastqRead.name,
                     s = fastqRead.sequence,
                     q = fastqRead.quality), 'UTF-8'))
+
+def samplesToProcess(sample_file, experiment):
+    """
+    Returns a list of the sample paths to process in the current analysis.
+
+    e.g.:
+    ['samples/E001/E001_01.fastq.gz', 'samples/E001/E001_02.fastq.gz']
+
+    """
+    barcodes_dict = barcodes_prep(sample_file)
+    sampleFile_list = []
+    for sample in sorted(barcodes_dict):
+        sampleFile_list.append('samples/{experiment}/{sample}.fastq.gz'.format(
+            experiment=experiment,
+            sample=sample
+            ))
+    return sampleFile_list
 
 # ===== Start here ===== #
 
