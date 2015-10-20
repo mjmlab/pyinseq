@@ -2,15 +2,28 @@
 """
 Counts the bowtie hits at each position in each sample
 
-Future - change d to OrderedDict to keep contigs in order?
-
 """
 
+from demultiplex import barcodes_prep
 import sys
 import re
 import csv
 import collections
 from operator import itemgetter
+
+
+# Probably move this to the wrapper script to iterate through demultiplexed files
+def processOutput(bowtieOutput, sample_file, experiment):
+    barcodes_dict = barcodes_prep(sample_file)
+    for sample in sorted(barcodes_dict):
+        print('samples/{experiment}/{sample}.fastq.gz'.format(
+            experiment=experiment,
+            sample=sample
+            ))
+
+def mapSites(bowtieOutput):
+    pass
+
 
 # Not currently called in the pipeline.
 def multifasta2dict(fna):
@@ -527,8 +540,9 @@ def mapToGeneSummary(cutoff, organism, experiment=''):
 
 def main():
     bowtieOutput = sys.argv[1]
-    experiment = sys.argv[2]
-    insertionCounts(bowtieOutput, experiment)
+    sample_file = sys.argv[2]
+    experiment = sys.argv[3]
+    processOutput(bowtieOutput, sample_file, experiment)
 
 if __name__ == '__main__':
     main()
