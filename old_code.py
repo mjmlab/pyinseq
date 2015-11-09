@@ -65,3 +65,15 @@ def taSites(fna):
             if (sequence[-1] + sequence[0]) == 'ta':
                 do[header].append(i+1)
     return do
+
+
+    def createSamplesDirectory():
+        """
+        Create the samples directory if needed
+        """
+
+        # Create /pyinseq/samples/ path if does not exist already
+        try:
+            os.makedirs('samples/')
+        except:
+            pass

@@ -3,7 +3,7 @@
 Demultiplexes a FASTQ file into multiple files by 5' end barcode
 
 Output path includes the experiment and sample name:
-(pysinseq)/samples/{experiment}/{sample}.fastq
+(pysinseq)/{experiment}/{sample}.fastq
 
 """
 
@@ -74,9 +74,6 @@ def demultiplex_fastq(fastq_file, sample_file, experiment):
     demultiplex_dict = {}
 
     for sampleName, barcode in barcodes_dict.items():
-        # create the /pyinseq/samples/{experiment}/{sample} files
-        # exit if any of the files already exist
-        createDemultiplexFiles(experiment, sampleName)
         # create a dictionary to hold fastq data before it is written
         # key = barcode (NOT THE SAMPLE)
         # values = list of fastq records
@@ -112,7 +109,7 @@ def writeReads(demultiplex_dict, barcodes_dict, experiment):
     Write the fastq data to the correct (demultiplexed) file
     """
     for sampleName, barcode in barcodes_dict.items():
-        with gzip.open('samples/{experiment}/{sampleName}.fastq.gz'.format( \
+        with gzip.open('{experiment}/raw_data/{sampleName}.fastq.gz'.format( \
             experiment = experiment,
             sampleName = sampleName), 'a') as fo:
             for fastqRead in demultiplex_dict[barcode]:
@@ -121,18 +118,21 @@ def writeReads(demultiplex_dict, barcodes_dict, experiment):
                     s = fastqRead.sequence,
                     q = fastqRead.quality), 'UTF-8'))
 
-def samplesToProcess(sample_file, experiment):
+def demultiplexedSamplesToProcess(sample_file, experiment):
     """
     Returns a list of the sample paths to process in the current analysis.
 
     e.g.:
-    ['samples/E001/E001_01.fastq.gz', 'samples/E001/E001_02.fastq.gz']
+    ['experiment01/raw_data/E001_01.fastq.gz', 'experiment01/raw_data/E001_02.fastq.gz']
+
+    TODO: Return as a dictionary and specify the sample name too. Then get rid of
+    regex to pull out sample name in pyinseq.py
 
     """
     barcodes_dict = barcodes_prep(sample_file)
     sampleFile_list = []
     for sample in sorted(barcodes_dict):
-        sampleFile_list.append('samples/{experiment}/{sample}.fastq.gz'.format(
+        sampleFile_list.append('{experiment}/raw_data/{sample}.fastq.gz'.format(
             experiment=experiment,
             sample=sample
             ))
@@ -144,7 +144,7 @@ They might be able to be consolidated into more general code. In utils.py?
 
 """
 
-def trim_fastq(fastq_file, bLen=4):
+def trim_fastq(fastq_file, sampleName, experiment, bLen=4):
     """
     Write a fastq file with only the chromosome sequence.
 
@@ -157,12 +157,12 @@ def trim_fastq(fastq_file, bLen=4):
     bLen = barcode length at 5' end of read
 
     """
-    root, ext = (fastq_file).split(os.extsep, 1)
-    if not ext.endswith('gz'):
-        ext = ext + '.gz'
-    newfile = '{root}_trimmed.{ext}'.format(
-        root = root,
-        ext = ext)
+    #TODO: Should just pass the sample name explicitely instead of recalculating from the filename
+    head, tail = os.path.split(fastq_file)
+    sampleName = tail.split('.')[0]
+    newfile = '{experiment}/{sampleName}_trimmed.fastq.gz'.format( \
+        experiment = experiment,
+        sampleName = sampleName)
     # Create blank file
     with open(newfile, 'w') as fo:
         pass
@@ -196,20 +196,22 @@ def trim_fastq(fastq_file, bLen=4):
             # Every 10^6 sequences write and clear the dictionary
             nreads += 1
             if nreads % 1E6 == 0:
-                writeTrimmedReads(trimmed_list, newfile)
+                writeTrimmedReads(trimmed_list, sampleName, newfile, experiment)
                 # Clear the dictionary after writing to file
                 trimmed_list = []
                 sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
-    writeTrimmedReads(trimmed_list, newfile)
+    writeTrimmedReads(trimmed_list, sampleName, newfile, experiment)
     trimmed_list = []
     sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads) + '\n')
 
-def writeTrimmedReads(trimmed_fastq_list, trimmed_fastq_filepath):
+def writeTrimmedReads(trimmed_fastq_list, sampleName, trimmed_fastq_filepath, experiment):
     """
     Write the trimmed fastq data to the correct (demultiplexed) file
     in the experiment directory
     """
-    with gzip.open(trimmed_fastq_filepath, 'a') as fo:
+    with gzip.open('{experiment}/{sampleName}_trimmed.fastq.gz'.format( \
+        experiment = experiment,
+        sampleName = sampleName), 'a') as fo:
         for fastqRead in trimmed_fastq_list:
             fo.write(bytes('@{n}\n{s}\n+\n{q}\n'.format( \
                 n = fastqRead.name,

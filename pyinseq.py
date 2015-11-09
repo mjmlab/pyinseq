@@ -64,7 +64,7 @@ def main():
     organism = 'genome'
 
     # pyinseqDirectory = os.getcwd()
-    tempDir = '{experiment}/temp/'.format(experiment=experiment)
+    genomeDir = '{experiment}/genome_lookup/'.format(experiment=experiment)
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
 
@@ -72,19 +72,28 @@ def main():
     demultiplex_fastq(reads, samples, experiment)
 
     # Prepare genome files from the GenBank input
-    gbk2fna(gbkfile, organism, tempDir)
-    gbk2ftt(gbkfile, organism, tempDir)
+    gbk2fna(gbkfile, organism, genomeDir)
+    gbk2ftt(gbkfile, organism, genomeDir)
 
     # List of file paths of the demultiplexed files
     demultiplexedSample_list = demultiplexedSamplesToProcess(samples, experiment)
 
+    # Change directory, build bowtie indexes, change directory back
+    with cd(genomeDir):
+        bowtieBuild(organism)
+
     # PROCESS SAMPLE
-    ## CAN I ADD THIS PROCESSING TO THE WRITE STEP DURING DEMULTIPLEX?????
     # Rewrite as new .fastq file with only chromosome sequence
     # Trim barcode, trim transposon. Trim corresponding quality.
     # Ignore if not a good transposon junction.
-    for sample in demultiplexedSample_list:
-        trim_fastq(sample)
+    for samplePath in demultiplexedSample_list:
+        s1 = samplePath.split('.')[0].rfind('/')
+        sampleName = samplePath.split('.')[0][s1+1:]
+        trim_fastq(samplePath, sampleName, experiment)
+        # Change directory, map to bowtie, change directory back
+        with cd(genomeDir):
+#            bowtieMap(organism, readsAssigned, bowtieOutput)
+            pass
 
 
     ## *** RUN BOWTIE ON NEW FILE ***
@@ -107,10 +116,6 @@ def main():
 #    readsAssigned = '{0}_assigned.fastq'.format(experiment) # already exsists
 #    bowtieOutput = '{0}_bowtieOutput.txt'.format(experiment) # will get created at next step
 
-    # Change directory, build bowtie indexes, call bowtie, change directory back
-#    with cd(tempDir):
-#        bowtieBuild(organism)
-#        bowtieMap(organism, readsAssigned, bowtieOutput)
 
     # Summarize the bowtie results
     # Need more consistency in how directory locations are handled

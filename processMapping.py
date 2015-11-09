@@ -16,49 +16,7 @@ from operator import itemgetter
 def mapSites(bowtieOutput):
     pass
 
-def clearTempReadFile():
 
-    # TODO: experiment should be a global variable. How to do that?
-
-    """
-    Clear the temporary fastq file that is used for bowtie input.
-    """
-    try:
-        with open('{experiment}/temp/temp_bowtie_file.fastq'.format(
-            experiment='E001'
-            ), 'w') as fo:
-            pass
-    except FileNotFoundError:
-        'No temp directory in which to create the bowtie input file.'
-
-def writeTempReads(fastq_list):
-    """
-    Write the fastq data to the correct (demultiplexed) file
-    """
-    for sampleName, barcode in barcodes_dict.items():
-        with open('temp/temp_bowtie_file.fastq', 'a') as fo:
-            for fastqRead in demultiplex_dict[barcode]:
-                fo.write(bytes('@{n}\n{s}\n+\n{q}\n'.format( \
-                    n = fastqRead.name,
-                    s = fastqRead.sequence,
-                    q = fastqRead.quality), 'UTF-8'))
-
-def demultiplexedSamplesToProcess(sample_file, experiment):
-    """
-    Returns a list of the sample paths to process in the current analysis.
-
-    e.g.:
-    ['samples/E001/E001_01.fastq.gz', 'samples/E001/E001_02.fastq.gz']
-
-    """
-    barcodes_dict = barcodes_prep(sample_file)
-    sampleFile_list = []
-    for sample in sorted(barcodes_dict):
-        sampleFile_list.append('samples/{experiment}/{sample}.fastq.gz'.format(
-            experiment=experiment,
-            sample=sample
-            ))
-    return sampleFile_list
 
 def insertionNucleotides(bowtieOutput, experiment=''):
     """ Define the TA dinucleotide of the insertion from the bowtie output
