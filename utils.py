@@ -37,7 +37,6 @@ def createDemultiplexFiles(experiment, sample_name):
         print('Error: File {} exists already.'.format(filepath))
         exit(1)
 
-
 def createExperimentDirectories(experiment):
     """
     Create the project directory and subdirectories
