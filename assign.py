@@ -26,50 +26,6 @@ def parseArgs(args):
         required=True)
     return parser.parse_args(args)
 
-def barcodesPrep(samples):
-    """
-    Extract barcodes from an INSeq sample list and conduct basic quality checks
-
-    Input samples is a tab-delimited file. On each line the sample identifier
-    should be listed (no spaces), then after a tab the DNA barcode.
-    Comment lines begin with '#' and are not read. E.g.:
-    # Experiment E01 sample file by M. Mandel
-    Input1<tab>CGAT
-    Input2<tab>GCTA
-    The function checks that all barcodes are the same length.
-    The function returns a list of barcodes and sample names and the
-    length of the barcodes.
-
-    """
-
-    # Extract barcode list from tab-delimited sample file.
-    # Ensure uppercase and stripped
-    print('Checking barcodes:')
-    barcodeList = {}
-    for line in samples:
-        if not line.startswith('#'):
-            newBarcode = line.rstrip().split('\t')[1]
-            if newBarcode in barcodeList:
-                print('Error: redundant barcode {}'.format(newBarcode))
-                exit(1)
-            newSample = line.rstrip().split('\t')[0]
-            if newSample in barcodeList.values():
-                print('Error: redundant sample identifier {}'.format(newSample))
-                exit(1)
-            barcodeList[newBarcode] = newSample
-            barcodeLength = len(newBarcode)
-
-    # Print barcodes and check for same length
-    for b in sorted(barcodeList):
-        print('{0}\t{1}'.format(b, barcodeList[b]))
-        if len(b) != barcodeLength:
-            print('Error: barcodes are not the same length')
-            exit(1)
-
-    print('n={0} unique barcodes of length {1} nt'.format(len(barcodeList), barcodeLength))
-
-    return barcodeList.keys(), barcodeLength
-
 def assignAndTrim(fastqFile, sampleFile, experiment, tempDir):
     if fastqFile.endswith('.gz'):
         opener = gzip.open
@@ -98,7 +54,7 @@ def assignAndTrim(fastqFile, sampleFile, experiment, tempDir):
             # fastq record
             # identifier =     record[0]
             # sequence =       record[1]
-            # altIdentifier = record[2]
+            # annotations =  record[2]
             # quality =        record[3]
             record = []
             for i,line in enumerate(f):
