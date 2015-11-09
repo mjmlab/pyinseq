@@ -14,9 +14,29 @@ import screed
 from operator import itemgetter
 
 def mapSites(bowtieOutput):
-    pass
-
-
+    # Placeholder for dictionary of mapped reads in format:
+    # {(contig, position) : [Lcount, Rcount]}
+    mapDict = {}
+    with open(bowtieOutput, 'r') as fi:
+        for line in fi:
+            bowtiedata = line.rstrip().split('\t')
+            # Calculate transposon insertion point = transposonNT
+            readLength = len(bowtiedata[4])
+            contig = str(bowtiedata[2])
+            insertionNT = int(bowtiedata[3])
+            if bowtiedata[1] == '+': # positive strand read
+                insertionNt = insertionNT + readLength - 1
+                mapDict.setdefault((contig,insertionNt),[0,0])[0] += 1   # Lcount
+            else: # negative strand read
+                insertionNt = insertionNT + 1
+                mapDict.setdefault((contig,insertionNt),[0,0])[1] += 1   # R
+        return(mapDict)
+    # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount
+    with open('{0}_mapped'.format(bowtieOutput), 'a') as fo:
+        for insertion in mapDict:
+            writer = csv.writer(fo, delimiter='\t', dialect='excel')
+            row_entry = (insertion[0], insertion[1], mapDict[insertion][0], mapDict[insertion][1], mapDict[insertion][0] + mapDict[insertion][1])
+            writer.writerow(row_entry)
 
 def insertionNucleotides(bowtieOutput, experiment=''):
     """ Define the TA dinucleotide of the insertion from the bowtie output

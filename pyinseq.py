@@ -95,20 +95,15 @@ def main():
             sampleName=sampleName)
         trim_fastq(samplePath, trimmedSamplePath, sampleName)
         # Change directory, map to bowtie, change directory back
+        trimmedSampleFile = '{0}_trimmed.fastq'.format(sampleName)
+        bowtieOutputFile = '{0}_output_bowtie.txt'.format(sampleName)
         with cd(genomeDir):
-            bowtie_in = '../{0}_trimmed.fastq'.format(sampleName)
-            bowtie_out = '../{0}_output_bowtie.txt'.format(sampleName)
+            # Paths are relative to the genome_lookup directory
+            # from where bowtie is called
+            bowtie_in = '../{0}'.format(trimmedSampleFile)
+            bowtie_out = '../{0}'.format(bowtieOutputFile)
             bowtieMap(organism, bowtie_in, bowtie_out)
-            pass
-
-
-    ## *** RUN BOWTIE ON NEW FILE ***
-    ## *** DELETE TRIMMED FASTQ FILE? YES UNLESS (K)EEP TEMPORARY FILES SELECTED ***
-
-    ## THEN DO MATH ON EACH LINE OF THE BOWTIE OUTPUT:
-    ## {(contig, position) : [Lcount, Rcount]}
-    ## d.setdefault((contig,position),[0,0])[0] += 1   # L
-    ## d.setdefault((contig,position),[0,0])[1] += 2   # R
+        mapSites('{0}/{1}'.format(experiment, bowtieOutputFile))
 
 
 
