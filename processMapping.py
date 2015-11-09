@@ -16,66 +16,6 @@ from operator import itemgetter
 def mapSites(bowtieOutput):
     pass
 
-def trimBarcodeTransposon(fastq_path):
-    """
-    Trim barcode and transposon sequence, write to new file
-
-    Assumes demultiplexed file. Barcode information is not retained.
-
-    """
-
-    # List to hold FASTQ reads until written to file
-    trimmedReads_list = []
-    # Clear the file to be written into
-    clearTempReadFile()
-
-    # Assume 4 bp 5' barcode for now
-    bLen = 4
-
-    # Length of chromosomal sequence
-    # Should be 16-17 bp (filter on this)
-    # Also used to match quality with corresponding sequence
-    chromosomeSeq = 0
-
-    # count of reads
-    nreads = 0
-    # For each line in the FASTQ file:
-    #   Rewrite without barcode or transposon
-    #   Then write to the appropriate output file
-    with screed.open(fastq_path) as seqfile:
-        for read in seqfile:
-            # TODO: Improve speed by writing own parser that slices out
-            #    the barcode
-            #    https://screed.readthedocs.org/en/v0.9/screed.html#writing-custom-sequence-parsers
-            # intact transposon junction with 16-17 bp chromosomal DNA between
-            # barcode and transposon
-
-            # Tn location as number of nuceotides after the barcode
-            # Note that the 'TA' are in the chromosome too, so add 2
-            chromosomeSeq = read.sequence.find('TAACAGGTTG') + 2 - bLen
-
-            #slice of sequence and quality to extract
-            seqSlice = slice(bLen:(chromosomeSeq+bLen))
-
-            # Good read!
-            if chromosomeSeq in range(16, 18):
-                # screed will cleverly use the sliced part of the sequence and
-                # quality but the entire name/identifier
-                trimmedReads_list.append(read[seqSlice])
-            # ignore if does not pass filters above
-            else:
-                pass
-
-            # Every 10^6 sequences write and clear the list
-            nreads += 1
-            if nreads % 1E6 == 0:
-                writeTempReads(trimmedReads_list)
-                # Clear the list after writing to file
-                trimmedReads_list = []
-                sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
-    writeReads(demultiplex_dict, barcodes_dict, experiment)
-    sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
-
 def clearTempReadFile():
 
     # TODO: experiment should be a global variable. How to do that?
@@ -103,6 +43,22 @@ def writeTempReads(fastq_list):
                     s = fastqRead.sequence,
                     q = fastqRead.quality), 'UTF-8'))
 
+def demultiplexedSamplesToProcess(sample_file, experiment):
+    """
+    Returns a list of the sample paths to process in the current analysis.
+
+    e.g.:
+    ['samples/E001/E001_01.fastq.gz', 'samples/E001/E001_02.fastq.gz']
+
+    """
+    barcodes_dict = barcodes_prep(sample_file)
+    sampleFile_list = []
+    for sample in sorted(barcodes_dict):
+        sampleFile_list.append('samples/{experiment}/{sample}.fastq.gz'.format(
+            experiment=experiment,
+            sample=sample
+            ))
+    return sampleFile_list
 
 def insertionNucleotides(bowtieOutput, experiment=''):
     """ Define the TA dinucleotide of the insertion from the bowtie output

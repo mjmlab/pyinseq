@@ -76,7 +76,7 @@ def main():
     gbk2ftt(gbkfile, organism, tempDir)
 
     # List of file paths of the demultiplexed files
-    demultiplexedSample_list = demuSamplesToProcess(sample_file, experiment)
+    demultiplexedSample_list = demultiplexedSamplesToProcess(samples, experiment)
 
     # PROCESS SAMPLE
     ## CAN I ADD THIS PROCESSING TO THE WRITE STEP DURING DEMULTIPLEX?????
@@ -84,7 +84,7 @@ def main():
     # Trim barcode, trim transposon. Trim corresponding quality.
     # Ignore if not a good transposon junction.
     for sample in demultiplexedSample_list:
-        trimBarcodeTransposon(sample)
+        trim_fastq(sample)
 
 
     ## *** RUN BOWTIE ON NEW FILE ***
@@ -104,13 +104,13 @@ def main():
 
     # Prepare the bowtie indexes
     # Map the reads using bowtie_map
-    readsAssigned = '{0}_assigned.fastq'.format(experiment) # already exsists
-    bowtieOutput = '{0}_bowtieOutput.txt'.format(experiment) # will get created at next step
+#    readsAssigned = '{0}_assigned.fastq'.format(experiment) # already exsists
+#    bowtieOutput = '{0}_bowtieOutput.txt'.format(experiment) # will get created at next step
 
     # Change directory, build bowtie indexes, call bowtie, change directory back
-    with cd(tempDir):
-        bowtieBuild(organism)
-        bowtieMap(organism, readsAssigned, bowtieOutput)
+#    with cd(tempDir):
+#        bowtieBuild(organism)
+#        bowtieMap(organism, readsAssigned, bowtieOutput)
 
     # Summarize the bowtie results
     # Need more consistency in how directory locations are handled

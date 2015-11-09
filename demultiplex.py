@@ -207,6 +207,7 @@ def trim_fastq(fastq_file, bLen=4):
 def writeTrimmedReads(trimmed_fastq_list, trimmed_fastq_filepath):
     """
     Write the trimmed fastq data to the correct (demultiplexed) file
+    in the experiment directory
     """
     with gzip.open(trimmed_fastq_filepath, 'a') as fo:
         for fastqRead in trimmed_fastq_list:
