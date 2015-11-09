@@ -66,11 +66,6 @@ def demultiplex_fastq(fastq_file, sample_file, experiment):
 
     """
 
-    #if fastq_file.endswith('.gz'):
-    #    opener = gzip.open
-    #else:
-    #    opener = open
-
     barcodes_dict = barcodes_prep(sample_file)
     # holder for unassigned barcodes
     barcodes_dict['_other'] = '_other'
@@ -110,7 +105,7 @@ def demultiplex_fastq(fastq_file, sample_file, experiment):
                     demultiplex_dict[sampleName] = []
                 sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
     writeReads(demultiplex_dict, barcodes_dict, experiment)
-    sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
+    sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads) + '\n')
 
 def writeReads(demultiplex_dict, barcodes_dict, experiment):
     """
@@ -143,12 +138,90 @@ def samplesToProcess(sample_file, experiment):
             ))
     return sampleFile_list
 
+"""
+trim_fastq() and writeTrimmedReads() are derived from functions above.
+They might be able to be consolidated into more general code. In utils.py?
+
+"""
+
+def trim_fastq(fastq_file, bLen=4):
+    """
+    Write a fastq file with only the chromosome sequence.
+
+    Writes a new fastq.gz file with:
+    '_trimmed' appended to its name. 'sample01.fastq.gz' > 'sample01_trimmed.fastq.gz'
+    (always done in gzipped format)
+    If sequence has barcode and Tn then Tn sequence/quality data are not written
+    into new file.
+    Writes in same directory as initial file.
+    bLen = barcode length at 5' end of read
+
+    """
+    root, ext = (fastq_file).split(os.extsep, 1)
+    if not ext.endswith('gz'):
+        ext = ext + '.gz'
+    newfile = '{root}_trimmed.{ext}'.format(
+        root = root,
+        ext = ext)
+    # Create blank file
+    with open(newfile, 'w') as fo:
+        pass
+    # list to hold trimmed FASTQ reads until they are written to files
+    trimmed_list = []
+    # barcode length
+    bLen = 4
+    # count of reads
+    nreads = 0
+    # For each line in the FASTQ file:
+    #   Check for intact transposon.
+    #   (Already know that barcode is ok if not in '_other' file)
+    #   Then write to the appropriate output file
+    with screed.open(fastq_file) as seqfile:
+        for read in seqfile:
+            try:
+                # barcode sequence in read
+                barcode = read.sequence[0:bLen]
+                # Identify length of chromosome sequence in read
+                # (after barcode, before Tn)
+                # Tn location as number of nuceotides after the barcode
+                # Note that the 'TA' are in the chromosome too, so add 2
+                chromosomeSeq = read.sequence.find('TAACAGGTTG') + 2 - bLen
+                #slice of sequence and quality to extract
+                seqSlice = slice(bLen, (chromosomeSeq+bLen))
+                # Good read!
+                if chromosomeSeq in range(16, 18):
+                    trimmed_list.append(read[seqSlice])
+            except:
+                pass
+            # Every 10^6 sequences write and clear the dictionary
+            nreads += 1
+            if nreads % 1E6 == 0:
+                writeTrimmedReads(trimmed_list, newfile)
+                # Clear the dictionary after writing to file
+                trimmed_list = []
+                sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
+    writeTrimmedReads(trimmed_list, newfile)
+    trimmed_list = []
+    sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads) + '\n')
+
+def writeTrimmedReads(trimmed_fastq_list, trimmed_fastq_filepath):
+    """
+    Write the trimmed fastq data to the correct (demultiplexed) file
+    """
+    with gzip.open(trimmed_fastq_filepath, 'a') as fo:
+        for fastqRead in trimmed_fastq_list:
+            fo.write(bytes('@{n}\n{s}\n+\n{q}\n'.format( \
+                n = fastqRead.name,
+                s = fastqRead.sequence,
+                q = fastqRead.quality), 'UTF-8'))
+
 # ===== Start here ===== #
 
 def main():
-    fastq_file = sys.argv[1]
-    sample_file = sys.argv[2]
-    demultiplex_fastq(fastq_file, sample_file, 'E1001')
+    #fastq_file = sys.argv[1]
+    #sample_file = sys.argv[2]
+    #demultiplex_fastq('_exampleData/example01.fastq', '_exampleData/example01.txt', 'example01')
+    trim_fastq('samples/example01/E001_01.fastq.gz')
 
 if __name__ == "__main__":
     main()

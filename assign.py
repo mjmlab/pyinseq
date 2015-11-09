@@ -54,7 +54,7 @@ def assignAndTrim(fastqFile, sampleFile, experiment, tempDir):
             # fastq record
             # identifier =     record[0]
             # sequence =       record[1]
-            # annotations =  record[2]
+            # annotations =    record[2]
             # quality =        record[3]
             record = []
             for i,line in enumerate(f):
