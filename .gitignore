@@ -5,6 +5,7 @@ __pycache__/
 
 # Input data files for experiment
 input*
+raw*/
 
 # Genome reference files
 *.gb
