@@ -5,96 +5,104 @@ Counts the bowtie hits at each position in each sample
 """
 
 from demultiplex import barcodes_prep
+import os
 import sys
 import re
 import csv
 import collections
+import screed
 from operator import itemgetter
-
-
-# Probably move this to the wrapper script to iterate through demultiplexed files
-def samplesToProcess(sample_file, experiment):
-    """
-    Returns a list of the sample paths to process in the current analysis.
-
-    e.g.:
-    ['samples/E001/E001_01.fastq.gz', 'samples/E001/E001_02.fastq.gz']
-
-    """
-    barcodes_dict = barcodes_prep(sample_file)
-    sampleFile_list = []
-    for sample in sorted(barcodes_dict):
-        sampleFile_list.append('samples/{experiment}/{sample}.fastq.gz'.format(
-            experiment=experiment,
-            sample=sample
-            ))
-    return sampleFile_list
 
 def mapSites(bowtieOutput):
     pass
 
-
-# Not currently called in the pipeline.
-def multifasta2dict(fna):
+def trimBarcodeTransposon(fastq_path):
     """
-    Returns a dictionary of fasta headers and sequences
+    Trim barcode and transposon sequence, write to new file
 
-    Input file in multifasta format
-    >header1
-    agctag
-    >header2
-    gattta
+    Assumes demultiplexed file. Barcode information is not retained.
 
-    Function returns the fasta data as a dictionary
-    {'header1': 'agctag', 'header2': 'gattta'}
     """
-    d = {}
-    with open(fna, 'r') as fi:
-        header = ''
-        firstLine = False # next line is first line of sequence in contig
-        for line in fi:
-            line = line.rstrip()
-            if line.startswith('>'): # header line; therefore new contig
-                header = line[1:] # new header
-                firstLine = True
-            else: # sequence line
-                if firstLine:
-                    d[header] = line # create dictionary entry
-                    firstLine = False
-                # would this work in one step?
-                else:
-                    appendedSequence = d[header] + line
-                    d[header] = appendedSequence
-        return d
 
-# Not currently called in the pipeline.
-def taSites(fna):
-    """ Enumerate TA dinucleotides in a fasta nucleotide file
+    # List to hold FASTQ reads until written to file
+    trimmedReads_list = []
+    # Clear the file to be written into
+    clearTempReadFile()
 
-    Returns a dictionary of 5'-TA positions for each contig in a multifasta file.
-    Assumes circular genome; i.e. will check if the last [-1] nucleotide is a T
-    and the first [0] is an A
+    # Assume 4 bp 5' barcode for now
+    bLen = 4
 
-    Function calls multifasta2dict() and returns the nucleotide positions
-    of TA sites in each contig as dictionary values:
-    {'header1': [20, 22, 24, ... 1401104], 'header2': [5, 16, 24, ... 39910]}
+    # Length of chromosomal sequence
+    # Should be 16-17 bp (filter on this)
+    # Also used to match quality with corresponding sequence
+    chromosomeSeq = 0
+
+    # count of reads
+    nreads = 0
+    # For each line in the FASTQ file:
+    #   Rewrite without barcode or transposon
+    #   Then write to the appropriate output file
+    with screed.open(fastq_path) as seqfile:
+        for read in seqfile:
+            # TODO: Improve speed by writing own parser that slices out
+            #    the barcode
+            #    https://screed.readthedocs.org/en/v0.9/screed.html#writing-custom-sequence-parsers
+            # intact transposon junction with 16-17 bp chromosomal DNA between
+            # barcode and transposon
+
+            # Tn location as number of nuceotides after the barcode
+            # Note that the 'TA' are in the chromosome too, so add 2
+            chromosomeSeq = read.sequence.find('TAACAGGTTG') + 2 - bLen
+
+            #slice of sequence and quality to extract
+            seqSlice = slice(bLen:(chromosomeSeq+bLen))
+
+            # Good read!
+            if chromosomeSeq in range(16, 18):
+                # screed will cleverly use the sliced part of the sequence and
+                # quality but the entire name/identifier
+                trimmedReads_list.append(read[seqSlice])
+            # ignore if does not pass filters above
+            else:
+                pass
+
+            # Every 10^6 sequences write and clear the list
+            nreads += 1
+            if nreads % 1E6 == 0:
+                writeTempReads(trimmedReads_list)
+                # Clear the list after writing to file
+                trimmedReads_list = []
+                sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
+    writeReads(demultiplex_dict, barcodes_dict, experiment)
+    sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
+
+def clearTempReadFile():
+
+    # TODO: experiment should be a global variable. How to do that?
+
     """
-    di = multifasta2dict(fna)
-    do = {}
-    for header in di:
-        sequence = di[header]
-        do[header] = []
-        i = 0   # nucleotide index
-        # Checks the linear molecule (i.e. all except the last base)
-        while i < len(sequence)-1:
-            if sequence[i:i+2] == 'ta':
-                do[header].append(i+1)
-            i += 1
-        # Checks last base circular around to first base
-        if i == len(sequence)-1:
-            if (sequence[-1] + sequence[0]) == 'ta':
-                do[header].append(i+1)
-    return do
+    Clear the temporary fastq file that is used for bowtie input.
+    """
+    try:
+        with open('{experiment}/temp/temp_bowtie_file.fastq'.format(
+            experiment='E001'
+            ), 'w') as fo:
+            pass
+    except FileNotFoundError:
+        'No temp directory in which to create the bowtie input file.'
+
+def writeTempReads(fastq_list):
+    """
+    Write the fastq data to the correct (demultiplexed) file
+    """
+    for sampleName, barcode in barcodes_dict.items():
+        with open('temp/temp_bowtie_file.fastq', 'a') as fo:
+            for fastqRead in demultiplex_dict[barcode]:
+                fo.write(bytes('@{n}\n{s}\n+\n{q}\n'.format( \
+                    n = fastqRead.name,
+                    s = fastqRead.sequence,
+                    q = fastqRead.quality), 'UTF-8'))
+
 
 def insertionNucleotides(bowtieOutput, experiment=''):
     """ Define the TA dinucleotide of the insertion from the bowtie output
