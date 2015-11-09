@@ -76,17 +76,19 @@ def main():
     gbk2ftt(gbkfile, organism, tempDir)
 
     # List of file paths of the demultiplexed files
-    demultiplexedSample_list = samplesToProcess(sample_file, experiment)
+    demultiplexedSample_list = demuSamplesToProcess(sample_file, experiment)
 
-    # Process sample
-    ## *** TRIM BARCODE, TRIM TRANSPOSON **
-    ## *** ... AND FILTER OUT IF TRIMMING NOT SUCCESSFUL ***
-    ## *** WRITE TO NEW FILE ***
+    # PROCESS SAMPLE
     ## CAN I ADD THIS PROCESSING TO THE WRITE STEP DURING DEMULTIPLEX?????
-    ## HAVE IT WRITE INTO TWO SEPARATE FILES??
+    # Rewrite as new .fastq file with only chromosome sequence
+    # Trim barcode, trim transposon. Trim corresponding quality.
+    # Ignore if not a good transposon junction.
+    for sample in demultiplexedSample_list:
+        trimBarcodeTransposon(sample)
+
+
     ## *** RUN BOWTIE ON NEW FILE ***
-    ## *** DELETE TRIMMED FASTQ FILE? PROBABLY UNLESS (K)EEP TEMPORARY FILES SELECTED ***
-    ## -k --keep could keep every file generated
+    ## *** DELETE TRIMMED FASTQ FILE? YES UNLESS (K)EEP TEMPORARY FILES SELECTED ***
 
     ## THEN DO MATH ON EACH LINE OF THE BOWTIE OUTPUT:
     ## {(contig, position) : [Lcount, Rcount]}
