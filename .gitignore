@@ -7,9 +7,15 @@ __pycache__/
 input*
 
 # Genome reference files
+*.gb
 *.gbk
 *.ftt
 
 # Data output directories
 old/
 Exp*/
+E1*/
+examp*/
+
+# Sandbox
+gists.py
