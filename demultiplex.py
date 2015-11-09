@@ -144,7 +144,7 @@ They might be able to be consolidated into more general code. In utils.py?
 
 """
 
-def trim_fastq(fastq_file, sampleName, experiment, bLen=4):
+def trim_fastq(fastq_file, output_file, sampleName, bLen=4):
     """
     Write a fastq file with only the chromosome sequence.
 
@@ -153,18 +153,11 @@ def trim_fastq(fastq_file, sampleName, experiment, bLen=4):
     (always done in gzipped format)
     If sequence has barcode and Tn then Tn sequence/quality data are not written
     into new file.
-    Writes in same directory as initial file.
     bLen = barcode length at 5' end of read
 
     """
-    #TODO: Should just pass the sample name explicitely instead of recalculating from the filename
-    head, tail = os.path.split(fastq_file)
-    sampleName = tail.split('.')[0]
-    newfile = '{experiment}/{sampleName}_trimmed.fastq.gz'.format( \
-        experiment = experiment,
-        sampleName = sampleName)
     # Create blank file
-    with open(newfile, 'w') as fo:
+    with open(output_file, 'w') as fo:
         pass
     # list to hold trimmed FASTQ reads until they are written to files
     trimmed_list = []
@@ -196,27 +189,25 @@ def trim_fastq(fastq_file, sampleName, experiment, bLen=4):
             # Every 10^6 sequences write and clear the dictionary
             nreads += 1
             if nreads % 1E6 == 0:
-                writeTrimmedReads(trimmed_list, sampleName, newfile, experiment)
+                writeTrimmedReads(trimmed_list, sampleName, output_file)
                 # Clear the dictionary after writing to file
                 trimmed_list = []
                 sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
-    writeTrimmedReads(trimmed_list, sampleName, newfile, experiment)
+    writeTrimmedReads(trimmed_list, sampleName, output_file)
     trimmed_list = []
     sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads) + '\n')
 
-def writeTrimmedReads(trimmed_fastq_list, sampleName, trimmed_fastq_filepath, experiment):
+def writeTrimmedReads(trimmed_fastq_list, sampleName, trimmed_fastq_filepath):
     """
     Write the trimmed fastq data to the correct (demultiplexed) file
     in the experiment directory
     """
-    with gzip.open('{experiment}/{sampleName}_trimmed.fastq.gz'.format( \
-        experiment = experiment,
-        sampleName = sampleName), 'a') as fo:
+    with open(trimmed_fastq_filepath, 'a') as fo:
         for fastqRead in trimmed_fastq_list:
-            fo.write(bytes('@{n}\n{s}\n+\n{q}\n'.format( \
+            fo.write('@{n}\n{s}\n+\n{q}\n'.format( \
                 n = fastqRead.name,
                 s = fastqRead.sequence,
-                q = fastqRead.quality), 'UTF-8'))
+                q = fastqRead.quality))
 
 # ===== Start here ===== #
 

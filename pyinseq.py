@@ -75,24 +75,30 @@ def main():
     gbk2fna(gbkfile, organism, genomeDir)
     gbk2ftt(gbkfile, organism, genomeDir)
 
-    # List of file paths of the demultiplexed files
-    demultiplexedSample_list = demultiplexedSamplesToProcess(samples, experiment)
-
     # Change directory, build bowtie indexes, change directory back
     with cd(genomeDir):
         bowtieBuild(organism)
+
+    # List of file paths of the demultiplexed files
+    demultiplexedSample_list = demultiplexedSamplesToProcess(samples, experiment)
 
     # PROCESS SAMPLE
     # Rewrite as new .fastq file with only chromosome sequence
     # Trim barcode, trim transposon. Trim corresponding quality.
     # Ignore if not a good transposon junction.
     for samplePath in demultiplexedSample_list:
+        #TODO: Fix so that the sample name does not need to be calculated
         s1 = samplePath.split('.')[0].rfind('/')
         sampleName = samplePath.split('.')[0][s1+1:]
-        trim_fastq(samplePath, sampleName, experiment)
+        trimmedSamplePath = '{experiment}/{sampleName}_trimmed.fastq'.format(
+            experiment=experiment,
+            sampleName=sampleName)
+        trim_fastq(samplePath, trimmedSamplePath, sampleName)
         # Change directory, map to bowtie, change directory back
         with cd(genomeDir):
-#            bowtieMap(organism, readsAssigned, bowtieOutput)
+            bowtie_in = '../{0}_trimmed.fastq'.format(sampleName)
+            bowtie_out = '../{0}_output_bowtie.txt'.format(sampleName)
+            bowtieMap(organism, bowtie_in, bowtie_out)
             pass
 
 
@@ -110,11 +116,6 @@ def main():
     # Now currently filtering by default (16-17 bp, TA at end)
     # In future could add as command line option
     #assignAndTrim(reads, samples, experiment, tempDir)
-
-    # Prepare the bowtie indexes
-    # Map the reads using bowtie_map
-#    readsAssigned = '{0}_assigned.fastq'.format(experiment) # already exsists
-#    bowtieOutput = '{0}_bowtieOutput.txt'.format(experiment) # will get created at next step
 
 
     # Summarize the bowtie results
