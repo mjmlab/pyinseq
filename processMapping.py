@@ -31,8 +31,9 @@ def mapSites(bowtieOutput):
                 insertionNt = insertionNT + 1
                 mapDict.setdefault((contig,insertionNt),[0,0])[1] += 1   # Rcount
     # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount
-    with open('{0}_mapped'.format(bowtieOutput), 'a') as fo:
-        for insertion in mapDict:
+    root, ext = os.path.splitext(bowtieOutput)
+    with open('{0}_mapped{1}'.format(root, ext), 'a') as fo:
+        for insertion in sorted(mapDict):
             writer = csv.writer(fo, delimiter='\t', dialect='excel')
             row_entry = (insertion[0], insertion[1], mapDict[insertion][0], mapDict[insertion][1], mapDict[insertion][0] + mapDict[insertion][1])
             writer.writerow(row_entry)
