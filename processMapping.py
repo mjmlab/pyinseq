@@ -29,14 +29,14 @@ def mapSites(bowtieOutput):
                 mapDict.setdefault((contig,insertionNt),[0,0])[0] += 1   # Lcount
             else: # negative strand read
                 insertionNt = insertionNT + 1
-                mapDict.setdefault((contig,insertionNt),[0,0])[1] += 1   # R
-        return(mapDict)
+                mapDict.setdefault((contig,insertionNt),[0,0])[1] += 1   # Rcount
     # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount
     with open('{0}_mapped'.format(bowtieOutput), 'a') as fo:
         for insertion in mapDict:
             writer = csv.writer(fo, delimiter='\t', dialect='excel')
             row_entry = (insertion[0], insertion[1], mapDict[insertion][0], mapDict[insertion][1], mapDict[insertion][0] + mapDict[insertion][1])
             writer.writerow(row_entry)
+    return(mapDict)
 
 def filterSortCounts(experiment=''):
     """ Filter for min 1 L read, 1 R read and maximum 10-fold L/R differential
@@ -320,11 +320,12 @@ def mapToGeneSummary(cutoff, organism, experiment=''):
 
 def main():
     bowtieOutput = sys.argv[1]
-    sample_file = sys.argv[2]
-    experiment = sys.argv[3]
-    processList = samplesToProcess(sample_file, experiment)
-    for s in processList:
-        print(s)
+    mapSites(bowtieOutput)
+    #sample_file = sys.argv[2]
+    #experiment = sys.argv[3]
+    #processList = samplesToProcess(sample_file, experiment)
+    #for s in processList:
+    #    print(s)
 
 if __name__ == '__main__':
     main()
