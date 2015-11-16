@@ -13,22 +13,23 @@ File is written to temp/ directory for the EXPERIMENT:
 
 # gbk2ftt()
 Convert GenBank to feature table
-Format similar to .ptt and .rnt files, including the following features:
+Format similar to .ptt and .rnt files except:
+- full tabular (locus as a field)
+- start and end positions as separate fields
+- includes the following features:
     CDS
     rRNA
     tRNA
     misc_RNA
-Multilocus GenBank converts to multi-.ftt file
-Locus headers are the file names (locus.ftt)
-Unlike .ptt files that show the number of amino acids as 'length'
-File is written to temp/ directory for the EXPERIMENT:
-    EXPERIMENT/temp/genome.ftt
+- Multilocus GenBank converts to multi-.ftt file
+'Unlike .ptt files that show the number of amino acids as 'length'
 
 """
 
 import sys
 import os
 import re
+import csv
 
 def gbk2fna(infile, organism, outputdirectory=''):
     with open(infile, 'r') as fi:
@@ -62,6 +63,10 @@ def gbk2ftt(infile, organism, outputdirectory=''):
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.ftt'.format(outputdirectory, organism)
         with open(outfile, 'w') as fo:
+            writer = csv.writer(fo, delimiter='\t', dialect='excel')
+            header = ('Locus', 'Location_Start', 'Location_End', 'Strand', 'Length', 'PID',
+                'Gene', 'Synonym', 'Code', 'COG', 'Product')
+            writer.writerow(header)
 
             # Initialize variables
             features = False # in the FEATURES section of the GenBank file
@@ -91,13 +96,8 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                     # Location <tab> Strand etc...
                     if(parts[0] == 'LOCUS'):
                         locus = parts[1]
-                        fo.write('LOCUS\t{}\n'.format(locus))
-                        header = ('Location', 'Strand', 'Length', 'PID',
-                            'Gene', 'Synonym', 'Code', 'COG', 'Product')
-                        fo.write('\t'.join(header) + '\n')
 
                     if features:
-
                         # Print line before go on to next feature
                         # (gene, COG, protein id not required)
                         # Reset flags/defaults
@@ -105,10 +105,10 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                             if new_feature:
                                 #if locus_tag:
                                 if not product_append:
-                                    output = (location, strand, str(length),
-                                        protein_id, gene, locus_tag,
-                                        code, cog, product)
-                                    fo.write('\t'.join(output) + '\n')
+                                    output = (locus, first, last,
+                                        strand, str(length), protein_id, gene,
+                                        locus_tag, code, cog, product)
+                                    writer.writerow(output)
                                     new_feature = False
                                     new_feature_type = ''
                                     protein_id = '-'
@@ -174,20 +174,22 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                         if '/locus_tag=' in parts[0]:
                             locus_tag = parts[0][12:-1]
 
-                        #if product_append:
-                            # /product extends > 2 lines
-                            #if not line.strip()[-1] == '\"':
-                                #product = product + ' ' + line.strip()
-                                #product_append = True
-                            # This is last line of the /product field
-                            #else:
-                                #product = product + ' ' + line.strip()[:-1]
-                                #product_append = False"""
+                        # Multi-line product description
+                        if product_append:
+                            product = product + ' ' + line.strip()
+                            if product.count('\"') != 2:
+                                product_append = True
+                            # TODO: Error handling if not exactly 2 parentheses
+                            if product.count('\"') == 2:
+                                product = product.strip('\"')
+                                product_append = False
+
                         if '/product=' in parts[0]:
-                            product = line.strip()[10:-1]
-                            #if not line.strip()[-1] == '\"':
-                                #product = line.strip()[10:]
-                                #product_append = True
+                            product = line.strip()[9:]
+                            if product.count('\"') != 2:
+                                product_append = True
+                            if product.count('\"') == 2:
+                                product = product.strip('\"')
 
                     if(parts[0] == 'ORIGIN'):
                         features = False  # Not in FEATURES any more
@@ -199,8 +201,7 @@ def gbk2ftt(infile, organism, outputdirectory=''):
 def main():
     inputfile = sys.argv[1]
     organism = sys.argv[2]
-
-    gbk2fna(inputfile, organism)
+    #gbk2fna(inputfile, organism)
     gbk2ftt(inputfile, organism)
 
 if __name__ == '__main__':
