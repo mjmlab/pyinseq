@@ -104,7 +104,8 @@ def main():
             bowtie_out = '../{0}'.format(bowtieOutputFile)
             bowtieMap(organism, bowtie_in, bowtie_out)
         mapSites('{0}/{1}'.format(experiment, bowtieOutputFile))
-
+        # Delete trimmed fastq file after writing mapping results
+        os.remove(trimmedSamplePath)
 
 
     # Assign and trim barcodes
