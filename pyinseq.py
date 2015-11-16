@@ -96,7 +96,7 @@ def main():
         trim_fastq(samplePath, trimmedSamplePath, sampleName)
         # Change directory, map to bowtie, change directory back
         trimmedSampleFile = '{0}_trimmed.fastq'.format(sampleName)
-        bowtieOutputFile = '{0}_output_bowtie.txt'.format(sampleName)
+        bowtieOutputFile = '{0}_bowtie.txt'.format(sampleName)
         with cd(genomeDir):
             # Paths are relative to the genome_lookup directory
             # from where bowtie is called

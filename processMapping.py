@@ -44,6 +44,10 @@ def mapSites(bowtieOutput):
             writer.writerow(row_entry)
     return(mapDict)
 
+def mapGenes():
+    pass
+
+
 ##  Not filtering now, showing all results
 ##  Will re-implement filtering once re-write these methods (e.g., in pandas)
 def filterSortCounts(experiment, sample):
