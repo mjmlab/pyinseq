@@ -12,6 +12,9 @@ import csv
 import collections
 import screed
 from operator import itemgetter
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 def mapSites(bowtieOutput):
     # Placeholder for dictionary of mapped reads in format:
@@ -33,13 +36,17 @@ def mapSites(bowtieOutput):
     # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount
     root, ext = os.path.splitext(bowtieOutput)
     with open('{0}_mapped{1}'.format(root, ext), 'a') as fo:
+        writer = csv.writer(fo, delimiter='\t', dialect='excel')
+        header_entry = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts')
+        writer.writerow(header_entry)
         for insertion in sorted(mapDict):
-            writer = csv.writer(fo, delimiter='\t', dialect='excel')
             row_entry = (insertion[0], insertion[1], mapDict[insertion][0], mapDict[insertion][1], mapDict[insertion][0] + mapDict[insertion][1])
             writer.writerow(row_entry)
     return(mapDict)
 
-def filterSortCounts(experiment=''):
+##  Not filtering now, showing all results
+##  Will re-implement filtering once re-write these methods (e.g., in pandas)
+def filterSortCounts(experiment, sample):
     """ Filter for min 1 L read, 1 R read and maximum 10-fold L/R differential
 
     Also sort by the first four fields
@@ -48,10 +55,10 @@ def filterSortCounts(experiment=''):
     used in subsequent steps, such as data normalization.
 
     """
-    with open('{0}/temp/{0}_bowtieOutput_InsertionDetailCount.txt'.format(experiment), 'r') as fi:
+    with open('{0}/{1}_output_bowtie_mapped.txt'.format(experiment, sample), 'r') as fi:
         li = []
         for line in fi:
-            # experiment/sample/contig/nucleotide/Lcount/Rcount/totalCount
+            # contig/nucleotide/Lcount/Rcount/TotalCount
             tupi = tuple(line.rstrip().split('\t'))
             li.append(tupi)
         #print(li)
@@ -59,8 +66,7 @@ def filterSortCounts(experiment=''):
         # FILTER COUNT DATA
         lo = []
         for l in li:
-            experiment, samples, contig, nucleotide, Lcounts, Rcounts, \
-                totalCounts = l[0:7]
+            contig, nucleotide, Lcounts, Rcounts, totalCounts = l[0:5]
             lo.append(l)
             # TODO: RETURN TO FILTERING BELOW
             """# minimum 1 read in each direction.
@@ -75,7 +81,7 @@ def filterSortCounts(experiment=''):
 
         # Write sorted/filtered data to tab-delimited file
         # experiment/sample/contig/nucleotide/Lcount/Rcount/totalCount
-        with open('{0}/temp/{0}_bowtieOutput_InsertionDetailCountFilteredSorted.txt'.format(experiment), 'w') as fo:
+        with open('{0}/{1}_output_bowtie_mapped_filtered.txt'.format(experiment, sample), 'w') as fo:
             for e in loSorted:
                 for x in e:
                     fo.write('{0}\t'.format(x.strip()))
@@ -87,10 +93,10 @@ def normalizeCpm(experiment):
     Returns a list of tuples:
 
     [
-    ('Exp001', 'TTTT', 'contig1', '999401', 80.00268809031984)
+    ('contig1', '999401', 80.00268809031984)
     ]
 
-    experiment, barcode, contig, TAnucleotide, normalized_counts
+    contig, nucleotide, normalized_counts
     """
     # list of tuples of each mapped insertion, counted
     counts = insertionCounts(experiment)
