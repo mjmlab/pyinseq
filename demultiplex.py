@@ -8,8 +8,6 @@ Output path includes the experiment and sample name:
 """
 
 from utils import *
-import re # I THINK I CAN DELETE THIS
-import os # I THINK I CAN DELETE THIS
 import gzip
 import sys
 import screed
