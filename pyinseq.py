@@ -103,9 +103,12 @@ def main():
             bowtie_in = '../{0}'.format(trimmedSampleFile)
             bowtie_out = '../{0}'.format(bowtieOutputFile)
             bowtieMap(organism, bowtie_in, bowtie_out)
-        mapSites('{0}/{1}'.format(experiment, bowtieOutputFile))
         # Delete trimmed fastq file after writing mapping results
         os.remove(trimmedSamplePath)
+        # TODO: change arguments passed here and above
+        mapSites('{0}/{1}'.format(experiment, bowtieOutputFile))
+        mapToGene(organism, sampleName, experiment)
+
 
 
     # Assign and trim barcodes

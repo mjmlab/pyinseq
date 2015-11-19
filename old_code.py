@@ -175,3 +175,40 @@ def normalizeCpm(experiment, sample):
         newTup = (tupi[0], tupi[1], tupi[2], tupi[3], normCounts)
         normCountsAll.append(newTup)
     return normCountsAll
+
+# This nicely converts the genome FTT into a dictionary indexed on locus_tag
+# However, it is not ordered...
+def fttLookup(organism, experiment=''):
+    """
+    Import the ftt file and process as a dictionary of lookup values
+    indexed on Synonym (i.e., Locus Tag)
+    {'VF_0001': {'locus': 'CP000020', 'start': ...},
+        'VF_0002': {'locus': 'CP000020', 'start': ...}}
+
+    """
+    # TODO: Error checking when generating the ftt file that locus tags are \
+    # unique and complete.
+    fttDict = {}
+    with open('{0}/genome_lookup/{1}.ftt'.format(experiment, organism), newline='') as csvfile:
+        fttreader = csv.reader(csvfile, delimiter='\t')
+        for line in fttreader:
+            # ignore header row
+            if line[0] != ('Locus'):
+                Locus, Location_Start, Location_End, Strand, Length, PID, \
+                    Gene, Synonym, Code, COG, Product = \
+                line[0], line[1], line[2], line[3], line[4], line[5], \
+                    line[6], line[7], line[8], line[9], line[10]
+                fttDict[Synonym] = {
+                    'locus': Locus,
+                    'start': Location_Start,
+                    'end': Location_End,
+                    'strand': Strand,
+                    'length': Length,
+                    'pid': PID,
+                    'gene': Gene,
+                    'locus_tag': Synonym,
+                    'code': Code,
+                    'cog': COG,
+                    'product': Product
+                    }
+    return fttDict
