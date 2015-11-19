@@ -20,6 +20,9 @@ def mapSites(bowtieOutput):
     # Placeholder for dictionary of mapped reads in format:
     # {(contig, position) : [Lcount, Rcount]}
     mapDict = {}
+    # overallTotal = denominator for cpm calculation
+    overallTotal = 0
+    cpm = 0
     with open(bowtieOutput, 'r') as fi:
         for line in fi:
             bowtiedata = line.rstrip().split('\t')
@@ -33,146 +36,22 @@ def mapSites(bowtieOutput):
             else: # negative strand read
                 insertionNt = insertionNT + 1
                 mapDict.setdefault((contig,insertionNt),[0,0])[1] += 1   # Rcount
-    # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount
+            overallTotal += 1
+    # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount/cpm
+    # use the index totalSampleCounts as the denominator for cpm calculation
     root, ext = os.path.splitext(bowtieOutput)
     with open('{0}_mapped{1}'.format(root, ext), 'a') as fo:
         writer = csv.writer(fo, delimiter='\t', dialect='excel')
-        header_entry = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts')
+        header_entry = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm')
         writer.writerow(header_entry)
         for insertion in sorted(mapDict):
-            row_entry = (insertion[0], insertion[1], mapDict[insertion][0], mapDict[insertion][1], mapDict[insertion][0] + mapDict[insertion][1])
+            Lcounts = mapDict[insertion][0]
+            Rcounts = mapDict[insertion][1]
+            totalCounts = mapDict[insertion][0] + mapDict[insertion][1]
+            cpm = float(1E6) * totalCounts / overallTotal
+            row_entry = (insertion[0], insertion[1], Lcounts, Rcounts, totalCounts, cpm)
             writer.writerow(row_entry)
     return(mapDict)
-
-def mapGenes():
-    pass
-
-
-##  Not filtering now, showing all results
-##  Will re-implement filtering once re-write these methods (e.g., in pandas)
-def filterSortCounts(experiment, sample):
-    """ Filter for min 1 L read, 1 R read and maximum 10-fold L/R differential
-
-    Also sort by the first four fields
-
-    Data that do not pass this filter are treated as artefacts and not
-    used in subsequent steps, such as data normalization.
-
-    """
-    with open('{0}/{1}_output_bowtie_mapped.txt'.format(experiment, sample), 'r') as fi:
-        li = []
-        for line in fi:
-            # contig/nucleotide/Lcount/Rcount/TotalCount
-            tupi = tuple(line.rstrip().split('\t'))
-            li.append(tupi)
-        #print(li)
-
-        # FILTER COUNT DATA
-        lo = []
-        for l in li:
-            contig, nucleotide, Lcounts, Rcounts, totalCounts = l[0:5]
-            lo.append(l)
-            # TODO: RETURN TO FILTERING BELOW
-            """# minimum 1 read in each direction.
-            if int(Lcounts) >= 1 and int(Rcounts) >= 1:
-                # maximum 10-fold L/R differential
-                # L=1 R=10 ok, but not L=1 R=11
-                if not (11 * min(Lcounts, Rcounts)) < (totalCounts):
-                    lo.append(l)"""
-
-        # SORT COUNT DATA
-        loSorted = sorted(lo, key=itemgetter(0,1,2,3))
-
-        # Write sorted/filtered data to tab-delimited file
-        # experiment/sample/contig/nucleotide/Lcount/Rcount/totalCount
-        with open('{0}/{1}_output_bowtie_mapped_filtered.txt'.format(experiment, sample), 'w') as fo:
-            for e in loSorted:
-                for x in e:
-                    fo.write('{0}\t'.format(x.strip()))
-                fo.write('\n')
-
-def normalizeCpm(experiment):
-    """ Normalize every sample to 1E6 CPM
-
-    Returns a list of tuples:
-
-    [
-    ('contig1', '999401', 80.00268809031984)
-    ]
-
-    contig, nucleotide, normalized_counts
-    """
-    # list of tuples of each mapped insertion, counted
-    counts = insertionCounts(experiment)
-
-    # Total count of filtered, mapped reads for each sample
-    ddTotalCountBySample = collections.defaultdict(int)
-
-    for tupi in counts:
-        #Data for each insertion
-        experiment = tupi[0]
-        barcode = tupi[1]
-        readCount = int(tupi[6])
-        # Add to the total counts for that sample (barcode)
-        ddTotalCountBySample[(experiment, barcode)] += readCount
-
-    # TODO: Write counts for logging
-    """
-    for entry in ddTotalCountBySample:
-        experiment, barcode = entry
-        print('{exp}\t{bc}\t{counts}'.
-            format(exp=experiment, bc=barcode, counts=str(ddTotalCountBySample[entry])))
-    """
-
-    # Transform the original counts data (total only) by dividing each count by
-    # the total for the sample and multiplying by 1E6.
-    # resulting dataset normCountsAll. For each tuple:
-    #[0] = experiment
-    #[1] = barcode
-    #[2] = contig
-    #[3] = TAnucleotide
-    #[4] = countTotal (from tupi[6] totalCounts)
-    #  Note that Left and Right counts are not carried through.
-    normCountsAll = []
-    for tupi in counts:
-        # note: can add back rawCounts if it would be valuable
-        # to have them in the output
-        rawCounts = int(tupi[6])
-        sample = (tupi[0], tupi[1])
-        totalSampleCounts = ddTotalCountBySample[sample]
-        normCounts = float(1E6) * rawCounts / totalSampleCounts
-        newTup = (tupi[0], tupi[1], tupi[2], tupi[3], normCounts)
-        normCountsAll.append(newTup)
-    return normCountsAll
-
-def fttLookupTable(organism, experiment=''):
-    """
-    Import the ftt file and process as a lookup table
-
-    No headers
-    Includes the contig in every row
-    Separates out the start..end to separate start, end
-
-    """
-    fttLookup = []
-    with open('{0}/temp/{1}.ftt'.format(experiment, organism), 'r') as ftt:
-        for line in ftt:
-            # Capture contig information
-            if line.startswith('LOCUS'):
-                contig = line.rstrip().split('\t')[1]
-            # Only print if first digit is numeric.
-            # Note that on ptt files sometimes the first digit will be a
-            # less-than sign (<) but currently we exclude those characters
-            # in generating the .ftt file. Return to this criterion if necessary.
-            # Alternate way would be first character is not 'L' (from Locus or Location)
-            if unicode(line[0], 'utf-8').isnumeric():
-                fttImport = line.rstrip().split('\t')
-                # Split the location into separate elements:
-                # 1014..4617 > 1014, 4617
-                start, end = fttImport[0].split('..')[0:2]
-                fttTemp = [contig] + [start] + [end] + fttImport[1:]
-                fttLookup.append(fttTemp)
-    return fttLookup
 
 def mapToGene(organism, experiment=''):
     """
@@ -191,14 +70,13 @@ def mapToGene(organism, experiment=''):
 
     """
 
-    fttLookup = fttLookupTable(organism, experiment)
+    fttDict = fttLookup(organism, experiment)
 
     # Import the insertion data
     normCountsAll = normalizeCpm(experiment)
     mappedHitList = []
     for sample in normCountsAll:
-        insertionContig = sample[2]
-        insertionNucleotide = int(sample[3])
+        insertionContig, insertionNucleotide = sample[0], int(sample[1])
         # Used to save previous feature for intergenic calling
         prevFeature = ''
         for i, feature in enumerate(fttLookup):
@@ -326,12 +204,50 @@ def mapToGeneSummary(cutoff, organism, experiment=''):
                 fo.write('{0}\t'.format(entry))
             fo.write('\n')
 
+def fttLookup(organism, experiment=''):
+    """
+    Import the ftt file and process as a dictionary of lookup values
+    indexed on Synonym (i.e., Locus Tag)
+    {'VF_0001': {'locus': 'CP000020', 'start': ...},
+        'VF_0002': {'locus': 'CP000020', 'start': ...}}
+
+    """
+    # TODO: Error checking when generating the ftt file that locus tags are \
+    # unique and complete.
+    fttDict = {}
+    with open('{0}/genome_lookup/{1}.ftt'.format(experiment, organism), newline='') as csvfile:
+        fttreader = csv.reader(csvfile, delimiter='\t')
+        for line in fttreader:
+            # ignore header row
+            if line[0] != ('Locus'):
+                Locus, Location_Start, Location_End, Strand, Length, PID, \
+                    Gene, Synonym, Code, COG, Product = \
+                line[0], line[1], line[2], line[3], line[4], line[5], \
+                    line[6], line[7], line[8], line[9], line[10]
+                fttDict[Synonym] = {
+                    'locus': Locus,
+                    'start': Location_Start,
+                    'end': Location_End,
+                    'strand': Strand,
+                    'length': Length,
+                    'pid': PID,
+                    'gene': Gene,
+                    'locus_tag': Synonym,
+                    'code': Code,
+                    'cog': COG,
+                    'product': Product
+                    }
+    return fttDict
+
+
 
 # ===== Start here ===== #
 
 def main():
-    bowtieOutput = sys.argv[1]
-    mapSites(bowtieOutput)
+    #bowtieOutput = sys.argv[1]
+    experiment, organism = 'example01', 'genome'
+    #mapSites(bowtieOutput)
+    fttLookupTable(organism, experiment)
     #sample_file = sys.argv[2]
     #experiment = sys.argv[3]
     #processList = samplesToProcess(sample_file, experiment)

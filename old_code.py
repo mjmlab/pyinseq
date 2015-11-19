@@ -67,13 +67,111 @@ def taSites(fna):
     return do
 
 
-    def createSamplesDirectory():
-        """
-        Create the samples directory if needed
-        """
+def createSamplesDirectory():
+    """
+    Create the samples directory if needed
+    """
 
-        # Create /pyinseq/samples/ path if does not exist already
-        try:
-            os.makedirs('samples/')
-        except:
-            pass
+    # Create /pyinseq/samples/ path if does not exist already
+    try:
+        os.makedirs('samples/')
+    except:
+        pass
+
+##  Not filtering now, showing all results
+##  Will re-implement filtering later, as a formula in another function
+def filterSortCounts(experiment, sample):
+    """ Filter for min 1 L read, 1 R read and maximum 10-fold L/R differential
+
+    Also sort by the first four fields
+
+    Data that do not pass this filter are treated as artefacts and not
+    used in subsequent steps, such as data normalization.
+
+    """
+    with open('{0}/{1}_output_bowtie_mapped.txt'.format(experiment, sample), 'r') as fi:
+        li = []
+        for line in fi:
+            # contig/nucleotide/Lcount/Rcount/TotalCount
+            tupi = tuple(line.rstrip().split('\t'))
+            li.append(tupi)
+        #print(li)
+
+        # FILTER COUNT DATA
+        lo = []
+        for l in li:
+            contig, nucleotide, Lcounts, Rcounts, totalCounts = l[0:5]
+            lo.append(l)
+            # TODO: RETURN TO FILTERING BELOW
+            """# minimum 1 read in each direction.
+            if int(Lcounts) >= 1 and int(Rcounts) >= 1:
+                # maximum 10-fold L/R differential
+                # L=1 R=10 ok, but not L=1 R=11
+                if not (11 * min(Lcounts, Rcounts)) < (totalCounts):
+                    lo.append(l)"""
+
+        # SORT COUNT DATA
+        loSorted = sorted(lo, key=itemgetter(0,1,2,3))
+
+        # Write sorted/filtered data to tab-delimited file
+        # experiment/sample/contig/nucleotide/Lcount/Rcount/totalCount
+        with open('{0}/{1}_output_bowtie_mapped_filtered.txt'.format(experiment, sample), 'w') as fo:
+            for e in loSorted:
+                for x in e:
+                    fo.write('{0}\t'.format(x.strip()))
+                fo.write('\n')
+
+
+def normalizeCpm(experiment, sample):
+    """ Normalize every sample to 1E6 CPM
+    Returns a list of tuples:
+    [
+    ('contig1', '999401', 80.00268809031984)
+    ]
+    contig, nucleotide, normalized_counts
+    """
+    # Total count of filtered, mapped reads for each sample
+    countsDict = {}
+    # list of tuples of each mapped insertion, counted
+    with open('{0}/genome_lookup/{1}_bowtie_mapped.txt'.format(experiment, sample), newline='') as csvfile:
+        readsReader = csv.reader(csvfile, delimiter='\t')
+        for line in readsReader:
+            contig, nucleotide, totalCounts = line[0], line[1], line[4]
+
+
+    for tupi in counts:
+        #Data for each insertion
+        experiment = tupi[0]
+        barcode = tupi[1]
+        readCount = int(tupi[6])
+        # Add to the total counts for that sample (barcode)
+        ddTotalCountBySample[(experiment, barcode)] += readCount
+
+    # TODO: Write counts for logging
+    """
+    for entry in ddTotalCountBySample:
+        experiment, barcode = entry
+        print('{exp}\t{bc}\t{counts}'.
+            format(exp=experiment, bc=barcode, counts=str(ddTotalCountBySample[entry])))
+    """
+
+    # Transform the original counts data (total only) by dividing each count by
+    # the total for the sample and multiplying by 1E6.
+    # resulting dataset normCountsAll. For each tuple:
+    #[0] = experiment
+    #[1] = barcode
+    #[2] = contig
+    #[3] = TAnucleotide
+    #[4] = countTotal (from tupi[6] totalCounts)
+    #  Note that Left and Right counts are not carried through.
+    normCountsAll = []
+    for tupi in counts:
+        # note: can add back rawCounts if it would be valuable
+        # to have them in the output
+        rawCounts = int(tupi[6])
+        sample = (tupi[0], tupi[1])
+        totalSampleCounts = ddTotalCountBySample[sample]
+        normCounts = float(1E6) * rawCounts / totalSampleCounts
+        newTup = (tupi[0], tupi[1], tupi[2], tupi[3], normCounts)
+        normCountsAll.append(newTup)
+    return normCountsAll
