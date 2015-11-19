@@ -9,7 +9,7 @@ import os
 import sys
 import re
 import csv
-import collections
+from collections import OrderedDict
 import screed
 from operator import itemgetter
 import numpy as np
@@ -71,10 +71,23 @@ def mapToGene(organism, experiment=''):
     """
 
     fttDict = fttLookup(organism, experiment)
-
     # Import the insertion data
-    normCountsAll = normalizeCpm(experiment)
+    countsDict = {}
+    # list of tuples of each mapped insertion, counted
+
+
     mappedHitList = []
+
+    with open('{0}/genome_lookup/{1}_bowtie_mapped.txt'.format(experiment, sample), newline='') as csvfile:
+        sitesReader = csv.reader(csvfile, delimiter='\t')
+        for line in sitesReader:
+            contig, nucleotide, totalCounts, cpm = line[0], line[1], line[3], line[4]
+
+
+
+
+
+    normCountsAll = normalizeCpm(experiment)
     for sample in normCountsAll:
         insertionContig, insertionNucleotide = sample[0], int(sample[1])
         # Used to save previous feature for intergenic calling
@@ -214,7 +227,7 @@ def fttLookup(organism, experiment=''):
     """
     # TODO: Error checking when generating the ftt file that locus tags are \
     # unique and complete.
-    fttDict = {}
+    fttDict = OrderedDict()
     with open('{0}/genome_lookup/{1}.ftt'.format(experiment, organism), newline='') as csvfile:
         fttreader = csv.reader(csvfile, delimiter='\t')
         for line in fttreader:
@@ -237,6 +250,7 @@ def fttLookup(organism, experiment=''):
                     'cog': COG,
                     'product': Product
                     }
+    print(fttDict)
     return fttDict
 
 
@@ -247,7 +261,7 @@ def main():
     #bowtieOutput = sys.argv[1]
     experiment, organism = 'example01', 'genome'
     #mapSites(bowtieOutput)
-    fttLookupTable(organism, experiment)
+    fttLookup(organism, experiment)
     #sample_file = sys.argv[2]
     #experiment = sys.argv[3]
     #processList = samplesToProcess(sample_file, experiment)
