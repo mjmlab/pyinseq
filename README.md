@@ -14,7 +14,7 @@ Move toward a modular approach. General picture to split into three steps:
 
 Update 11/21/15 - Modular approach in place.  
 Step 1 could be faster but works.  
-Step 2 works. Need to add (1) package bowtie together so separate installation not needed, (2) LOESS normalization, (3) filter by 5'-3' position, (4) filter by number of reads.
+Step 2 works. Need to add (1) package bowtie together so separate installation not needed, (2) LOESS normalization, (3) filter by 5'-3' position, (4) filter by number of reads.  
 Step 3. No code here yet.  
 Additional reporting/logging needed throughout.  
 
