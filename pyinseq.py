@@ -86,8 +86,13 @@ def main():
     # Rewrite as new .fastq file with only chromosome sequence
     # Trim barcode, trim transposon. Trim corresponding quality.
     # Ignore if not a good transposon junction.
+
+    # Dictionary of each sample's cpm by gene
+    geneMappings = {}
     for samplePath in demultiplexedSample_list:
         #TODO: Fix so that the sample name does not need to be calculated
+        #TODO: unique samplenames are required for the pipeline to work
+        # (geneMappings uses them as dictionary keys)
         s1 = samplePath.split('.')[0].rfind('/')
         sampleName = samplePath.split('.')[0][s1+1:]
         trimmedSamplePath = '{experiment}/{sampleName}_trimmed.fastq'.format(
@@ -107,7 +112,10 @@ def main():
         os.remove(trimmedSamplePath)
         # TODO: change arguments passed here and above
         mapSites('{0}/{1}'.format(experiment, bowtieOutputFile))
-        mapToGene(organism, sampleName, experiment)
+        # Add gene-level results for the sample to geneMappings
+        geneMappings[sampleName] = mapGenes(organism, sampleName, experiment)
+    #TODO: in future - pass exact sample list as above
+    buildGeneTable(organism, geneMappings, experiment)
 
 
 

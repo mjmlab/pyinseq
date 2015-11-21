@@ -9,7 +9,7 @@ import os
 import sys
 import re
 import csv
-from collections import OrderedDict
+import collections
 import screed
 from operator import itemgetter
 import numpy as np
@@ -53,146 +53,139 @@ def mapSites(bowtieOutput):
             writer.writerow(row_entry)
     return(mapDict)
 
-def mapToGene(organism, sample, experiment=''):
+def mapGenes(organism, sample, experiment=''):
     """
-    Given a set of insertions with nucleotide data, provide the corresponding
-    detail from the .ftt file:
-    contig
-    locus tag
-    gene
-    product
-    beginning nucleotide
-    ending nucleotide
-    insertion location in gene (5' end = 0.0, 3' end = 1.0)
+    Maps insertions to genes
 
-    Note that insertions that hit multiple (overlapping) genes will have
-    multiple output lines printed.
+    1. Writes a csv file listing the gene for each insertion with the tabs:
+    contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm, threePrimeness, locus_tag
+    2. Returns a dictionary of aggregate counts per gene (for any gene with at
+    least one hit)
+
+    Insertions that map to multiple genes result in multiple lines in the CSV file
+    and are counted for both genes in the returned dictionary.
+
+    ThreePrimeness = insertion location in gene (5' end = 0.0, 3' end = 1.0)
+    At present this is not used. In future all insertions should be written to the file
+    but only ones in the filtered threshold should be counted in the dictionary.
 
     """
     # List of tuples of genome features
     genome = fttLookup(organism, experiment)
-    # Import the insertion data
-    countsDict = {}
-    # list of tuples of each mapped insertion, counted
+    # list of tuples of each mapped insertion to be immediately written per insertion
     mappedHitList = []
+    # Dictionary with running total of cpm per gene; keys are genes, values are aggregate cpm
+    geneDict = {}
     with open('{0}/{1}_bowtie_mapped.txt'.format(experiment, sample), 'r', newline='') as csvfileR:
         sitesReader = csv.reader(csvfileR, delimiter='\t')
-        for index, line in enumerate(sitesReader):
-            # skip the header line
-            if index > 0:
-                contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm = line[0:6]
-                nucleotide = int(nucleotide)
-                # Used to save previous feature for intergenic calling
-                prevFeature = ''
-                for gene in genome:
-                    locus, start, end, strand, length, pid, gene, locus_tag, code, cog, product = \
-                        gene[0], int(gene[1]), int(gene[2]), gene[3], gene[4], \
-                            gene[5], gene[6], gene[7], gene[8], gene[9], gene[10]
-                    # number of genes/features hit.
-                    # 0 = intergenic. 1 = a gene. 2 = overlapping genes.
-                    # if 2, will print 2 entries in the output.
-                    genesHit = 0
-                    # contig from insertion; locus from lookup table
-                    if contig == locus:
-                        # TODO: Add threeprimeness filtering math in here.
-                        if nucleotide >= start:
-                            if nucleotide <= end:
-                                # 0.0 = 5'end ; 1.0 = 3'end
-                                # TODO: Should featureEnd have +1 added?
-                                if strand == '+':
-                                    threePrimeness = (nucleotide-start)/(end-start)
-                                if strand == '-':
-                                    threePrimeness = (end-nucleotide)/(end-start)
-                                mappedHit = (contig, nucleotide, Lcounts, Rcounts,
-                                    totalCounts, cpm, threePrimeness, locus_tag)
-                                mappedHitList.append(mappedHit)
-                                # TODO: counts for overlap. Not being used currently!
-                                genesHit += 1
-                            # TODO: Intergenic regions
-                            # The logic here is only a start.
-                            # Also note that intergenic hits at the end of a contig
-                            # should be listed as between the last gene of the contig
-                            # and the first gene of the *same* contig.
-                            else:
-                                pass
-                                #if genesHit == 0
-                                #    try:
-                                #        print(genome[locus_tag][i+1])  # the feature after (feature)
-                                #    except:
-                                #        print(genome[locus_tag][0])
-                    prevFeature = locus_tag
+        next(sitesReader, None) #skip the headers
+        for line in sitesReader:
+            contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm = line[0:6]
+            nucleotide = int(nucleotide)
+            cpm = float(cpm)
+            # Used to save previous feature for intergenic calling
+            prevFeature = ''
+            for gene in genome:
+                locus, start, end, strand, length, pid, gene, locus_tag, code, cog, product = \
+                    gene[0], int(gene[1]), int(gene[2]), gene[3], gene[4], \
+                        gene[5], gene[6], gene[7], gene[8], gene[9], gene[10]
+                # number of genes/features hit.
+                # 0 = intergenic. 1 = a gene. 2 = overlapping genes.
+                # if 2, will print 2 entries in the output.
+                genesHit = 0
+                # contig from insertion; locus from lookup table
+                if contig == locus:
+                    # TODO: Add threeprimeness filtering math in here.
+                    if nucleotide >= start:
+                        if nucleotide <= end:
+                            # 0.0 = 5'end ; 1.0 = 3'end
+                            # TODO: Should featureEnd have +1 added?
+                            if strand == '+':
+                                threePrimeness = (nucleotide-start)/(end-start)
+                            if strand == '-':
+                                threePrimeness = (end-nucleotide)/(end-start)
+                            mappedHit = (contig, nucleotide, Lcounts, Rcounts,
+                                totalCounts, cpm, threePrimeness, locus_tag)
+                            mappedHitList.append(mappedHit)
+                            # Add to the total for that gene --
+                            # Single-element list (rather than interger) so
+                            # that it is subscriptable to add cpm counts
+                            # TODO: ThreePrimess math to determine whether
+                            # to add to the geneDict
+                            geneDict.setdefault(locus_tag, [0])[0] += cpm
+                            # Counts for overlap. Not being used currently!
+                            genesHit += 1
+                        # TODO: Intergenic regions
+                        # The logic here is only a start.
+                        # Also note that intergenic hits at the end of a contig
+                        # should be listed as between the last gene of the contig
+                        # and the first gene of the *same* contig.
+                        else:
+                            pass
+                            #if genesHit == 0
+                            #    try:
+                            #        print(genome[locus_tag][i+1])  # the feature after (feature)
+                            #    except:
+                            #        print(genome[locus_tag][0])
+                prevFeature = locus_tag
         genesHit = 0
+    # Write individual insertions to *_bowtie_mapped_genes.txt
     with open('{0}/{1}_bowtie_mapped_genes.txt'.format(experiment, sample), 'w', newline='') as csvfileW:
+        headers = ('contig', 'nucleotide', 'Lcounts', 'Rcounts', 'totalCounts', 'cpm', 'threePrimeness', 'locus_tag')
         mappedGeneWriter = csv.writer(csvfileW, delimiter='\t')
+        mappedGeneWriter.writerow(headers)
         for hit in mappedHitList:
             mappedGeneWriter.writerow(hit)
-    return mappedHitList
+    # Return aggregated insertions by gene
+    return geneDict
 
-def mapToGeneSummary(cutoff, organism, experiment=''):
+def buildGeneTable(organism, gene_mappings, experiment=''):
     """
     For each entry in a feature table (.ftt) list the summary of hits
     for each sample in the experiment
 
-    Count only those hits that fall at or below the cutoff specified.
-    e.g., cutoff=0.9 means that genes with threePrimeness <= 0.9 will be counted
-    and hits in the 3-prime most ~10% of the gene will not be included.
     """
 
-    featureTable = fttLookup(organism, experiment)
+    #TODO: Bring back in the header row in the future. Use it here; ignore it for previous steps
+    gene_table = fttLookup(organism, experiment)
 
     # Header will be extended in the future to
     # list the experiment and barcode of each sample of interest
-    baseHeader = ['Contig', 'Start', 'End', 'Strand', 'Length', 'PID',
+    header = ['Contig', 'Start', 'End', 'Strand', 'Length', 'PID',
         'Gene', 'Synonym', 'Code', 'COG', 'Product']
 
     # Add header row to ftt file
-    featureTable.insert(0, baseHeader)
+    gene_table.insert(0, header)
 
     # Get individual mapped hits
-    mappedHitList = mapToGene(organism, experiment)
-
-    ## IF barcode is in header[:-1] then check gene and threePrimeness.
-    ## IF barcode is not in header, add it + [barcode]. Then check gene....
-    ## For each gene do the math in a variable. Then add the result of that variable
-    ## before moving on to the next feature. Every feature needs a 0 or a higher value.
-
-    # - featureTable[0][-1] barcode.         For feature in table....:
-    #Set up table with index, start, end.
-    # Match for all in a barcode then add to entries. Repeat for next barcode.
+    # mappedHitList = mapToGene(organism, experiment)
 
     # current column, sample being matched
-    # sample format is experiment:barcode
-    currentColumn = len(featureTable[0])-1
+    currentColumn = len(gene_table[0])-1
     currentSample = ''
 
-    for hit in mappedHitList:
-        currentSample = featureTable[0][-1]
-        sample = ('{exp}:{sample}'.format(exp=str(hit[0]), sample=str(hit[1])))
-        threePrimeness = int(hit[6])
-        if currentSample != sample:
-            # Add the new sample (experiment:barcode) as a new column the table
-            # and fill in entire column with 0's
-            currentColumn += 1
-            featureTable[0].append(sample)
-            # Fill the rest of the new column with 0 as the count for each gene
-            for feature in featureTable[1:]:
-                feature.append(0)
-        # Go through each hit in the mappedHitList for that barcode and
-        # add the normalized counts to the respective gene if the hit falls
-        # within the 5' cutoff
-        if threePrimeness <= cutoff:
-            for i, f in enumerate(featureTable):
-                hitLocusTag = hit[7]
+    for sampleName in gene_mappings:
+        # Add the new sample name as a new column the table
+        currentColumn += 1
+        gene_table[0].append(sampleName)
+        # Fill the rest of the new column with 0 as the count for each gene
+        for row in gene_table[1:]:
+            row.append(0)
+        # add the sample's results to the building gene_table
+        mapped_genes = gene_mappings.get(sampleName)
+        for gene in mapped_genes:
+            for i, f in enumerate(gene_table):
+                hitLocusTag = gene
                 fttLocusTag = f[7]
                 # matches based on locusTag.
                 # In future should I instead create an index field in the .ftt?
-                if hit[7] == f[7]:
-                    featureTable[i][currentColumn] += hit[4]
-    with open('{0}/temp/{0}_bowtieOutput_MappedToGeneSummary.txt'.format(experiment), 'w') as fo:
-        for line in featureTable:
-            for entry in line:
-                fo.write('{0}\t'.format(entry))
-            fo.write('\n')
+                if hitLocusTag == fttLocusTag:
+                    gene_table[i][currentColumn] += mapped_genes[gene][0]
+        with open('{0}/summary_gene_table.txt'.format(experiment), 'w') as fo:
+            for line in gene_table:
+                for entry in line:
+                    fo.write('{0}\t'.format(entry))
+                fo.write('\n')
 
 def fttLookup(organism, experiment=''):
     """
@@ -212,8 +205,8 @@ def fttLookup(organism, experiment=''):
             if line[0] != ('Locus'):
                 # Locus, Location_Start, Location_End, Strand, Length, PID,
                 # Gene, Synonym, Code, COG, Product
-                featureData = (line[0], line[1], line[2], line[3], line[4], \
-                    line[5], line[6], line[7], line[8], line[9], line[10])
+                featureData = [line[0], line[1], line[2], line[3], line[4], \
+                    line[5], line[6], line[7], line[8], line[9], line[10]]
                 fttList.append(featureData)
     return fttList
 
