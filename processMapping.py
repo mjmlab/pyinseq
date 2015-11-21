@@ -173,6 +173,8 @@ def buildGeneTable(organism, gene_mappings, experiment=''):
             row.append(0)
         # add the sample's results to the building gene_table
         mapped_genes = gene_mappings.get(sampleName)
+        #TODO: simplify this:
+        # for each row in the table, *try* from mapped_genes. Add if found.
         for gene in mapped_genes:
             for i, f in enumerate(gene_table):
                 hitLocusTag = gene
