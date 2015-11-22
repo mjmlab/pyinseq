@@ -139,7 +139,7 @@ def mapGenes(organism, sample, experiment=''):
     # Return aggregated insertions by gene
     return geneDict
 
-def buildGeneTable(organism, gene_mappings, experiment=''):
+def buildGeneTable(organism, sample_list, gene_mappings, experiment=''):
     """
     For each entry in a feature table (.ftt) list the summary of hits
     for each sample in the experiment
@@ -164,7 +164,7 @@ def buildGeneTable(organism, gene_mappings, experiment=''):
     currentColumn = len(gene_table[0])-1
     currentSample = ''
 
-    for sampleName in gene_mappings:
+    for sampleName in sample_list:
         # Add the new sample name as a new column the table
         currentColumn += 1
         gene_table[0].append(sampleName)
@@ -172,7 +172,8 @@ def buildGeneTable(organism, gene_mappings, experiment=''):
         for row in gene_table[1:]:
             row.append(0)
         # add the sample's results to the building gene_table
-        mapped_genes = gene_mappings.get(sampleName)
+        mapped_genes = gene_mappings[sampleName]
+        ### mapped_genes = gene_mappings.get(sampleName)
         #TODO: simplify this:
         # for each row in the table, *try* from mapped_genes. Add if found.
         for gene in mapped_genes:

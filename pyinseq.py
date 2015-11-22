@@ -68,6 +68,11 @@ def main():
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
 
+    # List of samples, file paths of the demultiplexed files
+    sampleList, samplePathList = demultiplexedSamplesToProcess(samples, experiment)
+    print(sampleList)
+    print(samplePathList)
+
     #demultiplex based on barcodes defined in the sample file
     demultiplex_fastq(reads, samples, experiment)
 
@@ -79,23 +84,14 @@ def main():
     with cd(genomeDir):
         bowtieBuild(organism)
 
-    # List of file paths of the demultiplexed files
-    demultiplexedSample_list = demultiplexedSamplesToProcess(samples, experiment)
-
-    # PROCESS SAMPLE
-    # Rewrite as new .fastq file with only chromosome sequence
-    # Trim barcode, trim transposon. Trim corresponding quality.
-    # Ignore if not a good transposon junction.
-
     # Dictionary of each sample's cpm by gene
     geneMappings = {}
-    for samplePath in demultiplexedSample_list:
-        #TODO: Fix so that the sample name does not need to be calculated
-        #TODO: unique samplenames are required for the pipeline to work
-        # (geneMappings uses them as dictionary keys)
-        s1 = samplePath.split('.')[0].rfind('/')
-        sampleName = samplePath.split('.')[0][s1+1:]
+    for sampleName in sampleList:
+        # .fastq file of trimmed sequences; will be deleted after bowtie mapping
         trimmedSamplePath = '{experiment}/{sampleName}_trimmed.fastq'.format(
+            experiment=experiment,
+            sampleName=sampleName)
+        samplePath = '{experiment}/raw_data/{sampleName}.fastq.gz'.format(
             experiment=experiment,
             sampleName=sampleName)
         trim_fastq(samplePath, trimmedSamplePath, sampleName)
@@ -107,6 +103,7 @@ def main():
             # from where bowtie is called
             bowtie_in = '../{0}'.format(trimmedSampleFile)
             bowtie_out = '../{0}'.format(bowtieOutputFile)
+            # map to bowtie and produce the output file
             bowtieMap(organism, bowtie_in, bowtie_out)
         # Delete trimmed fastq file after writing mapping results
         os.remove(trimmedSamplePath)
@@ -115,25 +112,7 @@ def main():
         # Add gene-level results for the sample to geneMappings
         geneMappings[sampleName] = mapGenes(organism, sampleName, experiment)
     #TODO: in future - pass exact sample list as above
-    buildGeneTable(organism, geneMappings, experiment)
-
-
-
-    # Assign and trim barcodes
-    # Now currently filtering by default (16-17 bp, TA at end)
-    # In future could add as command line option
-    #assignAndTrim(reads, samples, experiment, tempDir)
-
-
-    # Summarize the bowtie results
-    # Need more consistency in how directory locations are handled
-#    insertionNucleotides(tempDir + bowtieOutput, experiment)
-#    insertionNucleotidesCount(experiment)
-#    filterSortCounts(experiment)
-    #insertionCounts(experiment) ## FOR TESTING ONLY - DOES NOT WRITE DATA
-    #normalizeCpm(experiment) ## FOR TESTING ONLY UNLESS WE WANT IT TO WRITE DATA
-    #mapToGene(organism, experiment) ## FOR TESTING ONLY UNLESS WE WANT IT TO WRITE DATA
-#    mapToGeneSummary(disruption, organism, experiment)
+    buildGeneTable(organism, sampleList, geneMappings, experiment)
 
 if __name__ == '__main__':
     main()

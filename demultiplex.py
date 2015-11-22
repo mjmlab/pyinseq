@@ -12,7 +12,7 @@ import gzip
 import sys
 import screed
 
-def barcodes_prep(sample_file):
+def barcodes_prep(sample_file, print_detail=True):
     """
     Extract barcodes from an INSeq sample list and conduct basic quality checks
 
@@ -23,14 +23,14 @@ def barcodes_prep(sample_file):
     Input1<tab>CGAT
     Input2<tab>GCTA
     The function checks that all barcodes are the same length.
-    The function returns a list of barcodes and sample names and the
-    length of the barcodes.
+    The function returns a list of barcodes and sample names.
 
     """
 
     # Extract barcode list from tab-delimited sample file.
     # Ensure uppercase and stripped
-    print('\n===== Checking barcodes =====')
+    if print_detail:
+        print('\n===== Checking barcodes =====')
     barcode_dict = {}
     with open(sample_file, 'r') as fi:
         for line in fi:
@@ -48,13 +48,13 @@ def barcodes_prep(sample_file):
                 barcode_length = len(new_barcode)
 
     # Print barcodes and check for same length
-    for b in sorted(barcode_dict):
-        print('{0}\t{1}'.format(b, barcode_dict[b]))
-        if len(barcode_dict[b]) != barcode_length:
-            print('Error: barcodes are not the same length')
-            exit(1)
-
-    print('n={0} unique barcodes of length {1} nt'.format(len(barcode_dict), barcode_length))
+    if print_detail:
+        for b in sorted(barcode_dict):
+            print('{0}\t{1}'.format(b, barcode_dict[b]))
+            if len(barcode_dict[b]) != barcode_length:
+                print('Error: barcodes are not the same length')
+                exit(1)
+        print('n={0} unique barcodes of length {1} nt'.format(len(barcode_dict), barcode_length))
 
     return barcode_dict
 
@@ -118,23 +118,25 @@ def writeReads(demultiplex_dict, barcodes_dict, experiment):
 
 def demultiplexedSamplesToProcess(sample_file, experiment):
     """
-    Returns a list of the sample paths to process in the current analysis.
+    Returns a list of tuples of the sample names and sample paths to process in the current analysis.
 
     e.g.:
-    ['experiment01/raw_data/E001_01.fastq.gz', 'experiment01/raw_data/E001_02.fastq.gz']
-
-    TODO: Return as a dictionary and specify the sample name too. Then get rid of
-    regex to pull out sample name in pyinseq.py
+    [('E001_01', 'experiment01/raw_data/E001_01.fastq.gz'),
+        ('E001_02', 'experiment01/raw_data/E001_02.fastq.gz')]
 
     """
-    barcodes_dict = barcodes_prep(sample_file)
-    sampleFile_list = []
+    barcodes_dict = barcodes_prep(sample_file, False)
+    sample_list = []
+    samplePath_list = []
     for sample in sorted(barcodes_dict):
-        sampleFile_list.append('{experiment}/raw_data/{sample}.fastq.gz'.format(
+        samplePath = '{experiment}/raw_data/{sample}.fastq.gz'.format(
             experiment=experiment,
             sample=sample
-            ))
-    return sampleFile_list
+            )
+        sample_list.append(sample)
+        samplePath_list.append(samplePath)
+    print(sample_list, samplePath_list)
+    return sample_list, samplePath_list
 
 """
 trim_fastq() and writeTrimmedReads() are derived from functions above.
@@ -211,9 +213,10 @@ def writeTrimmedReads(trimmed_fastq_list, sampleName, trimmed_fastq_filepath):
 
 def main():
     #fastq_file = sys.argv[1]
-    #sample_file = sys.argv[2]
+    sample_file = sys.argv[1]
     #demultiplex_fastq('_exampleData/example01.fastq', '_exampleData/example01.txt', 'example01')
-    trim_fastq('samples/example01/E001_01.fastq.gz')
+    #trim_fastq('samples/example01/E001_01.fastq.gz')
+    barcodes_prep(sample_file)
 
 if __name__ == "__main__":
     main()
