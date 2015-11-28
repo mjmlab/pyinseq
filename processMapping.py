@@ -4,7 +4,6 @@ Counts the bowtie hits at each position in each sample
 
 """
 
-from demultiplex import barcodes_prep
 import os
 import sys
 import re
@@ -139,7 +138,7 @@ def mapGenes(organism, sample, experiment=''):
     # Return aggregated insertions by gene
     return geneDict
 
-def buildGeneTable(organism, sample_list, gene_mappings, experiment=''):
+def buildGeneTable(organism, sample_dict, gene_mappings, experiment=''):
     """
     For each entry in a feature table (.ftt) list the summary of hits
     for each sample in the experiment
@@ -164,7 +163,7 @@ def buildGeneTable(organism, sample_list, gene_mappings, experiment=''):
     currentColumn = len(gene_table[0])-1
     currentSample = ''
 
-    for sampleName in sample_list:
+    for sampleName in sample_dict:
         # Add the new sample name as a new column the table
         currentColumn += 1
         gene_table[0].append(sampleName)

@@ -10,87 +10,49 @@ Output path includes the experiment and sample name:
 from utils import *
 import gzip
 import sys
+import csv
 import screed
 import collections
 
 def sample_prep(sample_file):
     """
-    return dictionary of sample name and barcode for each sample
+    return ordered dictionary of sample name and barcode for each sample
 
-    samples = {'name1': ['barcode1'], 'name2': ['barcode2']}
+    samples = OrderedDict([('name1', {'name': 'name1', 'barcode': 'barcode1'}),
+        ('name2', {'name': 'name2', 'barcode': 'barcode2'})])
     ignores comment lines in sample file that begin with #
+    exits if duplicate sample names or barcodes are identified
 
     """
 
     sampleDict = collections.OrderedDict()
-    with open(sample_file, 'r') as fi:
-        for line in fi:
-            if not line.startswith('#'):
-                new_sample = line.rstrip().split('\t')[0]
-                new_sample = convert_to_filename(new_sample)
-                # Error handling if in dictionary.
-                # stdout / sterr ??
-                new_barcode = line.rstrip().split('\t')[1].upper()
-                #sampleDict[new_sample] = [(new_barcode)]
+    with open(sample_file, 'r', newline = '') as csvfile:
+        sampleReader = csv.reader(csvfile, delimiter='\t')
+        for line in sampleReader:
+            if not line[0].startswith('#'):
+                # sample into a string that can be a filename; barcode to uppercase
+                new_sample, new_barcode = convert_to_filename(line[0]), line[1].upper()
+                if new_sample in sampleDict:
+                    sys.stdout.write('Error: redundant sample identifier {}'.format(new_sample))
+                    exit(1)
+                if new_barcode in sampleDict.values():
+                    sys.stdout.write('Error: redundant barcode {}'.format(new_barcode))
+                    exit(1)
                 sampleDict[new_sample] = {
                     'name': new_sample,
                     'barcode': new_barcode
                     }
     return sampleDict
 
-def barcodes_prep(sample_file, print_detail=True):
-    """
-    Extract barcodes from an INSeq sample list and conduct basic quality checks
-
-    Input samples is a tab-delimited file. On each line the sample identifier
-    should be listed (no spaces), then after a tab the DNA barcode.
-    Comment lines begin with '#' and are not read. E.g.:
-    # Experiment E01 sample file by M. Mandel
-    Input1<tab>CGAT
-    Input2<tab>GCTA
-    The function checks that all barcodes are the same length.
-    The function returns a list of barcodes and sample names.
-
-    """
-
-    # Extract barcode list from tab-delimited sample file.
-    # Ensure uppercase and stripped
-    if print_detail:
-        print('\n===== Checking barcodes =====')
-    barcode_dict = {}
-    with open(sample_file, 'r') as fi:
-        for line in fi:
-            if not line.startswith('#'):
-                new_sample = line.rstrip().split('\t')[0]
-                new_sample = convert_to_filename(new_sample)
-                if new_sample in barcode_dict:
-                    print('Error: redundant sample identifier {}'.format(new_sample))
-                    exit(1)
-                new_barcode = line.rstrip().split('\t')[1].upper()
-                if new_barcode in barcode_dict.values():
-                    print('Error: redundant barcode {}'.format(new_barcode))
-                    exit(1)
-                barcode_dict[new_sample] = new_barcode
-                barcode_length = len(new_barcode)
-
-    # Print barcodes and check for same length
-    if print_detail:
-        for b in sorted(barcode_dict):
-            print('{0}\t{1}'.format(b, barcode_dict[b]))
-            if len(barcode_dict[b]) != barcode_length:
-                print('Error: barcodes are not the same length')
-                exit(1)
-        print('n={0} unique barcodes of length {1} nt'.format(len(barcode_dict), barcode_length))
-
-    return barcode_dict
-
-def demultiplex_fastq(fastq_file, sample_file, experiment):
+def demultiplex_fastq(fastq_file, samples_dict, experiment):
     """
     Demultiplex a fastq input file by 5' barcode into separate files
 
     """
 
-    barcodes_dict = barcodes_prep(sample_file)
+    barcodes_dict = {}
+    for sample in samples_dict:
+        barcodes_dict[sample] = samples_dict[sample]['barcode']
     # holder for unassigned barcodes
     barcodes_dict['_other'] = '_other'
 

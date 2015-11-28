@@ -212,3 +212,48 @@ def fttLookup(organism, experiment=''):
                     'product': Product
                     }
     return fttDict
+
+def barcodes_prep(sample_file, print_detail=True):
+    """
+    Extract barcodes from an INSeq sample list and conduct basic quality checks
+
+    Input samples is a tab-delimited file. On each line the sample identifier
+    should be listed (no spaces), then after a tab the DNA barcode.
+    Comment lines begin with '#' and are not read. E.g.:
+    # Experiment E01 sample file by M. Mandel
+    Input1<tab>CGAT
+    Input2<tab>GCTA
+    The function checks that all barcodes are the same length.
+    The function returns a list of barcodes and sample names.
+    """
+
+    # Extract barcode list from tab-delimited sample file.
+    # Ensure uppercase and stripped
+    if print_detail:
+        print('\n===== Checking barcodes =====')
+    barcode_dict = {}
+    with open(sample_file, 'r') as fi:
+        for line in fi:
+            if not line.startswith('#'):
+                new_sample = line.rstrip().split('\t')[0]
+                new_sample = convert_to_filename(new_sample)
+                if new_sample in barcode_dict:
+                    print('Error: redundant sample identifier {}'.format(new_sample))
+                    exit(1)
+                new_barcode = line.rstrip().split('\t')[1].upper()
+                if new_barcode in barcode_dict.values():
+                    print('Error: redundant barcode {}'.format(new_barcode))
+                    exit(1)
+                barcode_dict[new_sample] = new_barcode
+                barcode_length = len(new_barcode)
+
+    # Print barcodes and check for same length
+    if print_detail:
+        for b in sorted(barcode_dict):
+            print('{0}\t{1}'.format(b, barcode_dict[b]))
+            if len(barcode_dict[b]) != barcode_length:
+                print('Error: barcodes are not the same length')
+                exit(1)
+        print('n={0} unique barcodes of length {1} nt'.format(len(barcode_dict), barcode_length))
+
+    return barcode_dict

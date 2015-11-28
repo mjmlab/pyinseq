@@ -67,10 +67,9 @@ def main():
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
 
-
     # samples dictionary
-    # samples = OrderedDict([('sample1', {'name': 'name1', 'barcode': 'barcode1'}),
-    #    ('sample2', {'name': 'name2', 'barcode': 'barcode2'})])
+    # samples = OrderedDict([('name1', {'name': 'name1', 'barcode': 'barcode1'}),
+    #    ('name2', {'name': 'name2', 'barcode': 'barcode2'})])
     samplesDict = sample_prep(samples)
     # add 'demultiplexedPath' and 'trimmedPath' fields for each sample
     for sample in samplesDict:
@@ -83,11 +82,8 @@ def main():
         samplesDict[sample]['demultiplexedPath'] = demultiplexedPath
         samplesDict[sample]['trimmedPath'] = trimmedPath
 
-    # List of samples, file paths of the demultiplexed files
-    sampleList, samplePathList = demultiplexedSamplesToProcess(samples, experiment)
-
     #demultiplex based on barcodes defined in the sample file
-    demultiplex_fastq(reads, samples, experiment)
+    demultiplex_fastq(reads, samplesDict, experiment)
 
     # Prepare genome files from the GenBank input
     gbk2fna(gbkfile, organism, genomeDir)
@@ -99,18 +95,12 @@ def main():
 
     # Dictionary of each sample's cpm by gene
     geneMappings = {}
-    for sampleName in sampleList:
-        # .fastq file of trimmed sequences; will be deleted after bowtie mapping
-        trimmedSamplePath = '{experiment}/{sampleName}_trimmed.fastq'.format(
-            experiment=experiment,
-            sampleName=sampleName)
-        samplePath = '{experiment}/raw_data/{sampleName}.fastq.gz'.format(
-            experiment=experiment,
-            sampleName=sampleName)
-        trim_fastq(samplePath, trimmedSamplePath, sampleName)
+    for sample in samplesDict:
+        s = samplesDict[sample]
+        trim_fastq(s['demultiplexedPath'], s['trimmedPath'], sample)
         # Change directory, map to bowtie, change directory back
-        trimmedSampleFile = '{0}_trimmed.fastq'.format(sampleName)
-        bowtieOutputFile = '{0}_bowtie.txt'.format(sampleName)
+        trimmedSampleFile = '{0}_trimmed.fastq'.format(sample)
+        bowtieOutputFile = '{0}_bowtie.txt'.format(sample)
         with cd(genomeDir):
             # Paths are relative to the genome_lookup directory
             # from where bowtie is called
@@ -119,13 +109,11 @@ def main():
             # map to bowtie and produce the output file
             bowtieMap(organism, bowtie_in, bowtie_out)
         # Delete trimmed fastq file after writing mapping results
-        os.remove(trimmedSamplePath)
-        # TODO: change arguments passed here and above
+        os.remove(s['trimmedPath'])
         mapSites('{0}/{1}'.format(experiment, bowtieOutputFile))
         # Add gene-level results for the sample to geneMappings
-        geneMappings[sampleName] = mapGenes(organism, sampleName, experiment)
-    #TODO: in future - pass exact sample list as above
-    buildGeneTable(organism, sampleList, geneMappings, experiment)
+        geneMappings[sample] = mapGenes(organism, sample, experiment)
+    buildGeneTable(organism, samplesDict, geneMappings, experiment)
 
 if __name__ == '__main__':
     main()
