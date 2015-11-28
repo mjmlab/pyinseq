@@ -34,7 +34,6 @@ def parseArgs(args):
     return parser.parse_args(args)
 
 # Change to the specified directory
-# http://stackoverflow.com/a/13197763
 class cd:
     """Context manager for changing the current working directory"""
     def __init__(self, newPath):
@@ -68,10 +67,24 @@ def main():
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
 
+
+    # samples dictionary
+    # samples = OrderedDict([('sample1', {'name': 'name1', 'barcode': 'barcode1'}),
+    #    ('sample2', {'name': 'name2', 'barcode': 'barcode2'})])
+    samplesDict = sample_prep(samples)
+    # add 'demultiplexedPath' and 'trimmedPath' fields for each sample
+    for sample in samplesDict:
+        demultiplexedPath = '{experiment}/raw_data/{sampleName}.fastq.gz'.format(
+            experiment=experiment,
+            sampleName=samplesDict[sample]['name'])
+        trimmedPath = '{experiment}/{sampleName}_trimmed.fastq'.format(
+            experiment=experiment,
+            sampleName=samplesDict[sample]['name'])
+        samplesDict[sample]['demultiplexedPath'] = demultiplexedPath
+        samplesDict[sample]['trimmedPath'] = trimmedPath
+
     # List of samples, file paths of the demultiplexed files
     sampleList, samplePathList = demultiplexedSamplesToProcess(samples, experiment)
-    print(sampleList)
-    print(samplePathList)
 
     #demultiplex based on barcodes defined in the sample file
     demultiplex_fastq(reads, samples, experiment)

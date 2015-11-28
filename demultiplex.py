@@ -11,6 +11,32 @@ from utils import *
 import gzip
 import sys
 import screed
+import collections
+
+def sample_prep(sample_file):
+    """
+    return dictionary of sample name and barcode for each sample
+
+    samples = {'name1': ['barcode1'], 'name2': ['barcode2']}
+    ignores comment lines in sample file that begin with #
+
+    """
+
+    sampleDict = collections.OrderedDict()
+    with open(sample_file, 'r') as fi:
+        for line in fi:
+            if not line.startswith('#'):
+                new_sample = line.rstrip().split('\t')[0]
+                new_sample = convert_to_filename(new_sample)
+                # Error handling if in dictionary.
+                # stdout / sterr ??
+                new_barcode = line.rstrip().split('\t')[1].upper()
+                #sampleDict[new_sample] = [(new_barcode)]
+                sampleDict[new_sample] = {
+                    'name': new_sample,
+                    'barcode': new_barcode
+                    }
+    return sampleDict
 
 def barcodes_prep(sample_file, print_detail=True):
     """
@@ -135,7 +161,6 @@ def demultiplexedSamplesToProcess(sample_file, experiment):
             )
         sample_list.append(sample)
         samplePath_list.append(samplePath)
-    print(sample_list, samplePath_list)
     return sample_list, samplePath_list
 
 """
