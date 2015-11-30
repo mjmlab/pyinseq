@@ -10,6 +10,6 @@ transposonRight = 'ACAGGTTG'
 
 # PATH TO BOWTIE
 # Edit this path to match your system
-bowtie = '/Users/markmandel/bowtie-1.1.1/bowtie'
+bowtie = './packages/bowtie-1.1.1/bowtie'
 # PATH TO BOWTIE-BUILD (appends '-build' on the path above)
 bowtieBuild = '{bowtiepath}-build'.format(bowtiepath=bowtie)

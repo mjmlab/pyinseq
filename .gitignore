@@ -23,3 +23,8 @@ examp*/
 
 # Sandbox
 gists.py
+
+
+# directories for testing
+packages/
+pandas_question_email
