@@ -19,18 +19,6 @@ Python package to map transposon insertion sequencing (INSeq) data in bacteria
 5. In the command line run the command below to install additional packages as detailed in the [requirements.txt](requirements.txt) file.  
 `pip install -r requirements.txt`
 
-# Development Priorities
-
-Move toward a modular approach. General picture to split into three steps:
-
-![modular approach](https://cloud.githubusercontent.com/assets/8669125/10409855/18925d7a-6ef5-11e5-9304-9f24eb868b80.png)
-
-Update 11/21/15 - Modular approach in place.  
-Step 1 could be faster but works.  
-Step 2 works. Need to add (1) package bowtie together so separate installation not needed, (2) LOESS normalization, (3) filter by 5'-3' position, (4) filter by number of reads.  
-Step 3. No code here yet.  
-Additional reporting/logging needed throughout.  
-
 # Running the software
 
 In general, place all input files in the `pyinseq/` directory. Each time the software is run an experiment directory is created that contains the analysis files for that experiment.
@@ -53,11 +41,23 @@ Required arguments:
 
 Optional arguments:
 
-`-d`  `--disruption` - fraction of gene disrupted (0.0 - 1.0). **NOT CURRENTLY IN PLACE**
+`-d`  `--disruption` - fraction of gene disrupted (0.0 - 1.0)
 
 `-d 1.0` is default (insertions anywhere in gene are counted)
 
 `-d 0.9` includes only insertions in 5'-most 90% of each gene for scoring disruption.
+
+# Development Priorities
+
+Move toward a modular approach. General picture to split into three steps:
+
+![modular approach](https://cloud.githubusercontent.com/assets/8669125/10409855/18925d7a-6ef5-11e5-9304-9f24eb868b80.png)
+
+Update 11/21/15 - Modular approach in place.  
+Step 1 could be faster but works.  
+Step 2 works. Need to add (1) package bowtie together so separate installation not needed, (2) LOESS normalization, (3) filter by 5'-3' position, (4) filter by number of reads.  
+Step 3. No code here yet.  
+Additional reporting/logging needed throughout.  
 
 # Example data sets included
 

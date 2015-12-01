@@ -52,7 +52,7 @@ def mapSites(bowtieOutput):
             writer.writerow(row_entry)
     return(mapDict)
 
-def mapGenes(organism, sample, experiment=''):
+def mapGenes(organism, sample, disruption, experiment=''):
     """
     Maps insertions to genes
 
@@ -65,8 +65,8 @@ def mapGenes(organism, sample, experiment=''):
     and are counted for both genes in the returned dictionary.
 
     ThreePrimeness = insertion location in gene (5' end = 0.0, 3' end = 1.0)
-    At present this is not used. In future all insertions should be written to the file
-    but only ones in the filtered threshold should be counted in the dictionary.
+    All insertions are written to the file but only ones <= disruption threshold
+    are counted in the dictionary.
 
     """
     # List of tuples of genome features
@@ -75,6 +75,10 @@ def mapGenes(organism, sample, experiment=''):
     mappedHitList = []
     # Dictionary with running total of cpm per gene; keys are genes, values are aggregate cpm
     geneDict = {}
+    # same as above except only hits in the first part of the gene are added to
+    # the count, as defined by the disruption threshold.
+    # if disruption = 1.0 then this should be the same as geneDict
+    filteredGeneDict = {}
     with open('{0}/{1}_bowtie_mapped.txt'.format(experiment, sample), 'r', newline='') as csvfileR:
         sitesReader = csv.reader(csvfileR, delimiter='\t')
         next(sitesReader, None) #skip the headers
@@ -88,10 +92,6 @@ def mapGenes(organism, sample, experiment=''):
                 locus, start, end, strand, length, pid, gene, locus_tag, code, cog, product = \
                     gene[0], int(gene[1]), int(gene[2]), gene[3], gene[4], \
                         gene[5], gene[6], gene[7], gene[8], gene[9], gene[10]
-                # number of genes/features hit.
-                # 0 = intergenic. 1 = a gene. 2 = overlapping genes.
-                # if 2, will print 2 entries in the output.
-                genesHit = 0
                 # contig from insertion; locus from lookup table
                 if contig == locus:
                     # TODO: Add threeprimeness filtering math in here.
@@ -109,25 +109,11 @@ def mapGenes(organism, sample, experiment=''):
                             # Add to the total for that gene --
                             # Single-element list (rather than interger) so
                             # that it is subscriptable to add cpm counts
-                            # TODO: ThreePrimess math to determine whether
-                            # to add to the geneDict
                             geneDict.setdefault(locus_tag, [0])[0] += cpm
-                            # Counts for overlap. Not being used currently!
-                            genesHit += 1
-                        # TODO: Intergenic regions
-                        # The logic here is only a start.
-                        # Also note that intergenic hits at the end of a contig
-                        # should be listed as between the last gene of the contig
-                        # and the first gene of the *same* contig.
-                        else:
-                            pass
-                            #if genesHit == 0
-                            #    try:
-                            #        print(genome[locus_tag][i+1])  # the feature after (feature)
-                            #    except:
-                            #        print(genome[locus_tag][0])
+                            # If in threshold add to the filtered list too
+                            if threePrimeness <= disruption:
+                                filteredGeneDict.setdefault(locus_tag, [0])[0] += cpm
                 prevFeature = locus_tag
-        genesHit = 0
     # Write individual insertions to *_bowtie_mapped_genes.txt
     with open('{0}/{1}_bowtie_mapped_genes.txt'.format(experiment, sample), 'w', newline='') as csvfileW:
         headers = ('contig', 'nucleotide', 'Lcounts', 'Rcounts', 'totalCounts', 'cpm', 'threePrimeness', 'locus_tag')
@@ -135,8 +121,8 @@ def mapGenes(organism, sample, experiment=''):
         mappedGeneWriter.writerow(headers)
         for hit in mappedHitList:
             mappedGeneWriter.writerow(hit)
-    # Return aggregated insertions by gene
-    return geneDict
+    # Return aggregated insertions by gene (filtered on 5'-3' threshold)
+    return filteredGeneDict
 
 def buildGeneTable(organism, sample_dict, gene_mappings, experiment=''):
     """
