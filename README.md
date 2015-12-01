@@ -6,6 +6,19 @@ Python package to map transposon insertion sequencing (INSeq) data in bacteria
 
 **Warning to biologists...this is close, but not quite ready for prime time!**
 
+# Installation
+
+1. Download (or git clone) the `pyinseq` package using the link on this page.
+
+2. [bowtie](http://bowtie-bio.sourceforge.net/index.shtml) - Latest version tested here is bowtie 1.1.1.
+
+3. Edit the `config.py` file with the path to your bowtie installation and any other relevant changes.
+
+4. Install the [Anaconda Python 3.5 download](https://www.continuum.io/downloads).
+
+5. In the command line run the command below to install additional packages as detailed in the [requirements.txt](requirements.txt) file.  
+`pip install -r requirements.txt`
+
 # Development Priorities
 
 Move toward a modular approach. General picture to split into three steps:
@@ -18,29 +31,11 @@ Step 2 works. Need to add (1) package bowtie together so separate installation n
 Step 3. No code here yet.  
 Additional reporting/logging needed throughout.  
 
-# Installation
-
-**Dependencies**
-
-Recommend the [Anaconda Python 3.5 download](https://www.continuum.io/downloads). Step 3 steps will use `pandas` and other functions that Anaconda makes easy to install.  
-
-[bowtie](http://bowtie-bio.sourceforge.net/index.shtml) - Latest version tested here is bowtie 1.1.1.
-
-`screed` - `pip install screed`
-
-**Download**
-
-Download and open the zip file for the pyinseq package (or git clone).
-
-**Config**
-
-Edit the `config.py` file with the path to your bowtie installation and any other relevant changes.
-
 # Running the software
 
 In general, place all input files in the `pyinseq/` directory. Each time the software is run an experiment directory is created that contains the analysis files for that experiment.
 
-`$ python pyinseq.py -i reads.fastq -s samples.txt -g genome.gb -e exp01`
+`$ python pyinseq.py -i <reads> -s <sample_list> -g <genbank_reference> -e <experiment_name>`
 
 `python` - Tested with Anaconda Python 3.5
 
