@@ -74,11 +74,10 @@ def mapGenes(organism, sample, disruption, experiment=''):
     # list of tuples of each mapped insertion to be immediately written per insertion
     mappedHitList = []
     # Dictionary with running total of cpm per gene; keys are genes, values are aggregate cpm
+    # only hits in the first part of the gene are added to the count, as defined
+    # by the disruption threshold.
+    # if disruption = 1.0 then every hit in the gene is included
     geneDict = {}
-    # same as above except only hits in the first part of the gene are added to
-    # the count, as defined by the disruption threshold.
-    # if disruption = 1.0 then this should be the same as geneDict
-    filteredGeneDict = {}
     with open('{0}/{1}_bowtie_mapped.txt'.format(experiment, sample), 'r', newline='') as csvfileR:
         sitesReader = csv.reader(csvfileR, delimiter='\t')
         next(sitesReader, None) #skip the headers
@@ -94,7 +93,6 @@ def mapGenes(organism, sample, disruption, experiment=''):
                         gene[5], gene[6], gene[7], gene[8], gene[9], gene[10]
                 # contig from insertion; locus from lookup table
                 if contig == locus:
-                    # TODO: Add threeprimeness filtering math in here.
                     if nucleotide >= start:
                         if nucleotide <= end:
                             # 0.0 = 5'end ; 1.0 = 3'end
@@ -106,13 +104,12 @@ def mapGenes(organism, sample, disruption, experiment=''):
                             mappedHit = (contig, nucleotide, Lcounts, Rcounts,
                                 totalCounts, cpm, threePrimeness, locus_tag)
                             mappedHitList.append(mappedHit)
-                            # Add to the total for that gene --
-                            # Single-element list (rather than interger) so
-                            # that it is subscriptable to add cpm counts
-                            geneDict.setdefault(locus_tag, [0])[0] += cpm
-                            # If in threshold add to the filtered list too
+                            # Filter based on location in the gene
                             if threePrimeness <= disruption:
-                                filteredGeneDict.setdefault(locus_tag, [0])[0] += cpm
+                                # Add to the total for that gene --
+                                # Single-element list (rather than interger) so
+                                # that it is subscriptable to add cpm counts
+                                geneDict.setdefault(locus_tag, [0])[0] += cpm
                 prevFeature = locus_tag
     # Write individual insertions to *_bowtie_mapped_genes.txt
     with open('{0}/{1}_bowtie_mapped_genes.txt'.format(experiment, sample), 'w', newline='') as csvfileW:
@@ -122,7 +119,7 @@ def mapGenes(organism, sample, disruption, experiment=''):
         for hit in mappedHitList:
             mappedGeneWriter.writerow(hit)
     # Return aggregated insertions by gene (filtered on 5'-3' threshold)
-    return filteredGeneDict
+    return geneDict
 
 def buildGeneTable(organism, sample_dict, gene_mappings, experiment=''):
     """
