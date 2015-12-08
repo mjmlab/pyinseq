@@ -53,6 +53,7 @@ def main():
     reads = args.input
     samples = args.samples
     disruption = float(args.disruption)
+    #TODO: Test that disruption is between 0.0 and 1.0 (or absent, default 1.0)
 
     # originally this was to name the organism, e.g. VF for Vfischeri
     # it really only was used to name the genome files so it doesn't
@@ -112,7 +113,8 @@ def main():
         os.remove(s['trimmedPath'])
         mapSites('{0}/{1}'.format(experiment, bowtieOutputFile))
         # Add gene-level results for the sample to geneMappings
-        geneMappings[sample] = mapGenes(organism, sample, experiment)
+        # Filtered on gene fraction disrupted as specified by -d flag
+        geneMappings[sample] = mapGenes(organism, sample, disruption, experiment)
     buildGeneTable(organism, samplesDict, geneMappings, experiment)
 
 if __name__ == '__main__':

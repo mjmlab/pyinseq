@@ -6,41 +6,24 @@ Python package to map transposon insertion sequencing (INSeq) data in bacteria
 
 **Warning to biologists...this is close, but not quite ready for prime time!**
 
-# Development Priorities
-
-Move toward a modular approach. General picture to split into three steps:
-
-![modular approach](https://cloud.githubusercontent.com/assets/8669125/10409855/18925d7a-6ef5-11e5-9304-9f24eb868b80.png)
-
-Update 11/21/15 - Modular approach in place.  
-Step 1 could be faster but works.  
-Step 2 works. Need to add (1) package bowtie together so separate installation not needed, (2) LOESS normalization, (3) filter by 5'-3' position, (4) filter by number of reads.  
-Step 3. No code here yet.  
-Additional reporting/logging needed throughout.  
-
 # Installation
 
-**Dependencies**
+1. Download (or git clone) the `pyinseq` package using the link on this page.
 
-Recommend the [Anaconda Python 3.5 download](https://www.continuum.io/downloads). Step 3 steps will use `pandas` and other functions that Anaconda makes easy to install.  
+2. [bowtie](http://bowtie-bio.sourceforge.net/index.shtml) - Latest version tested here is bowtie 1.1.1.
 
-[bowtie](http://bowtie-bio.sourceforge.net/index.shtml) - Latest version tested here is bowtie 1.1.1.
+3. Edit the `config.py` file with the path to your bowtie installation and any other relevant changes.
 
-`screed` - `pip install screed`
+4. Install the [Anaconda Python 3.5 download](https://www.continuum.io/downloads).
 
-**Download**
-
-Download and open the zip file for the pyinseq package (or git clone).
-
-**Config**
-
-Edit the `config.py` file with the path to your bowtie installation and any other relevant changes.
+5. In the command line run the command below to install additional packages as detailed in the [requirements.txt](requirements.txt) file.  
+`pip install -r requirements.txt`
 
 # Running the software
 
 In general, place all input files in the `pyinseq/` directory. Each time the software is run an experiment directory is created that contains the analysis files for that experiment.
 
-`$ python pyinseq.py -i reads.fastq -s samples.txt -g genome.gb -e exp01`
+`$ python pyinseq.py -i <reads> -s <sample_list> -g <genbank_reference> -e <experiment_name>`
 
 `python` - Tested with Anaconda Python 3.5
 
@@ -58,11 +41,23 @@ Required arguments:
 
 Optional arguments:
 
-`-d`  `--disruption` - fraction of gene disrupted (0.0 - 1.0). **NOT CURRENTLY IN PLACE**
+`-d`  `--disruption` - fraction of gene disrupted (0.0 - 1.0)
 
 `-d 1.0` is default (insertions anywhere in gene are counted)
 
 `-d 0.9` includes only insertions in 5'-most 90% of each gene for scoring disruption.
+
+# Development Priorities
+
+Move toward a modular approach. General picture to split into three steps:
+
+![modular approach](https://cloud.githubusercontent.com/assets/8669125/10409855/18925d7a-6ef5-11e5-9304-9f24eb868b80.png)
+
+Update 11/21/15 - Modular approach in place.  
+Step 1 could be faster but works.  
+Step 2 works. Need to add (1) package bowtie together so separate installation not needed, (2) LOESS normalization, (3) filter by 5'-3' position, (4) filter by number of reads.  
+Step 3. No code here yet.  
+Additional reporting/logging needed throughout.  
 
 # Example data sets included
 
