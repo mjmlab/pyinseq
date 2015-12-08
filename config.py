@@ -1,4 +1,6 @@
 """ Configuration file for pyinseq.py package """
+import os
+import sys
 
 # TRANSPOSON END SEQUENCES
 # Typical mariner transposon ends for INSeq are the defaults (same left/right ends)
@@ -10,6 +12,22 @@ transposonRight = 'ACAGGTTG'
 
 # PATH TO BOWTIE
 # Edit this path to match your system
-bowtie = '/Users/markmandel/bowtie-1.1.1/bowtie'
+# Uncomment your bowtie path only, leave commented out the bowtie paths that do not apply to your OS
+platform = sys.platform.lower()
+current_folder = os.path.dirname(os.path.abspath(__file__))
+packages_folder = os.path.join(current_folder, 'packages')
+
+if sys.platform.lower().startswith('linux'):
+	#linux bowtie path
+	bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-linux', 'bowtie')
+
+elif sys.platform.lower().startswith('darwin'):
+	#mac bowtie path
+	bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-mac', 'bowtie')
+
+elif sys.platform.lower().startswith('win'):
+	#windows bowtie path
+	bowtie = os.path.join(packages_folder,'bowtie-1.1.1-win', 'bowtie')
+
 # PATH TO BOWTIE-BUILD (appends '-build' on the path above)
 bowtieBuild = '{bowtiepath}-build'.format(bowtiepath=bowtie)
