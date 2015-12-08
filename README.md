@@ -2,21 +2,18 @@
 
 # Description
 
-Python package to map transposon insertion sequencing (INSeq) data in bacteria
+Lightweight package to map transposon insertion sequencing (INSeq) data in bacteria
 
-**Warning to biologists...this is close, but not quite ready for prime time!**
+**Warning to biologists...this is close, but not quite ready for prime time!
+Tested on Mac & Unix**
 
 # Installation
 
 1. Download (or git clone) the `pyinseq` package using the link on this page.
 
-2. [bowtie](http://bowtie-bio.sourceforge.net/index.shtml) - Latest version tested here is bowtie 1.1.1.
+1. Install the [Anaconda Python 3.5 download](https://www.continuum.io/downloads).
 
-3. Edit the `config.py` file with the path to your bowtie installation and any other relevant changes.
-
-4. Install the [Anaconda Python 3.5 download](https://www.continuum.io/downloads).
-
-5. In the command line run the command below to install additional packages as detailed in the [requirements.txt](requirements.txt) file.  
+1. In the command line run the command below to install additional packages as detailed in the [requirements.txt](requirements.txt) file.  
 `pip install -r requirements.txt`
 
 # Running the software
@@ -47,17 +44,13 @@ Optional arguments:
 
 `-d 0.9` includes only insertions in 5'-most 90% of each gene for scoring disruption.
 
-# Development Priorities
+# Development Overview
 
 Move toward a modular approach. General picture to split into three steps:
 
 ![modular approach](https://cloud.githubusercontent.com/assets/8669125/10409855/18925d7a-6ef5-11e5-9304-9f24eb868b80.png)
 
-Update 11/21/15 - Modular approach in place.  
-Step 1 could be faster but works.  
-Step 2 works. Need to add (1) package bowtie together so separate installation not needed, (2) LOESS normalization, (3) filter by 5'-3' position, (4) filter by number of reads.  
-Step 3. No code here yet.  
-Additional reporting/logging needed throughout.  
+Current high-priority issues/bugs in Github issues. Slightly out-of-date thoughts and ideas are listed in the [Roadmap file](roadmap.md).
 
 # Example data sets included
 
@@ -95,8 +88,6 @@ Immediate next steps will include multiple quality checks on the run and disting
 9. Plotting of results (specific plots TBD); likely an analysis of essential and conditionally essential genes. Consider assigning samples.
 10. Detailed reporting and logging (e.g., fraction of reads that mapped successfully; variation from other samples))
 11. Overall optimization
-
-Current high-priority issues/bugs in Github issues. Slightly out-of-date thoughts and ideas are listed in the [Roadmap file](roadmap.md).
 
 # License
 

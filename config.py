@@ -10,23 +10,21 @@ import sys
 transposonLeft = 'ACAGGTTG'
 transposonRight = 'ACAGGTTG'
 
-# PATH TO BOWTIE
-# Edit this path to match your system
-# Uncomment your bowtie path only, leave commented out the bowtie paths that do not apply to your OS
+# Bowtie package selected (linux/mac/windows) based on operating system detected
 platform = sys.platform.lower()
 current_folder = os.path.dirname(os.path.abspath(__file__))
 packages_folder = os.path.join(current_folder, 'packages')
 
 if sys.platform.lower().startswith('linux'):
-	#linux bowtie path
+	# linux bowtie path
 	bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-linux', 'bowtie')
 
 elif sys.platform.lower().startswith('darwin'):
-	#mac bowtie path
+	# mac bowtie path
 	bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-mac', 'bowtie')
 
 elif sys.platform.lower().startswith('win'):
-	#windows bowtie path
+	# windows bowtie path
 	bowtie = os.path.join(packages_folder,'bowtie-1.1.1-win', 'bowtie')
 
 # PATH TO BOWTIE-BUILD (appends '-build' on the path above)
