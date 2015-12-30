@@ -167,10 +167,15 @@ def buildGeneTable(organism, sample_dict, gene_mappings, experiment=''):
                 if hitLocusTag == fttLocusTag:
                     gene_table[i][currentColumn] += mapped_genes[gene][0]
         with open('{0}/summary_gene_table.txt'.format(experiment), 'w') as fo:
+            writer = csv.writer(fo, delimiter='\t', dialect='excel')
+            writer.writerows(gene_table)
+
+        """
+        with open('{0}/summary_gene_table.txt'.format(experiment), 'w') as fo:
             for line in gene_table:
                 for entry in line:
                     fo.write('{0}\t'.format(entry))
-                fo.write('\n')
+                fo.write('\n')"""
 
 def fttLookup(organism, experiment=''):
     """
