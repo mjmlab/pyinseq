@@ -12,9 +12,6 @@ class OutputTests(unittest.TestCase):
             ['Contig', 'Start', 'End', 'Strand', 'Length', 'PID', 'Gene',
             'Synonym', 'Code', 'COG', 'Product', 'E001_01', 'E001_02']
             )
-
-    #def test_csv_read_data_points(self):
-    #    self.assertEqual(read_data(self.data)[1][7], '87')
-
+            
 if __name__ == '__main__':
     unittest.main()
