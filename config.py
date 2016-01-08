@@ -1,4 +1,4 @@
-""" Configuration file for pyinseq.py package """
+"""Configuration file for pyinseq.py package."""
 import os
 import sys
 
@@ -16,16 +16,16 @@ current_folder = os.path.dirname(os.path.abspath(__file__))
 packages_folder = os.path.join(current_folder, 'packages')
 
 if sys.platform.lower().startswith('linux'):
-	# linux bowtie path
-	bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-linux', 'bowtie')
+    # linux bowtie path
+    bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-linux', 'bowtie')
 
 elif sys.platform.lower().startswith('darwin'):
-	# mac bowtie path
-	bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-mac', 'bowtie')
+    # mac bowtie path
+    bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-mac', 'bowtie')
 
 elif sys.platform.lower().startswith('win'):
-	# windows bowtie path
-	bowtie = os.path.join(packages_folder,'bowtie-1.1.1-win', 'bowtie')
+    # windows bowtie path
+    bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-win', 'bowtie')
 
 # PATH TO BOWTIE-BUILD (appends '-build' on the path above)
 bowtieBuild = '{bowtiepath}-build'.format(bowtiepath=bowtie)

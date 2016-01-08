@@ -13,25 +13,21 @@ from utils import convert_to_filename, createExperimentDirectories
 
 
 def parseArgs(args):
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i',
-                        '--input',
+    parser.add_argument('-i', '--input',
                         help='input Illumina reads file',
                         required=True)
-    parser.add_argument('-s',
-                        '--samples',
+    parser.add_argument('-s', '--samples',
                         help='sample list with barcodes',
                         required=True)
-    parser.add_argument('-e',
-                        '--experiment',
+    parser.add_argument('-e', '--experiment',
                         help='experiment name (no spaces or special characters)',
                         required=True)
-    parser.add_argument('-g',
-                        '--genome',
+    parser.add_argument('-g', '--genome',
                         help='genome in GenBank format (one concatenated file for multiple contigs/chromosomes)',
                         required=True)
-    parser.add_argument('-d',
-                        '--disruption',
+    parser.add_argument('-d', '--disruption',
                         help='fraction of gene disrupted (0.0 - 1.0)',
                         default=1.0)
     parser.add_argument('--nobarcodes',
@@ -44,9 +40,7 @@ def parseArgs(args):
 
 
 class cd:
-
-    """Change to the current working directory, then back."""
-
+    """Context manager to change to the current working directory then back."""
     def __init__(self, newPath):
         self.newPath = os.path.expanduser(newPath)
 

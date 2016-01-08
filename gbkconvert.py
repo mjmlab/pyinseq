@@ -26,19 +26,21 @@ Format similar to .ptt and .rnt files except:
 
 """
 
-import sys
+import csv
 import os
 import re
-import csv
+import sys
+
 
 def gbk2fna(infile, organism, outputdirectory=''):
+    """Convert genbank format to fna format."""
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.fna'.format(outputdirectory, organism)
         if not os.path.exists('{0}'.format(outputdirectory)):
             print('Error: {0} directory was not created.'.format(outputdirectory))
             exit(1)
         with open(outfile, 'w') as fo:
-            dna_seq = False # in the DNA sequence of the file
+            dna_seq = False  # in the DNA sequence of the file
             for i, line in enumerate(fi):
 
                 # Don't parse blank lines
@@ -59,21 +61,21 @@ def gbk2fna(infile, organism, outputdirectory=''):
                     if(parts[0] == 'ORIGIN'):
                         dna_seq = True
 
+
 def gbk2ftt(infile, organism, outputdirectory=''):
+    """Convert genbank format to ptt-like ftt format."""
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.ftt'.format(outputdirectory, organism)
         with open(outfile, 'w') as fo:
             writer = csv.writer(fo, delimiter='\t', dialect='excel')
             header = ('Locus', 'Location_Start', 'Location_End', 'Strand', 'Length', 'PID',
-                'Gene', 'Synonym', 'Code', 'COG', 'Product')
+                      'Gene', 'Synonym', 'Code', 'COG', 'Product')
             writer.writerow(header)
 
             # Initialize variables
-            features = False # in the FEATURES section of the GenBank file
-            new_feature = False # collecting data for a new feature
-            new_feature_type = ''
+            features = False  # in the FEATURES section of the GenBank file
+            new_feature = False  # collecting data for a new feature
             parse_types = ['CDS', 'tRNA', 'rRNA', 'misc_RNA']
-            location = '0..0'
             strand = '+'
             length = 0
             protein_id = '-'
@@ -82,7 +84,7 @@ def gbk2ftt(infile, organism, outputdirectory=''):
             code = '-'
             cog = '-'
             product = '-'
-            product_append = False # append the current line to product
+            product_append = False  # append the current line to product
 
             for i, line in enumerate(fi):
 
@@ -103,14 +105,13 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                         # Reset flags/defaults
                         if line[5:21].rstrip():
                             if new_feature:
-                                #if locus_tag:
+                                # if locus_tag:
                                 if not product_append:
-                                    output = (locus, first, last,
-                                        strand, str(length), protein_id, gene,
-                                        locus_tag, code, cog, product)
+                                    output = (locus, first, last, strand,
+                                              str(length), protein_id, gene,
+                                              locus_tag, code, cog, product)
                                     writer.writerow(output)
                                     new_feature = False
-                                    new_feature_type = ''
                                     protein_id = '-'
                                     gene = '-'
                                     locus_tag = '-'
@@ -119,19 +120,16 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                                     product = '-'
 
                         if(line[5:21].rstrip() in parse_types):
-                            new_feature = True # Feature that should be written
-                            new_feature_type = line[5:21].rstrip()
-
+                            new_feature = True  # Feature that should be written
 
                             # SIMPLE FEATURES - TWO COORDINATES, FORWARD OR COMPLEMENT
                             # Minus strand if the location begin with 'complement'/'c'
                             if parts[1][0] == 'c':
                                 strand = '-'
-                                location_raw = parts[1][parts[1].index('(')+1:-1]
+                                location_raw = parts[1][parts[1].index('(') + 1:-1]
                             else:
                                 strand = '+'
                                 location_raw = parts[1]
-
 
                             # MILDLY COMPLICATED FEATURES
                             # e.g., join(481257..481331,481333..482355)
@@ -144,7 +142,7 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                                 # Matches digits in: ..digits)
 
                             # Addressses this case: 'join(481257..481331,481333..482355)'
-                            # TODO: join(complement(1..5,7..10))
+                            # TODO('join(complement(1..5,7..10))')
                             if parts[1].startswith('join'):
                                 start_match = re.search(r'(?<=\()(\d+)(?=\.\.)', parts[1])
                                 end_match = re.search(r'(?<=\.\.)(\d+)(?=\))', parts[1])
@@ -161,8 +159,7 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                             # Strip out < and > and note that may not be
                             # ... divisible by 3 for CDS if gene is at end of contig
                             first = location_raw[:location_raw.find('..')].strip('<>')
-                            last = location_raw[location_raw.rfind('..')+2:].strip('<>')
-                            location = '{0}..{1}'.format(first, last)
+                            last = location_raw[location_raw.rfind('..') + 2:].strip('<>')
                             length = int(last) - int(first) + 1
 
                         if '/protein_id=' in parts[0]:
@@ -179,7 +176,7 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                             product = product + ' ' + line.strip()
                             if product.count('\"') != 2:
                                 product_append = True
-                            # TODO: Error handling if not exactly 2 parentheses
+                            # TODO(Error handling if not exactly 2 parentheses)
                             if product.count('\"') == 2:
                                 product = product.strip('\"')
                                 product_append = False
@@ -196,12 +193,12 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                     if(parts[0] == 'FEATURES'):
                         features = True
 
-# ===== Start here ===== #
 
 def main():
+    """Start here."""
     inputfile = sys.argv[1]
     organism = sys.argv[2]
-    #gbk2fna(inputfile, organism)
+    # gbk2fna(inputfile, organism)
     gbk2ftt(inputfile, organism)
 
 if __name__ == '__main__':
