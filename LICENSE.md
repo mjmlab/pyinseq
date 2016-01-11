@@ -1,4 +1,4 @@
-Copyright (c) 2015, Northwestern University
+Copyright (c) 2015, Mark J. Mandel
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
