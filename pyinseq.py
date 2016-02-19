@@ -5,6 +5,7 @@ import argparse
 import os
 from shutil import copyfile
 import sys
+import yaml
 from demultiplex import sample_prep, demultiplex_fastq, trim_fastq
 from gbkconvert import gbk2fna, gbk2ftt
 from mapReads import bowtieBuild, bowtieMap
@@ -52,19 +53,7 @@ class cd:
         os.chdir(self.savedPath)
 
 
-def main():
-    """Start here."""
-    args = parseArgs(sys.argv[1:])
-    gbkfile = args.genome
-    experiment = convert_to_filename(args.experiment)
-    reads = args.input
-    samples = args.samples
-    # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
-    disruption = float(args.disruption)
-    nobarcodes = args.nobarcodes
-
-    # Lookup files generated will be called 'genome.fna' etc
-    organism = 'genome'
+def pipeline_organize():
 
     # pyinseqDirectory = os.getcwd()
     genomeDir = '{experiment}/genome_lookup/'.format(experiment=experiment)
@@ -74,10 +63,13 @@ def main():
     if nobarcodes:
         barcode_qc, barcode_length = False, 0
 
-    # samples dictionary
+    # samples dictionary; write as yaml file
     # samples = OrderedDict([('name1', {'name': 'name1', 'barcode': 'barcode1'}),
     #    ('name2', {'name': 'name2', 'barcode': 'barcode2'})])
     samplesDict = sample_prep(samples, barcode_qc)
+    with open('test.yaml', 'w') as yaml_out:
+        print(yaml.dump(samplesDict, default_flow_style=False))
+        # print(yaml.dump(samplesDict, default_flow_style=False), file=yaml_out)
 
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
@@ -93,6 +85,33 @@ def main():
         samplesDict[sample]['demultiplexedPath'] = demultiplexedPath
         samplesDict[sample]['trimmedPath'] = trimmedPath
 
+def pipeline_demultiplex():
+    pass
+
+def pipeline_mapping():
+    pass
+
+def pipeline_analysis():
+    pass
+
+
+
+
+def main():
+    """Start here."""
+    args = parseArgs(sys.argv[1:])
+    gbkfile = args.genome
+    experiment = convert_to_filename(args.experiment)
+    reads = args.input
+    samples = args.samples
+    # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
+    disruption = float(args.disruption)
+    nobarcodes = args.nobarcodes
+    # Organism reference files called 'genome.fna' etc
+    organism = 'genome'
+
+
+    # How much of this logic to put here, how much to put into the modular function?
     if nobarcodes:
         # copy reads files into the experiment/raw_data directory
         for sample in samplesDict:
