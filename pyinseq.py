@@ -53,26 +53,28 @@ class cd:
         os.chdir(self.savedPath)
 
 
-def pipeline_organize():
+def pipeline_organize(experiment, samples):
+
+    # Create the directory struture based on the experiment name
+    createExperimentDirectories(experiment)
 
     # pyinseqDirectory = os.getcwd()
     genomeDir = '{experiment}/genome_lookup/'.format(experiment=experiment)
 
     # Note: barcode length hardcoded at 4 bp here
     barcode_qc, barcode_length = True, 4
-    if nobarcodes:
-        barcode_qc, barcode_length = False, 0
+
+
+    # if nobarcodes:
+        # barcode_qc, barcode_length = False, 0
 
     # samples dictionary; write as yaml file
     # samples = OrderedDict([('name1', {'name': 'name1', 'barcode': 'barcode1'}),
     #    ('name2', {'name': 'name2', 'barcode': 'barcode2'})])
     samplesDict = sample_prep(samples, barcode_qc)
-    with open('test.yaml', 'w') as yaml_out:
-        print(yaml.dump(samplesDict, default_flow_style=False))
-        # print(yaml.dump(samplesDict, default_flow_style=False), file=yaml_out)
-
-    # Create the directory struture based on the experiment name
-    createExperimentDirectories(experiment)
+    print(yaml.dump(samplesDict, default_flow_style=False))
+    with open('{}/samples.yaml'.format(experiment), 'w') as fo:
+        fo.write(yaml.dump(samplesDict, default_flow_style=False))
 
     # add 'demultiplexedPath' and 'trimmedPath' fields for each sample
     for sample in samplesDict:
@@ -109,6 +111,10 @@ def main():
     nobarcodes = args.nobarcodes
     # Organism reference files called 'genome.fna' etc
     organism = 'genome'
+
+
+
+    pipeline_organize(experiment, samples)
 
 
     # How much of this logic to put here, how much to put into the modular function?
