@@ -6,7 +6,7 @@
 
 `_exampleData/example01.fastq` In this repository.  
 
-`[_exampleData/example01.txt](../_exampleData/example01.txt)` In this repository.
+`_exampleData/example01.txt` In this repository.
 
 sampleName  | barcode
 ------------- | -------------
