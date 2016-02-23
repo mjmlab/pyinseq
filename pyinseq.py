@@ -5,12 +5,12 @@ import argparse
 import os
 from shutil import copyfile
 import sys
+import yaml
 from demultiplex import sample_prep, demultiplex_fastq, trim_fastq
 from gbkconvert import gbk2fna, gbk2ftt
 from mapReads import bowtieBuild, bowtieMap
 from processMapping import mapSites, mapGenes, buildGeneTable
 from utils import convert_to_filename, createExperimentDirectories
-
 
 def parseArgs(args):
     """Parse command line arguments."""
@@ -52,35 +52,25 @@ class cd:
         os.chdir(self.savedPath)
 
 
-def main():
-    """Start here."""
-    args = parseArgs(sys.argv[1:])
-    gbkfile = args.genome
-    experiment = convert_to_filename(args.experiment)
-    reads = args.input
-    samples = args.samples
-    # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
-    disruption = float(args.disruption)
-    nobarcodes = args.nobarcodes
-
-    # Lookup files generated will be called 'genome.fna' etc
-    organism = 'genome'
-
-    # pyinseqDirectory = os.getcwd()
-    genomeDir = '{experiment}/genome_lookup/'.format(experiment=experiment)
-
-    # Note: barcode length hardcoded at 4 bp here
-    barcode_qc, barcode_length = True, 4
-    if nobarcodes:
-        barcode_qc, barcode_length = False, 0
-
-    # samples dictionary
-    # samples = OrderedDict([('name1', {'name': 'name1', 'barcode': 'barcode1'}),
-    #    ('name2', {'name': 'name2', 'barcode': 'barcode2'})])
-    samplesDict = sample_prep(samples, barcode_qc)
+def pipeline_organize(samples):
 
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
+
+    # Note: barcode length hardcoded at 4 bp here
+    barcode_qc, barcode_length = True, 4
+
+    # if nobarcodes:
+        # barcode_qc, barcode_length = False, 0
+
+    # TODO(For rerunning samples, modify samplesDict construction; read in a YAML file?)
+
+    # TODO(Modify as needed for already-demultiplexed samples)
+
+    # samples = OrderedDict([('name1', {'name': 'name1', 'barcode': 'barcode1'}),
+    #    ('name2', {'name': 'name2', 'barcode': 'barcode2'})])
+    global samplesDict
+    samplesDict = sample_prep(samples, barcode_qc)
 
     # add 'demultiplexedPath' and 'trimmedPath' fields for each sample
     for sample in samplesDict:
@@ -93,19 +83,25 @@ def main():
         samplesDict[sample]['demultiplexedPath'] = demultiplexedPath
         samplesDict[sample]['trimmedPath'] = trimmedPath
 
-    if nobarcodes:
-        # copy reads files into the experiment/raw_data directory
-        for sample in samplesDict:
-            # makes sure the reads directory has a trailing slash
-            if reads[-1] != '/':
-                reads += '/'
-            src = reads + sample + '.fastq.gz'
-            dst = samplesDict[sample]['demultiplexedPath']
-            copyfile(src, dst)
-    else:
-        # demultiplex based on barcodes defined in the sample file
-        demultiplex_fastq(reads, samplesDict, experiment)
+    print(yaml.dump(samplesDict, default_flow_style=False))
+    with open('{}/samples.yaml'.format(experiment), 'w') as fo:
+        fo.write(yaml.dump(samplesDict, default_flow_style=False))
 
+def pipeline_no_demultiplex(reads):
+    # copy reads files into the experiment/raw_data directory
+    for sample in samplesDict:
+        # makes sure the reads directory has a trailing slash
+        if reads[-1] != '/':
+            reads += '/'
+        src = reads + sample + '.fastq.gz'
+        dst = samplesDict[sample]['demultiplexedPath']
+        copyfile(src, dst)
+
+def pipeline_demultiplex(reads):
+    # demultiplex based on barcodes defined in the sample file
+    demultiplex_fastq(reads, samplesDict, experiment)
+
+def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4):
     # Prepare genome files from the GenBank input
     gbk2fna(gbkfile, organism, genomeDir)
     gbk2ftt(gbkfile, organism, genomeDir)
@@ -136,6 +132,41 @@ def main():
         # Filtered on gene fraction disrupted as specified by -d flag
         geneMappings[sample] = mapGenes(organism, sample, disruption, experiment)
     buildGeneTable(organism, samplesDict, geneMappings, experiment)
+
+def pipeline_analysis():
+    pass
+
+
+
+def main():
+    """Start here."""
+    args = parseArgs(sys.argv[1:])
+    global experiment
+    experiment = convert_to_filename(args.experiment)
+    gbkfile = args.genome
+    reads = args.input
+    samples = args.samples
+    # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
+    disruption = float(args.disruption)
+    nobarcodes = args.nobarcodes
+    # Organism reference files called 'genome.fna' etc
+    organism = 'genome'
+
+    # --- ORGANIZE SAMPLE LIST AND FILE PATHS --- #
+    pipeline_organize(samples)
+
+    # --- DEMULTIPLEX OR MOVE FILES IF ALREADY DEMULTIPLEXED --- #
+    if nobarcodes:
+        pipeline_no_demultiplex(reads)
+    else:
+        pipeline_demultiplex(reads)
+
+    # --- BOWTIE MAPPING --- #
+    genomeDir = '{experiment}/genome_lookup/'.format(experiment=experiment)
+    pipeline_mapping(gbkfile, organism, genomeDir, disruption)
+
+    # --- ANALYSIS OF RESULTS --- #
+    pipeline_analysis()
 
 if __name__ == '__main__':
     main()
