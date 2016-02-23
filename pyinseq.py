@@ -12,7 +12,6 @@ from mapReads import bowtieBuild, bowtieMap
 from processMapping import mapSites, mapGenes, buildGeneTable
 from utils import convert_to_filename, createExperimentDirectories
 
-
 def parseArgs(args):
     """Parse command line arguments."""
     parser = argparse.ArgumentParser()
@@ -53,7 +52,7 @@ class cd:
         os.chdir(self.savedPath)
 
 
-def pipeline_organize(experiment, samples):
+def pipeline_organize(samples):
 
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
@@ -64,17 +63,17 @@ def pipeline_organize(experiment, samples):
     # Note: barcode length hardcoded at 4 bp here
     barcode_qc, barcode_length = True, 4
 
-
     # if nobarcodes:
         # barcode_qc, barcode_length = False, 0
 
-    # samples dictionary; write as yaml file
+    # TODO(For rerunning samples, modify samplesDict construction; read in a YAML file?)
+
+    # TODO(Modify as needed for already-demultiplexed samples)
+
     # samples = OrderedDict([('name1', {'name': 'name1', 'barcode': 'barcode1'}),
     #    ('name2', {'name': 'name2', 'barcode': 'barcode2'})])
+    global samplesDict
     samplesDict = sample_prep(samples, barcode_qc)
-    print(yaml.dump(samplesDict, default_flow_style=False))
-    with open('{}/samples.yaml'.format(experiment), 'w') as fo:
-        fo.write(yaml.dump(samplesDict, default_flow_style=False))
 
     # add 'demultiplexedPath' and 'trimmedPath' fields for each sample
     for sample in samplesDict:
@@ -87,8 +86,23 @@ def pipeline_organize(experiment, samples):
         samplesDict[sample]['demultiplexedPath'] = demultiplexedPath
         samplesDict[sample]['trimmedPath'] = trimmedPath
 
-def pipeline_demultiplex():
-    pass
+    print(yaml.dump(samplesDict, default_flow_style=False))
+    with open('{}/samples.yaml'.format(experiment), 'w') as fo:
+        fo.write(yaml.dump(samplesDict, default_flow_style=False))
+
+def pipeline_no_demultiplex(reads):
+    # copy reads files into the experiment/raw_data directory
+    for sample in samplesDict:
+        # makes sure the reads directory has a trailing slash
+        if reads[-1] != '/':
+            reads += '/'
+        src = reads + sample + '.fastq.gz'
+        dst = samplesDict[sample]['demultiplexedPath']
+        copyfile(src, dst)
+
+def pipeline_demultiplex(reads):
+    # demultiplex based on barcodes defined in the sample file
+    demultiplex_fastq(reads, samplesDict, experiment)
 
 def pipeline_mapping():
     pass
@@ -102,8 +116,9 @@ def pipeline_analysis():
 def main():
     """Start here."""
     args = parseArgs(sys.argv[1:])
-    gbkfile = args.genome
+    global experiment
     experiment = convert_to_filename(args.experiment)
+    gbkfile = args.genome
     reads = args.input
     samples = args.samples
     # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
@@ -112,24 +127,17 @@ def main():
     # Organism reference files called 'genome.fna' etc
     organism = 'genome'
 
+    # --- ORGANIZE SAMPLE LIST AND FILE PATHS --- #
+    pipeline_organize(samples)
 
-
-    pipeline_organize(experiment, samples)
-
-
-    # How much of this logic to put here, how much to put into the modular function?
+    # --- DEMULTIPLEX OR MOVE FILES IF ALREADY DEMULTIPLEXED --- #
     if nobarcodes:
-        # copy reads files into the experiment/raw_data directory
-        for sample in samplesDict:
-            # makes sure the reads directory has a trailing slash
-            if reads[-1] != '/':
-                reads += '/'
-            src = reads + sample + '.fastq.gz'
-            dst = samplesDict[sample]['demultiplexedPath']
-            copyfile(src, dst)
+        pipeline_no_demultiplex()
     else:
-        # demultiplex based on barcodes defined in the sample file
-        demultiplex_fastq(reads, samplesDict, experiment)
+        pipeline_demultiplex()
+
+    # --- BOWTIE MAPPING --- #
+
 
     # Prepare genome files from the GenBank input
     gbk2fna(gbkfile, organism, genomeDir)
