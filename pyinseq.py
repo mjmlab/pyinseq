@@ -36,6 +36,11 @@ def parseArgs(args):
                         corresponding to the sample names',
                         action='store_true',
                         default=False)
+    parser.add_argument('--keepall',
+                        help='keep all intermediate files generated \
+                        (warning: large size!)',
+                        action='store_true',
+                        default=False)
     return parser.parse_args(args)
 
 
@@ -125,12 +130,16 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
             bowtie_out = '../{0}'.format(bowtieOutputFile)
             # map to bowtie and produce the output file
             bowtieMap(organism, bowtie_in, bowtie_out)
-        # Delete trimmed fastq file after writing mapping results
-        os.remove(s['trimmedPath'])
+        # Map each bowtie result to the chromosome
         mapSites('{0}/{1}'.format(experiment, bowtieOutputFile))
         # Add gene-level results for the sample to geneMappings
         # Filtered on gene fraction disrupted as specified by -d flag
         geneMappings[sample] = mapGenes(organism, sample, disruption, experiment)
+        # TODO(Add command line option to keep these files)
+        if not keepall:
+            # Delete trimmed fastq file, bowtie mapping file after writing mapping results
+            os.remove(s['trimmedPath'])
+            os.remove('{0}/{1}'.format(experiment, bowtieOutputFile))
     buildGeneTable(organism, samplesDict, geneMappings, experiment)
 
 def pipeline_analysis():
@@ -149,6 +158,8 @@ def main():
     # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
     disruption = float(args.disruption)
     nobarcodes = args.nobarcodes
+    global keepall
+    keepall = args.keepall
     # Organism reference files called 'genome.fna' etc
     organism = 'genome'
 
