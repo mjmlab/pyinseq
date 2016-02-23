@@ -57,9 +57,6 @@ def pipeline_organize(samples):
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
 
-    # pyinseqDirectory = os.getcwd()
-    genomeDir = '{experiment}/genome_lookup/'.format(experiment=experiment)
-
     # Note: barcode length hardcoded at 4 bp here
     barcode_qc, barcode_length = True, 4
 
@@ -104,41 +101,7 @@ def pipeline_demultiplex(reads):
     # demultiplex based on barcodes defined in the sample file
     demultiplex_fastq(reads, samplesDict, experiment)
 
-def pipeline_mapping():
-    pass
-
-def pipeline_analysis():
-    pass
-
-
-
-
-def main():
-    """Start here."""
-    args = parseArgs(sys.argv[1:])
-    global experiment
-    experiment = convert_to_filename(args.experiment)
-    gbkfile = args.genome
-    reads = args.input
-    samples = args.samples
-    # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
-    disruption = float(args.disruption)
-    nobarcodes = args.nobarcodes
-    # Organism reference files called 'genome.fna' etc
-    organism = 'genome'
-
-    # --- ORGANIZE SAMPLE LIST AND FILE PATHS --- #
-    pipeline_organize(samples)
-
-    # --- DEMULTIPLEX OR MOVE FILES IF ALREADY DEMULTIPLEXED --- #
-    if nobarcodes:
-        pipeline_no_demultiplex()
-    else:
-        pipeline_demultiplex()
-
-    # --- BOWTIE MAPPING --- #
-
-
+def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4):
     # Prepare genome files from the GenBank input
     gbk2fna(gbkfile, organism, genomeDir)
     gbk2ftt(gbkfile, organism, genomeDir)
@@ -169,6 +132,41 @@ def main():
         # Filtered on gene fraction disrupted as specified by -d flag
         geneMappings[sample] = mapGenes(organism, sample, disruption, experiment)
     buildGeneTable(organism, samplesDict, geneMappings, experiment)
+
+def pipeline_analysis():
+    pass
+
+
+
+def main():
+    """Start here."""
+    args = parseArgs(sys.argv[1:])
+    global experiment
+    experiment = convert_to_filename(args.experiment)
+    gbkfile = args.genome
+    reads = args.input
+    samples = args.samples
+    # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
+    disruption = float(args.disruption)
+    nobarcodes = args.nobarcodes
+    # Organism reference files called 'genome.fna' etc
+    organism = 'genome'
+
+    # --- ORGANIZE SAMPLE LIST AND FILE PATHS --- #
+    pipeline_organize(samples)
+
+    # --- DEMULTIPLEX OR MOVE FILES IF ALREADY DEMULTIPLEXED --- #
+    if nobarcodes:
+        pipeline_no_demultiplex(reads)
+    else:
+        pipeline_demultiplex(reads)
+
+    # --- BOWTIE MAPPING --- #
+    genomeDir = '{experiment}/genome_lookup/'.format(experiment=experiment)
+    pipeline_mapping(gbkfile, organism, genomeDir, disruption)
+
+    # --- ANALYSIS OF RESULTS --- #
+    pipeline_analysis()
 
 if __name__ == '__main__':
     main()
