@@ -112,46 +112,33 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                                               locus_tag, code, cog, product)
                                     writer.writerow(output)
                                     new_feature = False
-                                    protein_id = '-'
-                                    gene = '-'
-                                    locus_tag = '-'
-                                    code = '-'
-                                    cog = '-'
-                                    product = '-'
 
-                        if(line[5:21].rstrip() in parse_types):
+                        if line[5:21].rstrip() in parse_types:
                             new_feature = True  # Feature that should be written
+                            protein_id = '-'
+                            gene = '-'
+                            locus_tag = '-'
+                            code = '-'
+                            cog = '-'
+                            product = '-'
 
-                            # SIMPLE FEATURES - TWO COORDINATES, FORWARD OR COMPLEMENT
-                            # Minus strand if the location begin with 'complement'/'c'
-                            if parts[1][0] == 'c':
-                                strand = '-'
-                                location_raw = parts[1][parts[1].index('(') + 1:-1]
-                            else:
-                                strand = '+'
-                                location_raw = parts[1]
-
-                            # FOR MILDLY COMPLICATED FEATURES
-                            # e.g., join(481257..481331,481333..482355)
-                            # it just reports outer bounds: 481257..482355
-                            if parts[1].startswith('join'):
-                                location = re.search(r'(\d+)\.+.*\.(\d+)', parts[1])
-                                try:
-                                    location_raw = '{0}..{1}'.format(location.group(1),
-                                                                     location.group(2))
-                                except AttributeError:
-                                    errorComplexFeature = \
-                                    'PyINSeq Error: Complex feature coordinates at or near {0} ' \
-                                    'in GenBank file. Additional attention required.'.format(locus_tag)
-                                    print(errorComplexFeature)
-                                    exit(0)
-
-                            # Process location info:
-                            # Strip out < and > and note that may not be
-                            # ... divisible by 3 for CDS if gene is at end of contig
-                            first = location_raw[:location_raw.find('..')].strip('<>')
-                            last = location_raw[location_raw.rfind('..') + 2:].strip('<>')
-                            length = int(last) - int(first) + 1
+                            # NOTES ABOUT FEATURES
+                            # 1. At ends of contigs greater than/less than signs
+                            #    (> / <) are removed.
+                            # 2. Complicated features use only the outer bounds
+                            #    join(481257..481331,481333..482355) uses 481257..482355
+                            location = re.search(r'(\d+)\.+.*\.(\d+)', parts[1])
+                            first = location.group(1)
+                            last = location.group(2)
+                            try:
+                                location_raw = '{0}..{1}'.format(first, last)
+                                length = int(last) - int(first) + 1
+                            except AttributeError:
+                                errorComplexFeature = \
+                                'PyINSeq Error: Complex feature coordinates at or near {0} ' \
+                                'in GenBank file. Additional attention required.'.format(locus_tag)
+                                print(errorComplexFeature)
+                                exit(0)
 
                         if '/protein_id=' in parts[0]:
                             protein_id = parts[0][13:-1]
