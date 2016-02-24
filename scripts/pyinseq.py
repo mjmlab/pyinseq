@@ -45,7 +45,7 @@ def parseArgs(args):
 
 
 class cd:
-    """Context manager to change to the current working directory then back."""
+    """Context manager to change to the specified directory then back."""
     def __init__(self, newPath):
         self.newPath = os.path.expanduser(newPath)
 
@@ -164,6 +164,7 @@ def main():
     organism = 'genome'
 
     # --- ORGANIZE SAMPLE LIST AND FILE PATHS --- #
+    print('\nOrganizing sample list and file paths...')
     pipeline_organize(samples)
 
     # --- DEMULTIPLEX OR MOVE FILES IF ALREADY DEMULTIPLEXED --- #

@@ -9,9 +9,10 @@ def createExperimentDirectories(experiment):
     Create the project directory and subdirectories
 
     Attempt to create the directory structure:
-    /[experiment]
-        /raw_data
-        /genome_lookup
+    /results
+        /[experiment]
+            /raw_data
+            /genome_lookup
 
     If /experiment directory already exists exit and return error message and
     the full path of the present directory to the user"""
@@ -27,8 +28,11 @@ def createExperimentDirectories(experiment):
 
     # Create path or exit with error if it exists.
     try:
-        os.makedirs('{}/raw_data/'.format(experiment))
-        os.makedirs('{}/genome_lookup/'.format(experiment))
+        os.makedirs('results/{}/raw_data/'.format(experiment))
+        print('Making directory: results/{}'.format(experiment))
+        print('Making directory: results/{}/raw_data/'.format(experiment))
+        os.makedirs('results/{}/genome_lookup/'.format(experiment))
+        print('Making directory: results/{}/genome_lookup/'.format(experiment))
     except OSError:
         print(errorDirectoryExists)
         exit(1)
