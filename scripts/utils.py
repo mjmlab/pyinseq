@@ -9,10 +9,14 @@ def createExperimentDirectories(experiment):
     Create the project directory and subdirectories
 
     Attempt to create the directory structure:
-    /results
-        /[experiment]
-            /raw_data
-            /genome_lookup
+
+    results/
+    |
+    +-{experiment}/        # User-specified experiment name
+      |
+      +-raw_data/          # For demultiplexed reads
+      |
+      +-genome_lookup/     # Genome fna and ftt files, bowtie indexes
 
     If /experiment directory already exists exit and return error message and
     the full path of the present directory to the user"""
@@ -50,13 +54,7 @@ def convert_to_filename(sample_name):
 # ===== Start here ===== #
 
 def main():
-    #args = parseArgs(sys.argv[1:])
-    #print(args.input)
-    #print(args.samples)
-    #assignAndTrim(args.input, args.samples)
-    experiment = 'E1'
-
-    createDirectories(experiment)
+    pass
 
 if __name__ == '__main__':
     main()

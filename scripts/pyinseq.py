@@ -88,9 +88,13 @@ def pipeline_organize(samples):
         samplesDict[sample]['demultiplexedPath'] = demultiplexedPath
         samplesDict[sample]['trimmedPath'] = trimmedPath
 
-    print(yaml.dump(samplesDict, default_flow_style=False))
-    with open('{}/samples.yaml'.format(experiment), 'w') as fo:
+    print('\nProcessing {} total samples:'.format(len(samplesDict)))
+    for s in samplesDict:
+        print('{0}\n  barcode: {1}'.format(s, samplesDict[s]['barcode']))
+    samples_yaml = 'results/{}/samples.yaml'.format(experiment)
+    with open(samples_yaml, 'w') as fo:
         fo.write(yaml.dump(samplesDict, default_flow_style=False))
+    print('Sample details written to {}'.format(samples_yaml))
 
 def pipeline_no_demultiplex(reads):
     # copy reads files into the experiment/raw_data directory
@@ -164,7 +168,7 @@ def main():
     organism = 'genome'
 
     # --- ORGANIZE SAMPLE LIST AND FILE PATHS --- #
-    print('\nOrganizing sample list and file paths...')
+    print('\nOrganizing sample list and file paths:')
     pipeline_organize(samples)
 
     # --- DEMULTIPLEX OR MOVE FILES IF ALREADY DEMULTIPLEXED --- #
