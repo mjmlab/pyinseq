@@ -131,23 +131,14 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                                 strand = '+'
                                 location_raw = parts[1]
 
-                            # MILDLY COMPLICATED FEATURES
+                            # FOR MILDLY COMPLICATED FEATURES
                             # e.g., join(481257..481331,481333..482355)
                             # it just reports outer bounds: 481257..482355
-                            # assumes not too complicated! - feature on same strand, on same contig
-
-                            # Regex to pull out start location = (?<=\()(\d+)(?=\.\.)
-                                # Matches digits in: (digits..
-                            # Regex to pull out end location = (?<=\.\.)(\d+)(?=\))
-                                # Matches digits in: ..digits)
-
-                            # Addressses this case: 'join(481257..481331,481333..482355)'
-                            # TODO('join(complement(1..5,7..10))')
                             if parts[1].startswith('join'):
-                                start_match = re.search(r'(?<=\()(\d+)(?=\.\.)', parts[1])
-                                end_match = re.search(r'(?<=\.\.)(\d+)(?=\))', parts[1])
+                                location = re.search(r'(\d+)\.+.*\.(\d+)', parts[1])
                                 try:
-                                    location_raw = '{0}..{1}'.format(start_match.group(), end_match.group())
+                                    location_raw = '{0}..{1}'.format(location.group(1),
+                                                                     location.group(2))
                                 except AttributeError:
                                     errorComplexFeature = \
                                     'PyINSeq Error: Complex feature coordinates at or near {0} ' \
