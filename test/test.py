@@ -6,7 +6,7 @@ class OutputTests(unittest.TestCase):
     """These tests only work once the example01 data has been run."""
 
     def setUp(self):
-        self.data = 'example01/summary_gene_table.txt'
+        self.data = 'results/example01/summary_gene_table.txt'
 
     def test_csv_read_headers(self):
         self.assertEqual(

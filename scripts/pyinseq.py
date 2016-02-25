@@ -79,10 +79,10 @@ def pipeline_organize(samples):
 
     # add 'demultiplexedPath' and 'trimmedPath' fields for each sample
     for sample in samplesDict:
-        demultiplexedPath = '{experiment}/raw_data/{sampleName}.fastq.gz'.format(
+        demultiplexedPath = 'results/{experiment}/raw_data/{sampleName}.fastq.gz'.format(
             experiment=experiment,
             sampleName=samplesDict[sample]['name'])
-        trimmedPath = '{experiment}/{sampleName}_trimmed.fastq'.format(
+        trimmedPath = 'results/{experiment}/{sampleName}_trimmed.fastq'.format(
             experiment=experiment,
             sampleName=samplesDict[sample]['name'])
         samplesDict[sample]['demultiplexedPath'] = demultiplexedPath
@@ -134,6 +134,7 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
     geneMappings = {}
     for sample in samplesDict:
         s = samplesDict[sample]
+        print('\nProcessing sample {}'.format(sample))
         trim_fastq(s['demultiplexedPath'], s['trimmedPath'], sample, barcode_length)
         # Change directory, map to bowtie, change directory back
         trimmedSampleFile = '{0}_trimmed.fastq'.format(sample)
@@ -147,7 +148,7 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
             print('Mapping {} reads to bowtie'.format(sample))
             bowtieMap(organism, bowtie_in, bowtie_out)
         # Map each bowtie result to the chromosome
-        mapSites('{0}/{1}'.format(experiment, bowtieOutputFile))
+        mapSites('results/{0}/{1}'.format(experiment, bowtieOutputFile))
         # Add gene-level results for the sample to geneMappings
         # Filtered on gene fraction disrupted as specified by -d flag
         geneMappings[sample] = mapGenes(organism, sample, disruption, experiment)
@@ -155,7 +156,7 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
         if not keepall:
             # Delete trimmed fastq file, bowtie mapping file after writing mapping results
             os.remove(s['trimmedPath'])
-            os.remove('{0}/{1}'.format(experiment, bowtieOutputFile))
+            os.remove('results/{0}/{1}'.format(experiment, bowtieOutputFile))
     buildGeneTable(organism, samplesDict, geneMappings, experiment)
 
 def pipeline_analysis():
@@ -190,8 +191,6 @@ def main():
 
     # --- BOWTIE MAPPING --- #
     genomeDir = 'results/{experiment}/genome_lookup/'.format(experiment=experiment)
-    print(genomeDir)
-    print(os.getcwd())
     pipeline_mapping(gbkfile, organism, genomeDir, disruption)
 
     # --- ANALYSIS OF RESULTS --- #

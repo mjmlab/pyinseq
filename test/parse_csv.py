@@ -5,5 +5,5 @@ def read_data(data):
         data = [row for row in csv.reader(f.read().splitlines(), delimiter='\t')]
     return data
 
-data = 'example01/summary_gene_table.txt'
+data = 'results/example01/summary_gene_table.txt'
 read_data(data)

@@ -78,7 +78,7 @@ def mapGenes(organism, sample, disruption, experiment=''):
     # by the disruption threshold.
     # if disruption = 1.0 then every hit in the gene is included
     geneDict = {}
-    with open('{0}/{1}_bowtie_mapped.txt'.format(experiment, sample), 'r', newline='') as csvfileR:
+    with open('results/{0}/{1}_bowtie_mapped.txt'.format(experiment, sample), 'r', newline='') as csvfileR:
         sitesReader = csv.reader(csvfileR, delimiter='\t')
         next(sitesReader, None) #skip the headers
         for line in sitesReader:
@@ -112,7 +112,7 @@ def mapGenes(organism, sample, disruption, experiment=''):
                                 geneDict.setdefault(locus_tag, [0])[0] += cpm
                 prevFeature = locus_tag
     # Write individual insertions to *_bowtie_mapped_genes.txt
-    with open('{0}/{1}_bowtie_mapped_genes.txt'.format(experiment, sample), 'w', newline='') as csvfileW:
+    with open('results/{0}/{1}_bowtie_mapped_genes.txt'.format(experiment, sample), 'w', newline='') as csvfileW:
         headers = ('contig', 'nucleotide', 'Lcounts', 'Rcounts', 'totalCounts', 'cpm', 'threePrimeness', 'locus_tag')
         mappedGeneWriter = csv.writer(csvfileW, delimiter='\t')
         mappedGeneWriter.writerow(headers)
@@ -166,12 +166,12 @@ def buildGeneTable(organism, sample_dict, gene_mappings, experiment=''):
                 # In future should I instead create an index field in the .ftt?
                 if hitLocusTag == fttLocusTag:
                     gene_table[i][currentColumn] += mapped_genes[gene][0]
-        with open('{0}/summary_gene_table.txt'.format(experiment), 'w') as fo:
+        with open('results/{0}/summary_gene_table.txt'.format(experiment), 'w') as fo:
             writer = csv.writer(fo, delimiter='\t', dialect='excel')
             writer.writerows(gene_table)
 
         """
-        with open('{0}/summary_gene_table.txt'.format(experiment), 'w') as fo:
+        with open('results/{0}/summary_gene_table.txt'.format(experiment), 'w') as fo:
             for line in gene_table:
                 for entry in line:
                     fo.write('{0}\t'.format(entry))
@@ -188,7 +188,7 @@ def fttLookup(organism, experiment=''):
     # TODO: Error checking when generating the ftt file that locus tags are \
     # unique and complete.
     fttList = []
-    with open('{0}/genome_lookup/{1}.ftt'.format(experiment, organism), newline='') as csvfile:
+    with open('results/{0}/genome_lookup/{1}.ftt'.format(experiment, organism), newline='') as csvfile:
         fttreader = csv.reader(csvfile, delimiter='\t')
         for line in fttreader:
             # ignore header row

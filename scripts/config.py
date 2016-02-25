@@ -13,7 +13,7 @@ transposonRight = 'ACAGGTTG'
 # Bowtie package selected (linux/mac/windows) based on operating system detected
 platform = sys.platform.lower()
 current_folder = os.path.dirname(os.path.abspath(__file__))
-packages_folder = os.path.join(current_folder, 'packages')
+packages_folder = os.path.join(current_folder, '..', 'packages')
 
 if sys.platform.lower().startswith('linux'):
     # linux bowtie path
