@@ -3,7 +3,7 @@
 Demultiplexes a FASTQ file into multiple files by 5' end barcode.
 
 Output path includes the experiment and sample name:
-(pysinseq)/{experiment}/{sample}.fastq
+(pysinseq)/results/{experiment}/{sample}.fastq
 
 """
 
@@ -102,7 +102,7 @@ def demultiplex_fastq(fastq_file, samples_dict, experiment):
 def writeReads(demultiplex_dict, barcodes_dict, experiment):
     """Write the fastq data to the correct (demultiplexed) file."""
     for sampleName, barcode in barcodes_dict.items():
-        with gzip.open('{experiment}/raw_data/{sampleName}.fastq.gz'.format(
+        with gzip.open('results/{experiment}/raw_data/{sampleName}.fastq.gz'.format(
             experiment=experiment,
             sampleName=sampleName), 'a'
         ) as fo:
@@ -125,7 +125,7 @@ def demultiplexedSamplesToProcess(sample_file, experiment):
     sample_list = []
     samplePath_list = []
     for sample in sorted(barcodes_dict):
-        samplePath = '{experiment}/raw_data/{sample}.fastq.gz'.format(
+        samplePath = 'results/{experiment}/raw_data/{sample}.fastq.gz'.format(
             experiment=experiment,
             sample=sample
         )

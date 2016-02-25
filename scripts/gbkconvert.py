@@ -36,6 +36,7 @@ def gbk2fna(infile, organism, outputdirectory=''):
     """Convert genbank format to fna format."""
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.fna'.format(outputdirectory, organism)
+        print('  Nucleotide file output file: {}'.format(outfile))
         if not os.path.exists('{0}'.format(outputdirectory)):
             print('Error: {0} directory was not created.'.format(outputdirectory))
             exit(1)
@@ -66,6 +67,7 @@ def gbk2ftt(infile, organism, outputdirectory=''):
     """Convert genbank format to ptt-like ftt format."""
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.ftt'.format(outputdirectory, organism)
+        print('  Feature table output file: {}'.format(outfile))
         with open(outfile, 'w') as fo:
             writer = csv.writer(fo, delimiter='\t', dialect='excel')
             header = ('Locus', 'Location_Start', 'Location_End', 'Strand', 'Length', 'PID',

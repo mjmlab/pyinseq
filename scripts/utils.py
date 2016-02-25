@@ -33,7 +33,7 @@ def createExperimentDirectories(experiment):
     # Create path or exit with error if it exists.
     try:
         os.makedirs('results/{}/raw_data/'.format(experiment))
-        print('Making directory: results/{}'.format(experiment))
+        print('\nMaking directory: results/{}'.format(experiment))
         print('Making directory: results/{}/raw_data/'.format(experiment))
         os.makedirs('results/{}/genome_lookup/'.format(experiment))
         print('Making directory: results/{}/genome_lookup/'.format(experiment))

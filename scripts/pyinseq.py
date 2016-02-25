@@ -108,15 +108,26 @@ def pipeline_no_demultiplex(reads):
 
 def pipeline_demultiplex(reads):
     # demultiplex based on barcodes defined in the sample file
+    print('\nDemultiplexing {} into the following barcoded files:'.format(reads))
     demultiplex_fastq(reads, samplesDict, experiment)
 
 def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4):
     # Prepare genome files from the GenBank input
+
+    fnaPrint = \
+        '\nPreparing nucleotide fasta file from GenBank file to use in bowtie mapping.\n' \
+        '  GenBank source file:  {}'.format(gbkfile)
+    fttPrint = \
+        '\nPreparing feature table file from GenBank file to use in gene mapping.\n' \
+        '  GenBank source file:  {}'.format(gbkfile)
+    print(fnaPrint)
     gbk2fna(gbkfile, organism, genomeDir)
+    print(fttPrint)
     gbk2ftt(gbkfile, organism, genomeDir)
 
     # Change directory, build bowtie indexes, change directory back
     with cd(genomeDir):
+        print('\nBuilding bowtie index files in results/{}/genome_lookup'.format(experiment))
         bowtieBuild(organism)
 
     # Dictionary of each sample's cpm by gene
@@ -133,6 +144,7 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
             bowtie_in = '../{0}'.format(trimmedSampleFile)
             bowtie_out = '../{0}'.format(bowtieOutputFile)
             # map to bowtie and produce the output file
+            print('Mapping {} reads to bowtie'.format(sample))
             bowtieMap(organism, bowtie_in, bowtie_out)
         # Map each bowtie result to the chromosome
         mapSites('{0}/{1}'.format(experiment, bowtieOutputFile))
@@ -168,7 +180,6 @@ def main():
     organism = 'genome'
 
     # --- ORGANIZE SAMPLE LIST AND FILE PATHS --- #
-    print('\nOrganizing sample list and file paths:')
     pipeline_organize(samples)
 
     # --- DEMULTIPLEX OR MOVE FILES IF ALREADY DEMULTIPLEXED --- #
@@ -178,7 +189,9 @@ def main():
         pipeline_demultiplex(reads)
 
     # --- BOWTIE MAPPING --- #
-    genomeDir = '{experiment}/genome_lookup/'.format(experiment=experiment)
+    genomeDir = 'results/{experiment}/genome_lookup/'.format(experiment=experiment)
+    print(genomeDir)
+    print(os.getcwd())
     pipeline_mapping(gbkfile, organism, genomeDir, disruption)
 
     # --- ANALYSIS OF RESULTS --- #
