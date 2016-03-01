@@ -1,21 +1,24 @@
-# Check on http://lint.travis-ci.org/ after modifying file!
-# Tutorial at https://gist.github.com/dan-blanchard/7045057
-# Referred from https://github.com/johnchase/cual-id/blob/master/.travis.yml
+# Modified from http://conda.pydata.org/docs/travis.html
 language: python
-env:
-  - PYTHON_VERSION=3.5
-before_install:
-  - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda/bin:$PATH
-  # Update conda itself
-  - conda update --yes conda
+python:
+  # We don't actually use the Travis Python, but this keeps it organized.
+  - "3.4"
+  - "3.5"
 install:
-  - conda create --yes -n env_name python=$PYTHON_VERSION pip
-  - source activate env_name
-  - pip install --no-deps .
-  - pip install .
+  - sudo apt-get update
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pandas pip
+  - source activate test-environment
   - pip install -r requirements.txt
+  - python setup.py install
 script:
-  - make
+  - python scripts/pyinseq.py -i data/example/example01.fastq -s data/example/example01.txt -g data/example/ES114v2.gb -e example01
+  - python test/test.py
