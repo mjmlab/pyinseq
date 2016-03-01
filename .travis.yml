@@ -1,0 +1,21 @@
+# Check on http://lint.travis-ci.org/ after modifying file!
+# Tutorial at https://gist.github.com/dan-blanchard/7045057
+# Referred from https://github.com/johnchase/cual-id/blob/master/.travis.yml
+language: python
+env:
+  - PYTHON_VERSION=3.5
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda3/bin:$PATH
+  # Update conda itself
+  - conda update --yes conda
+install:
+  - conda create --yes -n env_name python=$PYTHON_VERSION pip
+  - source activate env_name
+  - pip install --no-deps .
+  - pip install .
+  - pip install -r requirements.txt
+script:
+  - make
