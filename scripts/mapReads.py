@@ -6,7 +6,7 @@ Run bowtie
 
 """
 
-import config # config file
+import config  # config file
 import subprocess
 
 # organism is the name of the .fna file (can be multifasta)
