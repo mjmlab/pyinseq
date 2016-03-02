@@ -4,16 +4,8 @@ Counts the bowtie hits at each position in each sample
 
 """
 
-import os
-import sys
-import re
 import csv
-import collections
-import screed
-from operator import itemgetter
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+import os
 
 def mapSites(bowtieOutput):
     # Placeholder for dictionary of mapped reads in format:
