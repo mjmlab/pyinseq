@@ -6,3 +6,5 @@
 
 1. In the command line run the command below to install additional packages as detailed in the [requirements.txt](../requirements.txt) file.  
 `pip install -r requirements.txt`
+
+Note: `pyinseq` works on Mac & Linux.

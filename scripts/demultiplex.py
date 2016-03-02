@@ -96,7 +96,8 @@ def demultiplex_fastq(fastq_file, samples_dict, experiment):
                     demultiplex_dict[sampleName] = []
                 sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads))
     writeReads(demultiplex_dict, barcodes_dict, experiment)
-    sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads) + '\n')
+    sys.stdout.write('\r' + 'Total records processed ... {:,}'.format(nreads) + '\n')
+    return nreads
 
 
 def writeReads(demultiplex_dict, barcodes_dict, experiment):
@@ -184,6 +185,7 @@ def trim_fastq(fastq_file, output_file, sampleName, bLen):
     writeTrimmedReads(trimmed_list, sampleName, output_file)
     trimmed_list = []
     sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads) + '\n')
+    return nreads
 
 
 def writeTrimmedReads(trimmed_fastq_list, sampleName, trimmed_fastq_filepath):

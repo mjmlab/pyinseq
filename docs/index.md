@@ -8,7 +8,7 @@ Contents:
 
 Core Documentation:
 - [Installation](installation.md)
-- [Documentation](documentation.md)
+- [Running the software](documentation.md)
 
 Additional Information:
 - [Example data sets](example.md)   

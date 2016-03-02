@@ -8,7 +8,7 @@ import sys
 import yaml
 from demultiplex import sample_prep, demultiplex_fastq, trim_fastq
 from gbkconvert import gbk2fna, gbk2ftt
-from mapReads import bowtieBuild, bowtieMap
+from mapReads import bowtieBuild, bowtieMap, parseBowtie
 from processMapping import mapSites, mapGenes, buildGeneTable
 from utils import convert_to_filename, createExperimentDirectories
 
@@ -59,6 +59,9 @@ class cd:
 
 def pipeline_organize(samples):
 
+    print('\n====================')
+    print('SETTING UP DIRECTORIES AND SAMPLE INFORMATION')
+
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
 
@@ -107,12 +110,23 @@ def pipeline_no_demultiplex(reads):
         copyfile(src, dst)
 
 def pipeline_demultiplex(reads):
+
+    print('\n====================')
+    print('DEMULTIPLEXING THE INITIAL READS FILE INTO SEPARATE FILES FOR EACH BARCODE')
+
     # demultiplex based on barcodes defined in the sample file
-    print('\nDemultiplexing {} into the following barcoded files:'.format(reads))
-    demultiplex_fastq(reads, samplesDict, experiment)
+    print('\nDemultiplexing from input file:\n  {}'.format(reads))
+    nreads = demultiplex_fastq(reads, samplesDict, experiment)
+    logdata['total_reads'] = nreads
+    print('Demultiplexed into output files:')
+    for s in samplesDict:
+        print('  ' + samplesDict[s]['demultiplexedPath'])
 
 def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4):
     # Prepare genome files from the GenBank input
+
+    print('\n====================')
+    print('MAPPING READS TO THE GENOME AND THEN TO ANNOTATED FEATURES')
 
     fnaPrint = \
         '\nPreparing nucleotide fasta file from GenBank file to use in bowtie mapping.\n' \
@@ -135,7 +149,9 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
     for sample in samplesDict:
         s = samplesDict[sample]
         print('\nProcessing sample {}'.format(sample))
-        trim_fastq(s['demultiplexedPath'], s['trimmedPath'], sample, barcode_length)
+        sample_reads = trim_fastq(s['demultiplexedPath'], s['trimmedPath'], sample, barcode_length)
+        logdata[sample] = {}
+        logdata[sample]['reads'] = sample_reads
         # Change directory, map to bowtie, change directory back
         trimmedSampleFile = '{0}_trimmed.fastq'.format(sample)
         bowtieOutputFile = '{0}_bowtie.txt'.format(sample)
@@ -145,8 +161,11 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
             bowtie_in = '../{0}'.format(trimmedSampleFile)
             bowtie_out = '../{0}'.format(bowtieOutputFile)
             # map to bowtie and produce the output file
-            print('Mapping {} reads to bowtie'.format(sample))
-            bowtieMap(organism, bowtie_in, bowtie_out)
+            print('\nMapping {} reads with bowtie'.format(sample))
+            bowtie_message = bowtieMap(organism, bowtie_in, bowtie_out)
+            bowtie_data = parseBowtie(bowtie_message)
+            # store bowtie data for each sample in dictionary
+            pass
         # Map each bowtie result to the chromosome
         mapSites('results/{0}/{1}'.format(experiment, bowtieOutputFile))
         # Add gene-level results for the sample to geneMappings
@@ -158,8 +177,13 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
             os.remove(s['trimmedPath'])
             os.remove('results/{0}/{1}'.format(experiment, bowtieOutputFile))
     buildGeneTable(organism, samplesDict, geneMappings, experiment)
+    # print(logdata)
 
 def pipeline_analysis():
+
+    print('\n====================')
+    print('ANALYSIS OF RESULTS')
+
     pass
 
 
@@ -177,6 +201,9 @@ def main():
     nobarcodes = args.nobarcodes
     global keepall
     keepall = args.keepall
+    # Logging of sample info
+    global logdata
+    logdata = {}
     # Organism reference files called 'genome.fna' etc
     organism = 'genome'
 
@@ -195,6 +222,12 @@ def main():
 
     # --- ANALYSIS OF RESULTS --- #
     pipeline_analysis()
+
+    # --- CONFIRM COMPLETION --- #
+    print('\n====================')
+    print('*       Done       *')
+    print('====================\n')
+
 
 if __name__ == '__main__':
     main()
