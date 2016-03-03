@@ -4,7 +4,7 @@
 
 In general, place all input files in the `pyinseq/` directory. Each time the software is run an experiment directory is created that contains the analysis files for that experiment.
 
-`$ python pyinseq.py -i <reads> -s <sample_list> -g <genbank_reference> -e <experiment_name>`
+`$ python scripts/pyinseq.py -i <reads> -s <sample_list> -g <genbank_reference> -e <experiment_name>`
 
 `python` - Tested with Anaconda Python 3.5
 
