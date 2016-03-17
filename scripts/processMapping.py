@@ -8,6 +8,7 @@ import csv
 import os
 
 def mapSites(bowtieOutput):
+    '''Map insertions to nucleotide sites.'''
     # Placeholder for dictionary of mapped reads in format:
     # {(contig, position) : [Lcount, Rcount]}
     mapDict = {}
@@ -42,7 +43,7 @@ def mapSites(bowtieOutput):
             cpm = float(1E6) * totalCounts / overallTotal
             row_entry = (insertion[0], insertion[1], Lcounts, Rcounts, totalCounts, cpm)
             writer.writerow(row_entry)
-    return(mapDict)
+    return mapDict
 
 def mapGenes(organism, sample, disruption, experiment=''):
     """
@@ -105,7 +106,7 @@ def mapGenes(organism, sample, disruption, experiment=''):
                 prevFeature = locus_tag
     # Write individual insertions to *_bowtie_mapped_genes.txt
     with open('results/{0}/{1}_bowtie_mapped_genes.txt'.format(experiment, sample), 'w', newline='') as csvfileW:
-        headers = ('contig', 'nucleotide', 'Lcounts', 'Rcounts', 'totalCounts', 'cpm', 'threePrimeness', 'locus_tag')
+        headers = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm', 'three_primeness', 'locus_tag')
         mappedGeneWriter = csv.writer(csvfileW, delimiter='\t')
         mappedGeneWriter.writerow(headers)
         for hit in mappedHitList:
