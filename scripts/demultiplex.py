@@ -154,14 +154,14 @@ def trim_fastq(fastq_file, output_file, sampleName, bLen):
     """
     # list to hold trimmed FASTQ reads until they are written to files
     trimmed_list = []
-    # count of reads
-    nreads = 0
+    # count of total reads and reads that pass trimming
+    nreads, trimmed_reads = 0, 0
     # For each line in the FASTQ file:
     #   Check for intact transposon.
     #   (Already know that barcode is ok if not in '_other' file)
     #   Then write to the appropriate output file
     with screed.open(fastq_file) as seqfile:
-        for read in seqfile:
+        for i, read in enumerate(seqfile):
             try:
                 # Identify length of chromosome sequence in read
                 # (after barcode, before Tn)
@@ -173,6 +173,7 @@ def trim_fastq(fastq_file, output_file, sampleName, bLen):
                 # Good read!
                 if chromosomeSeq in range(16, 18):
                     trimmed_list.append(read[seqSlice])
+                    trimmed_reads += 1
             except Exception:
                 pass
             # Every 10^6 sequences write and clear the dictionary
@@ -185,7 +186,7 @@ def trim_fastq(fastq_file, output_file, sampleName, bLen):
     writeTrimmedReads(trimmed_list, sampleName, output_file)
     trimmed_list = []
     sys.stdout.write('\r' + 'Records processed ... {:,}'.format(nreads) + '\n')
-    return nreads
+    return nreads, trimmed_reads
 
 
 def writeTrimmedReads(trimmed_fastq_list, sampleName, trimmed_fastq_filepath):

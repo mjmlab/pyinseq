@@ -59,8 +59,9 @@ class cd:
 
 def pipeline_organize(samples):
 
-    print('\n====================')
-    print('SETTING UP DIRECTORIES AND SAMPLE INFORMATION')
+    print('\n===================='\
+          '\n*    Setting up    *'\
+          '\n====================\n')
 
     # Create the directory struture based on the experiment name
     createExperimentDirectories(experiment)
@@ -94,7 +95,7 @@ def pipeline_organize(samples):
     print('\nProcessing {} total samples:'.format(len(samplesDict)))
     for s in samplesDict:
         print('{0}\n  barcode: {1}'.format(s, samplesDict[s]['barcode']))
-    samples_yaml = 'results/{}/samples.yaml'.format(experiment)
+    samples_yaml = 'results/{}/samples.yml'.format(experiment)
     with open(samples_yaml, 'w') as fo:
         fo.write(yaml.dump(samplesDict, default_flow_style=False))
     print('Sample details written to {}'.format(samples_yaml))
@@ -111,8 +112,9 @@ def pipeline_no_demultiplex(reads):
 
 def pipeline_demultiplex(reads):
 
-    print('\n====================')
-    print('DEMULTIPLEXING THE INITIAL READS FILE INTO SEPARATE FILES FOR EACH BARCODE')
+    print('\n===================='\
+          '\n*  Demultiplexing  *'\
+          '\n====================\n')
 
     # demultiplex based on barcodes defined in the sample file
     print('\nDemultiplexing from input file:\n  {}'.format(reads))
@@ -125,8 +127,9 @@ def pipeline_demultiplex(reads):
 def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4):
     # Prepare genome files from the GenBank input
 
-    print('\n====================')
-    print('MAPPING READS TO THE GENOME AND THEN TO ANNOTATED FEATURES')
+    print('\n===================='\
+          '\n*     Mapping      *'\
+          '\n====================\n')
 
     fnaPrint = \
         '\nPreparing nucleotide fasta file from GenBank file to use in bowtie mapping.\n' \
@@ -149,9 +152,10 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
     for sample in samplesDict:
         s = samplesDict[sample]
         print('\nProcessing sample {}'.format(sample))
-        sample_reads = trim_fastq(s['demultiplexedPath'], s['trimmedPath'], sample, barcode_length)
+        sample_reads, trimmed_reads = trim_fastq(s['demultiplexedPath'], s['trimmedPath'], sample, barcode_length)
         logdata[sample] = {}
-        logdata[sample]['reads'] = sample_reads
+        logdata[sample]['reads_with_bc'] = sample_reads
+        logdata[sample]['reads_with_bc_seq_tn'] = trimmed_reads
         # Change directory, map to bowtie, change directory back
         trimmedSampleFile = '{0}_trimmed.fastq'.format(sample)
         bowtieOutputFile = '{0}_bowtie.txt'.format(sample)
@@ -162,16 +166,15 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
             bowtie_out = '../{0}'.format(bowtieOutputFile)
             # map to bowtie and produce the output file
             print('\nMapping {} reads with bowtie'.format(sample))
-            bowtie_message = bowtieMap(organism, bowtie_in, bowtie_out)
-            bowtie_data = parseBowtie(bowtie_message)
+            bowtie_msg_out = bowtieMap(organism, bowtie_in, bowtie_out)
             # store bowtie data for each sample in dictionary
-            pass
+            logdata[sample]['bowtie_results'] = parseBowtie(bowtie_msg_out)
         # Map each bowtie result to the chromosome
-        mapSites('results/{0}/{1}'.format(experiment, bowtieOutputFile))
+        insertions = len(mapSites('results/{0}/{1}'.format(experiment, bowtieOutputFile)))
+        logdata[sample]['insertion_sites'] = insertions
         # Add gene-level results for the sample to geneMappings
         # Filtered on gene fraction disrupted as specified by -d flag
         geneMappings[sample] = mapGenes(organism, sample, disruption, experiment)
-        # TODO(Add command line option to keep these files)
         if not keepall:
             # Delete trimmed fastq file, bowtie mapping file after writing mapping results
             os.remove(s['trimmedPath'])
@@ -179,14 +182,17 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
     buildGeneTable(organism, samplesDict, geneMappings, experiment)
     # print(logdata)
 
+
 def pipeline_analysis():
 
-    print('\n====================')
-    print('ANALYSIS OF RESULTS')
+    print('\n===================='\
+          '\n*     Analysis     *'\
+          '\n====================\n')
 
-    pass
-
-
+    samples_summary = 'results/{}/samples_summary.yml'.format(experiment)
+    with open(samples_summary, 'w') as fo:
+        fo.write(yaml.dump(logdata, default_flow_style=False))
+    print('Writing file with summary of results:\n  {}'.format(samples_summary))
 
 def main():
     """Start here."""
@@ -223,10 +229,11 @@ def main():
     # --- ANALYSIS OF RESULTS --- #
     pipeline_analysis()
 
+
     # --- CONFIRM COMPLETION --- #
-    print('\n====================')
-    print('*       Done       *')
-    print('====================\n')
+    print('\n===================='\
+          '\n*       Done       *'\
+          '\n====================\n')
 
 
 if __name__ == '__main__':
