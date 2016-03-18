@@ -205,7 +205,7 @@ def main():
 
     # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
     disruption = float(args.disruption)
-    if 0.0 < disruption > 1.0: #test whether disruption value is between 0 and 1
+    if disruption < 0.0 or disruption > 1.0: #test whether disruption value is between 0 and 1
         disruption = 1.0 #if disruption value is not between 0 and 1, set disruption to default value of 1.0
         print('\nDisruption value: {}'
               '\nDisruption value must be between 0.0 and 1.0'\
