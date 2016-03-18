@@ -202,8 +202,13 @@ def main():
     gbkfile = args.genome
     reads = args.input
     samples = args.samples
-    # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
-    disruption = float(args.disruption)
+    disruption = float(args.disruption) #set input disruption value as a float as input can be int
+    if disruption < 0.0 or disruption > 1.0: #test whether disruption value is from 0.0 to 1.0
+        disruption = 1.0 #if disruption value is not from 0.0 to 1.0, set disruption to default value of 1.0
+        print('\n*** WARNING ***'\
+              '\nDisruption value: {}'
+              '\nDisruption value must be from 0.0 to 1.0'\
+              '\nProceeding with default value of 1.0\n'.format(float(args.disruption)))
     nobarcodes = args.nobarcodes
     global keepall
     keepall = args.keepall
