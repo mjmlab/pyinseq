@@ -44,7 +44,7 @@ def parseArgs(args):
     return parser.parse_args(args)
 
 
-class cd:
+class cd(object):
     """Context manager to change to the specified directory then back."""
     def __init__(self, newPath):
         self.newPath = os.path.expanduser(newPath)
@@ -202,8 +202,15 @@ def main():
     gbkfile = args.genome
     reads = args.input
     samples = args.samples
+
     # TODO(Test that disruption is between 0.0 and 1.0 (or absent, default 1.0))
     disruption = float(args.disruption)
+    if 0.0 < disruption > 1.0: #test whether disruption value is between 0 and 1
+        disruption = 1.0 #if disruption value is not between 0 and 1, set disruption to default value of 1.0
+        print('\nDisruption value: {}'
+              '\nDisruption value must be between 0.0 and 1.0'\
+              '\nProceeding with default value of 1.0\n'.format(float(args.disruption)))
+
     nobarcodes = args.nobarcodes
     global keepall
     keepall = args.keepall
