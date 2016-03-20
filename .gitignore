@@ -5,26 +5,7 @@ __pycache__/
 *.ipynb*
 
 # Input data files for experiment
-input*
-raw*/
-With*/
-samples/
+private/
 
-# Genome reference files
-*.gb
-*.gbk
-*.ftt
-
-# Data output directories
-old/
-Exp*/
-E1*/
-examp*/
-
-# Sandbox
-gists.py
-
-
-# directories for testing
-packages/
-pandas_question_email
+# Contents in results directory
+results/*

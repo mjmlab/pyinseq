@@ -1,4 +1,4 @@
-Copyright (c) 2015, Northwestern University
+Copyright (c) 2015, Mark J. Mandel  
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -25,3 +25,8 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+---
+
+Software packages in `/packages` (licenses listed separately with each package):
+- [bowtie](http://bowtie-bio.sourceforge.net/index.shtml)
