@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Main script for running the pyinseq package."""
+'''Main script for running the pyinseq package.'''
 
 import argparse
 import os
@@ -13,7 +13,7 @@ from processMapping import mapSites, mapGenes, buildGeneTable
 from utils import convert_to_filename, createExperimentDirectories
 
 def parseArgs(args):
-    """Parse command line arguments."""
+    '''Parse command line arguments.'''
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input',
                         help='input Illumina reads file',
@@ -45,7 +45,7 @@ def parseArgs(args):
 
 
 class cd:
-    """Context manager to change to the specified directory then back."""
+    '''Context manager to change to the specified directory then back.'''
     def __init__(self, newPath):
         self.newPath = os.path.expanduser(newPath)
 
@@ -78,8 +78,9 @@ def pipeline_organize(samples):
 
     # samples = OrderedDict([('name1', {'name': 'name1', 'barcode': 'barcode1'}),
     #    ('name2', {'name': 'name2', 'barcode': 'barcode2'})])
-    global samplesDict
+    global samplesDict, summaryDict
     samplesDict = sample_prep(samples, barcode_qc)
+    summaryDict = {}
 
     # add 'demultiplexedPath' and 'trimmedPath' fields for each sample
     for sample in samplesDict:
@@ -95,7 +96,6 @@ def pipeline_organize(samples):
     print('\nProcessing {} total samples:'.format(len(samplesDict)))
     for s in samplesDict:
         print('{0}\n  barcode: {1}'.format(s, samplesDict[s]['barcode']))
-    samples_yaml = 'results/{}/samples.yml'.format(experiment)
     with open(samples_yaml, 'w') as fo:
         fo.write(yaml.dump(samplesDict, default_flow_style=False))
     print('Sample details written to {}'.format(samples_yaml))
@@ -118,11 +118,11 @@ def pipeline_demultiplex(reads):
 
     # demultiplex based on barcodes defined in the sample file
     print('\nDemultiplexing from input file:\n  {}'.format(reads))
-    nreads = demultiplex_fastq(reads, samplesDict, experiment)
-    logdata['total_reads'] = nreads
+    total_reads = demultiplex_fastq(reads, samplesDict, experiment)
     print('Demultiplexed into output files:')
     for s in samplesDict:
         print('  ' + samplesDict[s]['demultiplexedPath'])
+    return total_reads
 
 def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4):
     # Prepare genome files from the GenBank input
@@ -133,10 +133,10 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
 
     fnaPrint = \
         '\nPreparing nucleotide fasta file from GenBank file to use in bowtie mapping.\n' \
-        '  GenBank source file:  {}'.format(gbkfile)
+        '  GenBank source file: {}'.format(gbkfile)
     fttPrint = \
         '\nPreparing feature table file from GenBank file to use in gene mapping.\n' \
-        '  GenBank source file:  {}'.format(gbkfile)
+        '  GenBank source file: {}'.format(gbkfile)
     print(fnaPrint)
     gbk2fna(gbkfile, organism, genomeDir)
     print(fttPrint)
@@ -153,9 +153,8 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
         s = samplesDict[sample]
         print('\nProcessing sample {}'.format(sample))
         sample_reads, trimmed_reads = trim_fastq(s['demultiplexedPath'], s['trimmedPath'], sample, barcode_length)
-        logdata[sample] = {}
-        logdata[sample]['reads_with_bc'] = sample_reads
-        logdata[sample]['reads_with_bc_seq_tn'] = trimmed_reads
+        samplesDict[sample]['reads_with_bc'] = sample_reads
+        samplesDict[sample]['reads_with_bc_seq_tn'] = trimmed_reads
         # Change directory, map to bowtie, change directory back
         trimmedSampleFile = '{0}_trimmed.fastq'.format(sample)
         bowtieOutputFile = '{0}_bowtie.txt'.format(sample)
@@ -168,10 +167,10 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
             print('\nMapping {} reads with bowtie'.format(sample))
             bowtie_msg_out = bowtieMap(organism, bowtie_in, bowtie_out)
             # store bowtie data for each sample in dictionary
-            logdata[sample]['bowtie_results'] = parseBowtie(bowtie_msg_out)
+            samplesDict[sample]['bowtie_results'] = parseBowtie(bowtie_msg_out)
         # Map each bowtie result to the chromosome
         insertions = len(mapSites('results/{0}/{1}'.format(experiment, bowtieOutputFile)))
-        logdata[sample]['insertion_sites'] = insertions
+        samplesDict[sample]['insertion_sites'] = insertions
         # Add gene-level results for the sample to geneMappings
         # Filtered on gene fraction disrupted as specified by -d flag
         geneMappings[sample] = mapGenes(organism, sample, disruption, experiment)
@@ -189,16 +188,27 @@ def pipeline_analysis():
           '\n*     Analysis     *'\
           '\n====================\n')
 
-    samples_summary = 'results/{}/samples_summary.yml'.format(experiment)
-    with open(samples_summary, 'w') as fo:
-        fo.write(yaml.dump(logdata, default_flow_style=False))
-    print('Writing file with summary of results:\n  {}'.format(samples_summary))
+    # overwrite samples.yml with more data
+    print('Writing file with summary data for each sample:\n  {}'.format(samples_yaml))
+    print(yaml.dump(samplesDict, default_flow_style=False))
+    with open(samples_yaml, 'w') as fo:
+        fo.write(yaml.dump(samplesDict, default_flow_style=False))
+
+    # write summary.yml with more data
+    print('Writing file with overall summary information:\n  {}'.format(summary_yaml))
+    print(yaml.dump(summaryDict, default_flow_style=False))
+    with open(summary_yaml, 'w') as fo:
+        fo.write(yaml.dump(summaryDict, default_flow_style=False))
+
 
 def main():
-    """Start here."""
+    '''Start here.'''
     args = parseArgs(sys.argv[1:])
-    global experiment
+    global experiment, samples_yaml, summary_yaml, keepall
     experiment = convert_to_filename(args.experiment)
+    samples_yaml = 'results/{}/samples.yml'.format(experiment)
+    summary_yaml = 'results/{}/summary.yml'.format(experiment)
+    keepall = args.keepall
     gbkfile = args.genome
     reads = args.input
     samples = args.samples
@@ -210,11 +220,6 @@ def main():
               '\nDisruption value must be from 0.0 to 1.0'\
               '\nProceeding with default value of 1.0\n'.format(float(args.disruption)))
     nobarcodes = args.nobarcodes
-    global keepall
-    keepall = args.keepall
-    # Logging of sample info
-    global logdata
-    logdata = {}
     # Organism reference files called 'genome.fna' etc
     organism = 'genome'
 
@@ -223,9 +228,10 @@ def main():
 
     # --- DEMULTIPLEX OR MOVE FILES IF ALREADY DEMULTIPLEXED --- #
     if nobarcodes:
+        # need to calculate total_reads variable or else add try/except logic in analysis
         pipeline_no_demultiplex(reads)
     else:
-        pipeline_demultiplex(reads)
+        summaryDict['total reads'] = pipeline_demultiplex(reads)
 
     # --- BOWTIE MAPPING --- #
     genomeDir = 'results/{experiment}/genome_lookup/'.format(experiment=experiment)
@@ -233,6 +239,8 @@ def main():
 
     # --- ANALYSIS OF RESULTS --- #
     pipeline_analysis()
+
+
 
 
     # --- CONFIRM COMPLETION --- #
