@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Configuration file for pyinseq.py package."""
 import os
 import sys

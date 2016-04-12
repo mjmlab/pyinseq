@@ -13,8 +13,8 @@ GENBANK = data/example/ES114v2.gb
 EXPERIMENT = example01
 
 ## Location of test script
-TEST = test/test.py
+TEST = -m pytest pyinseq/test/
 
 default:
-	python scripts/pyinseq.py -i $(INPUT) -s $(SAMPLES) -g $(GENBANK) -e $(EXPERIMENT)
+	python pyinseq/pyinseq.py -i $(INPUT) -s $(SAMPLES) -g $(GENBANK) -e $(EXPERIMENT)
 	python $(TEST)
