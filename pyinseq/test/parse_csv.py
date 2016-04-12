@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import csv
 
 def read_data(data):

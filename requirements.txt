@@ -1,2 +1,4 @@
 screed==0.9
+#setuptools==20.3
+pytest==2.8.1
 PyYAML==3.11

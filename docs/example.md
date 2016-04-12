@@ -4,9 +4,9 @@
 
 ### 80 reads across 2 samples (plus 2 reads on an untracked sample)
 
-`_exampleData/example01.fastq` In this repository.  
+`data/example/example01.fastq` In this repository.  
 
-`_exampleData/example01.txt` In this repository.
+`data/example/example01.txt` In this repository.
 
 sampleName  | barcode
 ------------- | -------------

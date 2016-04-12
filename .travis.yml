@@ -24,5 +24,5 @@ install:
   - pip install -r requirements.txt
 script:
   # Your test script goes here
-  - python scripts/pyinseq.py -i data/example/example01.fastq -s data/example/example01.txt -g data/example/ES114v2.gb -e example01
-  - python test/test.py
+  - python pyinseq/pyinseq.py -i data/example/example01.fastq -s data/example/example01.txt -g data/example/ES114v2.gb -e example01
+  - python -m pytest pyinseq/test/

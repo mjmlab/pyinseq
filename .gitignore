@@ -9,3 +9,7 @@ private/
 
 # Contents in results directory
 results/*
+
+# Test and coverage
+.cache
+.coverage

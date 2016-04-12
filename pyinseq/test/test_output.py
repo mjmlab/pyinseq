@@ -1,6 +1,6 @@
+#!/usr/bin/env python
 import unittest
 from parse_csv import read_data
-
 
 class OutputTests(unittest.TestCase):
     """These tests only work once the example01 data has been run."""
