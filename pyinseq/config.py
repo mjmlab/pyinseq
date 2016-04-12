@@ -16,17 +16,17 @@ platform = sys.platform.lower()
 current_folder = os.path.dirname(os.path.abspath(__file__))
 packages_folder = os.path.join(current_folder, '..', 'packages')
 
-if sys.platform.lower().startswith('linux'):
+default_version = 'bowtie-1.1.1-mac'
+
+if platform.startswith('linux'):
     # linux bowtie path
-    bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-linux', 'bowtie')
+    default_version = 'bowtie-1.1.1-linux'
 
-elif sys.platform.lower().startswith('darwin'):
-    # mac bowtie path
-    bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-mac', 'bowtie')
-
-elif sys.platform.lower().startswith('win'):
+elif platform.startswith('win'):
     # windows bowtie path
-    bowtie = os.path.join(packages_folder, 'bowtie-1.1.1-win', 'bowtie')
+    default_version = 'bowtie-1.1.1-win'
+
+bowtie = os.path.join(packages_folder, default_version, 'bowtie')
 
 # PATH TO BOWTIE-BUILD (appends '-build' on the path above)
 bowtieBuild = '{bowtiepath}-build'.format(bowtiepath=bowtie)
