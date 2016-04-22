@@ -56,6 +56,10 @@ class cd:
     def __exit__(self, etype, value, traceback):
         os.chdir(self.savedPath)
 
+class Settings(object):
+    '''Initialization settings.'''
+    def __init__(self, experiment):
+        self.experiment = experiment
 
 def pipeline_organize(samples):
 
@@ -206,6 +210,10 @@ def main():
     args = parseArgs(sys.argv[1:])
     global experiment, samples_yaml, summary_yaml, keepall
     experiment = convert_to_filename(args.experiment)
+
+    settings = Settings(convert_to_filename(args.experiment))
+    print(settings.experiment)
+
     samples_yaml = 'results/{}/samples.yml'.format(experiment)
     summary_yaml = 'results/{}/summary.yml'.format(experiment)
     keepall = args.keepall
