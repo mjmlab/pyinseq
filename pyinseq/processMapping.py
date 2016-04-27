@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-"""
+'''
 Counts the bowtie hits at each position in each sample
 
-"""
+'''
 
 import csv
 import os
@@ -19,9 +19,7 @@ def mapSites(bowtieOutput):
         for line in fi:
             bowtiedata = line.rstrip().split('\t')
             # Calculate transposon insertion point = transposonNT
-            readLength = len(bowtiedata[4])
-            contig = str(bowtiedata[2])
-            insertionNT = int(bowtiedata[3])
+            contig, insertionNT, readLength = str(bowtiedata[2]), int(bowtiedata[3]), len(bowtiedata[4])
             if bowtiedata[1] == '+': # positive strand read
                 insertionNt = insertionNT + readLength - 1
                 mapDict.setdefault((contig,insertionNt),[0,0])[0] += 1   # Lcount
@@ -30,7 +28,7 @@ def mapSites(bowtieOutput):
                 mapDict.setdefault((contig,insertionNt),[0,0])[1] += 1   # Rcount
             overallTotal += 1
     # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount/cpm
-    # use the index totalSampleCounts as the denominator for cpm calculation
+    # use the index totalCounts as the denominator for cpm calculation
     root, ext = os.path.splitext(bowtieOutput)
     with open('{0}_mapped{1}'.format(root, ext), 'a') as fo:
         writer = csv.writer(fo, delimiter='\t', dialect='excel')
