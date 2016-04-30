@@ -78,6 +78,15 @@ class Settings():
         Settings.experiment = convert_to_filename(experiment_name)
         Settings.samples_yaml = 'results/{}/samples.yml'.format(Settings.experiment)
         Settings.summary_yaml = 'results/{}/summary.yml'.format(Settings.experiment)
+        
+    def set_disruption(d):
+        if d < 0.0 or d > 1.0: #test whether disruption value is from 0.0 to 1.0
+            d = 1.0 # if disruption value is not from 0.0 to 1.0, set disruption to default value of 1.0
+        print('\n*** WARNING ***'\
+              '\nDisruption value: {}'\
+              '\nDisruption value must be from 0.0 to 1.0'\
+              '\nProceeding with default value of 1.0\n'.format(float(args.disruption)))
+        return d
 
 
 def pipeline_organize(samples):
@@ -233,13 +242,9 @@ def main():
     gbkfile = args.genome
     reads = args.input
     samples = args.samples
-    disruption = float(args.disruption) #set input disruption value as a float as input can be int
-    if disruption < 0.0 or disruption > 1.0: #test whether disruption value is from 0.0 to 1.0
-        disruption = 1.0 #if disruption value is not from 0.0 to 1.0, set disruption to default value of 1.0
-        print('\n*** WARNING ***'\
-              '\nDisruption value: {}'
-              '\nDisruption value must be from 0.0 to 1.0'\
-              '\nProceeding with default value of 1.0\n'.format(float(args.disruption)))
+    # disruption
+    disruption = Settings.set_disruption(float(args.disruption))
+     
     nobarcodes = args.nobarcodes
     # Organism reference files called 'genome.fna' etc
     organism = 'genome'
