@@ -78,21 +78,22 @@ class Settings():
         Settings.experiment = convert_to_filename(experiment_name)
         Settings.samples_yaml = 'results/{}/samples.yml'.format(Settings.experiment)
         Settings.summary_yaml = 'results/{}/summary.yml'.format(Settings.experiment)
-        
+
     def set_disruption(d):
-        if d < 0.0 or d > 1.0: #test whether disruption value is from 0.0 to 1.0
-            d = 1.0 # if disruption value is not from 0.0 to 1.0, set disruption to default value of 1.0
-        print('\n*** WARNING ***'\
-              '\nDisruption value: {}'\
-              '\nDisruption value must be from 0.0 to 1.0'\
-              '\nProceeding with default value of 1.0\n'.format(float(args.disruption)))
+        # if disruption value is not from 0.0 to 1.0, set to default value of 1.0
+        if d < 0.0 or d > 1.0:
+            print('\n*** WARNING ***'
+                  '\nDisruption value: {}'
+                  '\nDisruption value must be from 0.0 to 1.0'
+                  '\nProceeding with default value of 1.0\n'.format(d))
+            d = 1.0
         return d
 
 
 def pipeline_organize(samples):
 
-    print('\n===================='\
-          '\n*    Setting up    *'\
+    print('\n===================='
+          '\n*    Setting up    *'
           '\n====================\n')
 
     # Create the directory struture based on the experiment name
@@ -142,8 +143,8 @@ def pipeline_no_demultiplex(reads):
 
 def pipeline_demultiplex(reads):
 
-    print('\n===================='\
-          '\n*  Demultiplexing  *'\
+    print('\n===================='
+          '\n*  Demultiplexing  *'
           '\n====================\n')
 
     # demultiplex based on barcodes defined in the sample file
@@ -157,8 +158,8 @@ def pipeline_demultiplex(reads):
 def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4):
     # Prepare genome files from the GenBank input
 
-    print('\n===================='\
-          '\n*     Mapping      *'\
+    print('\n===================='
+          '\n*     Mapping      *'
           '\n====================\n')
 
     fnaPrint = \
@@ -214,8 +215,8 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
 
 def pipeline_analysis():
 
-    print('\n===================='\
-          '\n*     Analysis     *'\
+    print('\n===================='
+          '\n*     Analysis     *'
           '\n====================\n')
 
     # overwrite samples.yml with more data
@@ -244,7 +245,7 @@ def main():
     samples = args.samples
     # disruption
     disruption = Settings.set_disruption(float(args.disruption))
-     
+
     nobarcodes = args.nobarcodes
     # Organism reference files called 'genome.fna' etc
     organism = 'genome'
@@ -270,8 +271,8 @@ def main():
 
 
     # --- CONFIRM COMPLETION --- #
-    print('\n===================='\
-          '\n*       Done       *'\
+    print('\n===================='
+          '\n*       Done       *'
           '\n====================\n')
 
 
