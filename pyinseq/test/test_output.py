@@ -1,33 +1,27 @@
 #!/usr/bin/env python
-import unittest
+import pytest
 from parse_csv import read_data
 
-class OutputTests(unittest.TestCase):
-    """These tests only work once the example01 data has been run."""
+# Set up
+example01summary = read_data('results/example01/summary_gene_table.txt')
 
-    def setUp(self):
-        self.data = 'results/example01/summary_gene_table.txt'
+def test_csv_read_headers():
+    # data = read_data('results/example01/summary_gene_table.txt')
+    assert example01summary[0] == ['Contig', 'Start', 'End', 'Strand', 'Length',
+                            'PID', 'Gene', 'Synonym', 'Code', 'COG',
+                            'Product', 'E001_01', 'E001_02']
 
-    def test_csv_read_headers(self):
-        self.assertEqual(
-            read_data(self.data)[0],
-            ['Contig', 'Start', 'End', 'Strand', 'Length', 'PID', 'Gene',
-                'Synonym', 'Code', 'COG', 'Product', 'E001_01', 'E001_02'])
+def test_csv_row_with_transposon_hits():
+    example01summary[12][6] == 'gyrB'
+    example01summary[12][11] == 1E5
+    example01summary[12][12] == 1E5
 
-    def test_csv_row_with_transposon_hits(self):
-        self.assertEqual(read_data(self.data)[12][6], 'gyrB')
-        self.assertEqual(float(read_data(self.data)[12][11]), 1E5)
-        self.assertEqual(float(read_data(self.data)[12][12]), 1E5)
+def test_csv_row_without_transposon_hits():
+    example01summary[19][6] == 'tusA'
+    example01summary[19][11] == 0
+    example01summary[19][12] == 0
 
-    def test_csv_row_without_transposon_hits(self):
-        self.assertEqual(read_data(self.data)[19][6], 'tusA')
-        self.assertEqual(float(read_data(self.data)[19][11]), 0)
-        self.assertEqual(float(read_data(self.data)[19][12]), 0)
-
-    def test_csv_different_barcodes(self):
-        self.assertEqual(read_data(self.data)[34][6], 'thiE')
-        self.assertEqual(float(read_data(self.data)[34][11]), 5E4)
-        self.assertEqual(float(read_data(self.data)[34][12]), 1E5)
-
-if __name__ == '__main__':
-    unittest.main()
+def test_csv_different_barcodes():
+    example01summary[34][6] == 'thiE'
+    example01summary[34][11] == 5E4
+    example01summary[34][12] == 1E5
