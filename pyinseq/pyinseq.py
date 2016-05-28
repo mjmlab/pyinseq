@@ -2,6 +2,7 @@
 '''Main script for running the pyinseq package.'''
 
 import argparse
+import glob
 import os
 from shutil import copyfile
 import sys
@@ -17,11 +18,14 @@ def parseArgs(args):
     '''Parse command line arguments.'''
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input',
-                        help='input Illumina reads file',
+                        help='input Illumina reads file or folder',
                         required=True)
+
+    """MAKE SURE THIS LOGIC IS DONE CORRECTLY!"""
+
     parser.add_argument('-s', '--samples',
-                        help='sample list with barcodes',
-                        required=True)
+                        help='sample list with barcodes (required unless --foldergz used)',
+                        required=False)
     parser.add_argument('-e', '--experiment',
                         help='experiment name (no spaces or special characters)',
                         required=True)
@@ -31,6 +35,9 @@ def parseArgs(args):
     parser.add_argument('-d', '--disruption',
                         help='fraction of gene disrupted (0.0 - 1.0)',
                         default=1.0)
+    parser.add_argument('--foldergz',
+                        help='analyze every gzipped (.gz) file in the specified folder',
+                        default=False)
     parser.add_argument('--nobarcodes',
                         help='barcodes have already been removed from the samples; \
                         -i should list the directory with filenames (.fastq.gz) \
@@ -70,6 +77,8 @@ class Settings():
     samplesDict = {}
     # summary dictionary (number of reads, etc.)
     summaryDict = {}
+    # change to 0 if samples are already demultiplexed with barcode removed
+    barcode_length = 4
 
     def __init__(self):
         pass
@@ -79,18 +88,30 @@ class Settings():
         Settings.samples_yaml = 'results/{}/samples.yml'.format(Settings.experiment)
         Settings.summary_yaml = 'results/{}/summary.yml'.format(Settings.experiment)
 
-    def set_disruption(d):
-        # if disruption value is not from 0.0 to 1.0, set to default value of 1.0
-        if d < 0.0 or d > 1.0:
-            print('\n*** WARNING ***'
-                  '\nDisruption value: {}'
-                  '\nDisruption value must be from 0.0 to 1.0'
-                  '\nProceeding with default value of 1.0\n'.format(d))
-            d = 1.0
-        return d
+def set_disruption(d):
+    # if disruption value is not from 0.0 to 1.0, set to default value of 1.0
+    if d < 0.0 or d > 1.0:
+        print('\n*** WARNING ***'
+              '\nDisruption value: {}'
+              '\nDisruption value must be from 0.0 to 1.0'
+              '\nProceeding with default value of 1.0\n'.format(d))
+        d = 1.0
+    return d
+
+def list_files(folder, ext='gz'):
+    '''Return list of .gz files in specified folder'''
+    with cd(folder):
+        return [f for f in glob.glob('*.{}'.format(ext))]
+
+# Do md5 on the files before and after copying?
+def copy_files(file_dict):
+    pass
+
+def count_reads_in_file():
+    pass
 
 
-def pipeline_organize(samples):
+def pipeline_organize(samples, barcodes_present):
 
     print('\n===================='
           '\n*    Setting up    *'
@@ -99,19 +120,25 @@ def pipeline_organize(samples):
     # Create the directory struture based on the experiment name
     createExperimentDirectories(Settings.experiment)
 
-    # Note: barcode length hardcoded at 4 bp here
-    barcode_qc, barcode_length = True, 4
-
-    # if nobarcodes:
-        # barcode_qc, barcode_length = False, 0
+    # Settings.barcode_length has a default value of 4
+    if not barcodes_present:
+        barcode_qc, Settings.barcode_length = False, 0
+    else:
+        barcode_qc = True
 
     # TODO(For rerunning samples, modify samplesDict construction; read in a YAML file?)
 
-    # TODO(Modify as needed for already-demultiplexed samples)
+    if samples:
+        Settings.samplesDict = sample_prep(samples, barcode_qc)
+    # setting up samples from a
+    # TODO(pass -foldergz explicitely instead of using samples. Actually do this in a separate function)
+    else:
+        # iterate through the directory and
+        Settings.samplesDict = 'X'
+
 
     # samples = OrderedDict([('name1', {'name': 'name1', 'barcode': 'barcode1'}),
     #    ('name2', {'name': 'name2', 'barcode': 'barcode2'})])
-    Settings.samplesDict = sample_prep(samples, barcode_qc)
 
     # add 'demultiplexedPath' and 'trimmedPath' fields for each sample
     for sample in Settings.samplesDict:
@@ -141,6 +168,12 @@ def pipeline_no_demultiplex(reads):
         dst = Settings.samplesDict[sample]['demultiplexedPath']
         copyfile(src, dst)
 
+
+
+    # need to return total_reads variable or else add try/except logic in analysis
+    return total_reads
+
+
 def pipeline_demultiplex(reads):
 
     print('\n===================='
@@ -155,7 +188,7 @@ def pipeline_demultiplex(reads):
         print('  ' + Settings.samplesDict[s]['demultiplexedPath'])
     return total_reads
 
-def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4):
+def pipeline_mapping(gbkfile, organism, genomeDir, disruption):
     # Prepare genome files from the GenBank input
 
     print('\n===================='
@@ -183,7 +216,8 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
     for sample in Settings.samplesDict:
         s = Settings.samplesDict[sample]
         print('\nProcessing sample {}'.format(sample))
-        sample_reads, trimmed_reads = trim_fastq(s['demultiplexedPath'], s['trimmedPath'], sample, barcode_length)
+        sample_reads, trimmed_reads = trim_fastq(s['demultiplexedPath'], s['trimmedPath'], \
+                                                 sample, Settings.barcode_length)
         Settings.samplesDict[sample]['reads_with_bc'] = sample_reads
         Settings.samplesDict[sample]['reads_with_bc_seq_tn'] = trimmed_reads
         # Change directory, map to bowtie, change directory back
@@ -212,7 +246,6 @@ def pipeline_mapping(gbkfile, organism, genomeDir, disruption, barcode_length=4)
     buildGeneTable(organism, Settings.samplesDict, geneMappings, Settings.experiment)
     # print(logdata)
 
-
 def pipeline_analysis():
 
     print('\n===================='
@@ -231,7 +264,6 @@ def pipeline_analysis():
     with open(Settings.summary_yaml, 'w') as fo:
         fo.write(yaml.dump(Settings.summaryDict, default_flow_style=False))
 
-
 def main():
     '''Start here.'''
     args = parseArgs(sys.argv[1:])
@@ -244,21 +276,20 @@ def main():
     reads = args.input
     samples = args.samples
     # disruption
-    disruption = Settings.set_disruption(float(args.disruption))
+    disruption = set_disruption(float(args.disruption))
 
-    nobarcodes = args.nobarcodes
+    barcodes_present = not args.nobarcodes
     # Organism reference files called 'genome.fna' etc
     organism = 'genome'
 
     # --- ORGANIZE SAMPLE LIST AND FILE PATHS --- #
-    pipeline_organize(samples)
+    pipeline_organize(samples, barcodes_present)
 
-    # --- DEMULTIPLEX OR MOVE FILES IF ALREADY DEMULTIPLEXED --- #
-    if nobarcodes:
-        # need to calculate total_reads variable or else add try/except logic in analysis
-        pipeline_no_demultiplex(reads)
-    else:
+    # --- DEMULTIPLEX OR COPY FILES IF ALREADY DEMULTIPLEXED --- #
+    if barcodes_present:
         Settings.summaryDict['total reads'] = pipeline_demultiplex(reads)
+    else:
+        Settings.summaryDict['total reads'] = pipeline_no_demultiplex(reads)
 
     # --- BOWTIE MAPPING --- #
     genomeDir = 'results/{experiment}/genome_lookup/'.format(experiment=Settings.experiment)
