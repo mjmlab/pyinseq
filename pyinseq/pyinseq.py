@@ -123,7 +123,6 @@ def pipeline_organize(barcodes_present, samples, source=''):
 
     if samples:
         Settings.samplesDict = sample_prep(samples, barcode_qc)
-
     else:
         d = {}
         for f in list_files(source):
