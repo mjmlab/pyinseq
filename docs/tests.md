@@ -7,11 +7,11 @@ For each pull request [Travis CI](https://travis-ci.org/mandel01/pyinseq) runs s
 You can run the tests manually by first running the `example01` data:
 
 ```
-python pyinseq/pyinseq.py -i data/example/example01.fastq -s data/example/example01.txt -g data/example/ES114v2.gb -e example01   
+python run.py -i data/example/example01.fastq -s data/example/example01.txt -g data/example/ES114v2.gb -e example01   
 ```
 
 Then run the tests:
 
 ```
-python -m pytest pyinseq/test/
+python -m pytest pyinseq/tests/
 ```

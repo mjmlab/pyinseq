@@ -7,7 +7,7 @@ Counts the bowtie hits at each position in each sample
 import csv
 import os
 
-def mapSites(bowtieOutput):
+def mapSites(sample, samplesDict, settings):
     '''Map insertions to nucleotide sites.'''
     # Placeholder for dictionary of mapped reads in format:
     # {(contig, position) : [Lcount, Rcount]}
@@ -15,7 +15,8 @@ def mapSites(bowtieOutput):
     # overallTotal = denominator for cpm calculation
     overallTotal = 0
     cpm = 0
-    with open(bowtieOutput, 'r') as fi:
+    bowtie_outfile = settings.path + sample + '_bowtie.fastq'
+    with open(bowtie_outfile, 'r') as fi:
         for line in fi:
             bowtiedata = line.rstrip().split('\t')
             # Calculate transposon insertion point = transposonNT
@@ -29,7 +30,7 @@ def mapSites(bowtieOutput):
             overallTotal += 1
     # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount/cpm
     # use the index totalCounts as the denominator for cpm calculation
-    root, ext = os.path.splitext(bowtieOutput)
+    root, ext = os.path.splitext(bowtie_outfile)
     with open('{0}_mapped{1}'.format(root, ext), 'a') as fo:
         writer = csv.writer(fo, delimiter='\t', dialect='excel')
         header_entry = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm')
@@ -43,7 +44,7 @@ def mapSites(bowtieOutput):
             writer.writerow(row_entry)
     return mapDict
 
-def mapGenes(organism, sample, disruption, experiment=''):
+def mapGenes(organism, sample, disruption, settings):
     """
     Maps insertions to genes
 
@@ -61,7 +62,7 @@ def mapGenes(organism, sample, disruption, experiment=''):
 
     """
     # List of tuples of genome features
-    genome = fttLookup(organism, experiment)
+    genome = fttLookup(organism, settings.experiment)
     # list of tuples of each mapped insertion to be immediately written per insertion
     mappedHitList = []
     # Dictionary with running total of cpm per gene; keys are genes, values are aggregate cpm
@@ -69,7 +70,9 @@ def mapGenes(organism, sample, disruption, experiment=''):
     # by the disruption threshold.
     # if disruption = 1.0 then every hit in the gene is included
     geneDict = {}
-    with open('results/{0}/{1}_bowtie_mapped.txt'.format(experiment, sample), 'r', newline='') as csvfileR:
+    sites_file = settings.path + sample + '_bowtie_mapped.fastq'
+    genes_file = settings.path + sample + '_bowtie_mapped_genes.fastq'
+    with open(sites_file, 'r', newline='') as csvfileR:
         sitesReader = csv.reader(csvfileR, delimiter='\t')
         next(sitesReader, None) #skip the headers
         for line in sitesReader:
@@ -103,7 +106,7 @@ def mapGenes(organism, sample, disruption, experiment=''):
                                 geneDict.setdefault(locus_tag, [0])[0] += cpm
                 prevFeature = locus_tag
     # Write individual insertions to *_bowtie_mapped_genes.txt
-    with open('results/{0}/{1}_bowtie_mapped_genes.txt'.format(experiment, sample), 'w', newline='') as csvfileW:
+    with open(genes_file, 'w', newline='') as csvfileW:
         headers = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm', 'three_primeness', 'locus_tag')
         mappedGeneWriter = csv.writer(csvfileW, delimiter='\t')
         mappedGeneWriter.writerow(headers)

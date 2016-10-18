@@ -1,21 +1,17 @@
 #!/usr/bin/env python
-"""
-Build bowtie index for specified genome
 
-Run bowtie
-
-"""
-
-import config  # config file
+import os
 import re
 import subprocess
+import pyinseq.config as config
 
-def bowtieBuild(organism):
+
+def bowtie_build(organism):
     '''Build a bowtie index given a fasta nucleotide file.'''
     fna = organism + '.fna'
     subprocess.check_call([config.bowtieBuild, '-q', fna, organism])
 
-def bowtieMap(organism, reads, bowtieOutput):
+def bowtie_map(organism, reads, bowtieOutput):
     '''Map fastq reads to a bowtie index.'''
     fna = organism + '.fna'
     # String version of the shell command
@@ -32,7 +28,7 @@ def bowtieMap(organism, reads, bowtieOutput):
     print(bowtie_msg_out)
     return bowtie_msg_out
 
-def parseBowtie(bowtieMessage):
+def parse_bowtie(bowtieMessage):
     '''Parse bowtie results into a dictionary.'''
     bowtie_msg_dict = {}
     for line in bowtieMessage.split('\n'):

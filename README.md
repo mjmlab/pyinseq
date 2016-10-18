@@ -24,7 +24,7 @@ detailed in the [requirements.txt](requirements.txt) file.
 
 ## Run the simple example dataset to check installation
 
-`$ python pyinseq/pyinseq.py -i data/example/example01.fastq -s data/example/example01.txt -g data/example/ES114v2.gb -e example01`
+`$ python run.py -i data/example/example01.fastq -s data/example/example01.txt -g data/example/ES114v2.gb -e example01`
 
 ### Required arguments
 

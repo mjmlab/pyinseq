@@ -141,6 +141,7 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                                 'in GenBank file. Additional attention required.'.format(locus_tag)
                                 print(errorComplexFeature)
                                 exit(0)
+                            strand = '-' if parts[1].startswith('complement') else '+'
 
                         if '/protein_id=' in parts[0]:
                             protein_id = parts[0][13:-1]
