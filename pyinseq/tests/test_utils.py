@@ -36,14 +36,14 @@ def datadir(tmpdir_factory, request):
     return getter
 
 
-def scriptpath(scriptname='shmlast'):
+def scriptpath(scriptname='pyinseq'):
     "Return the path to the scripts, in both dev and install situations."
 
-    path = os.path.join(os.path.dirname(__file__), "../../bin")
+    path = os.path.join(os.path.dirname(__file__), "../../scripts")
     if os.path.exists(os.path.join(path, scriptname)):
         return path
 
-    path = os.path.join(os.path.dirname(__file__), "../../../EGG-INFO/bin")
+    path = os.path.join(os.path.dirname(__file__), "../../../EGG-INFO/scripts")
     if os.path.exists(os.path.join(path, scriptname)):
         return path
 
@@ -62,7 +62,7 @@ def _runscript(scriptname):
     ns['sys'] = globals()['sys']
 
     try:
-        pkg_resources.get_distribution("shmlast").run_script(scriptname, ns)
+        pkg_resources.get_distribution("pyinseq").run_script(scriptname, ns)
         return 0
     except pkg_resources.ResolutionError as err:
         path = scriptpath()
