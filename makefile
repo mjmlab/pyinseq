@@ -15,6 +15,13 @@ EXPERIMENT = example01
 ## Location of test script
 TEST = -m pytest pyinseq/tests/
 
-default:
-	python run.py -i $(INPUT) -s $(SAMPLES) -g $(GENBANK) -e $(EXPERIMENT)
+
+all: install
+	pyinseq -i $(INPUT) -s $(SAMPLES) -g $(GENBANK) -e $(EXPERIMENT)
+
+install:
+	python setup.py install
+
+test:
 	python $(TEST)
+
