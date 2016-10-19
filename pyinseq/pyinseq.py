@@ -195,6 +195,7 @@ def pipeline_mapping(organism, settings, samplesDict, disruption):
 
 
 def pipeline_analysis(samplesDict, settings):
+    pass
     #logger.info('Print summary logs.')
     #print('Writing file with summary data for each sample:\n  {}'.format(settings.samples_yaml))
     #print(settings.samples_yaml)
@@ -208,6 +209,7 @@ def pipeline_analysis(samplesDict, settings):
     #print(yaml.dump(settings.summary_yaml, default_flow_style=False))
     #with open(settings.summary_yaml, 'w') as fo:
     #    fo.write(yaml.dump(settings.summary_yaml, default_flow_style=False))
+
 
 def main(args):
     '''Start here.'''
