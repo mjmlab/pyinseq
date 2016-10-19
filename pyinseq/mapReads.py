@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
 import os
+import logging
 import re
 import subprocess
 import pyinseq.config as config
+
+logger = logging.getLogger(__name__)
 
 
 def bowtie_build(organism):

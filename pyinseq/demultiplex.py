@@ -16,7 +16,6 @@ import screed
 import sys
 from .utils import convert_to_filename
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -71,7 +70,7 @@ def demultiplex_fastq(reads, samplesDict, settings):
                     demultiplex_dict[sampleName] = []
     write_reads(demultiplex_dict, samplesDict, settings)
     write_trimmed_reads(demultiplex_dict, samplesDict, settings)
-    logger.info('Total records demultiplexed {:,} samples'.format(nreads))
+    logger.info('Total records demultiplexed: {:,}'.format(nreads))
     return nreads
 
 

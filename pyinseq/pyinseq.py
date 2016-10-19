@@ -17,10 +17,9 @@ from collections import OrderedDict
 from .demultiplex import demultiplex_fastq, write_reads
 from .gbkconvert import gbk2fna, gbk2ftt
 from .mapReads import bowtie_build, bowtie_map, parse_bowtie
-from .processMapping import mapSites, mapGenes, buildGeneTable
-from .utils import convert_to_filename, createExperimentDirectories
+from .processMapping import map_sites, map_genes, build_gene_table
+from .utils import convert_to_filename, create_experiment_directories # has logging config
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
 def parseArgs(args):
@@ -152,51 +151,54 @@ def list_files(folder, ext='gz'):
         return [f for f in glob.glob('*.{}'.format(ext))]
 
 
-def pipeline_mapping(gbkfile, organism, settings, samplesDict, disruption):
-    logger.info('Preparing nucleotide fasta file from GenBank file to use in bowtie mapping; GenBank source file: {0}'.format(gbkfile))
+def build_fna_and_ftt_files(gbkfile, organism, settings):
     gbk2fna(gbkfile, organism, settings.genome_path)
-    logger.info('Preparing feature table file from GenBank file to use in gene mapping; GenBank source file: {}'.format(gbkfile))
     gbk2ftt(gbkfile, organism, settings.genome_path)
 
+
+def build_bowtie_index(organism, settings):
     # Change directory, build bowtie indexes, change directory back
     with cd(settings.genome_path):
         logger.info('Building bowtie index files in results/{}/genome_lookup'.format(settings.experiment))
         bowtie_build(organism)
 
+
+def pipeline_mapping(organism, settings, samplesDict, disruption):
     # Dictionary of each sample's cpm by gene
     geneMappings = {}
     mapping_data = {}
     for sample in samplesDict:
-        logger.info('Processing sample {}'.format(sample))
         with cd(settings.genome_path):
             # Paths are relative to the genome_lookup directory
             # from where bowtie is called
             bowtie_in = '../' + sample + '_trimmed.fastq'
             bowtie_out = '../' + sample + '_bowtie.fastq'
             # map to bowtie and produce the output file
-            print('\nMapping reads from sample {} with bowtie'.format(sample))
+            logger.info('Sample {}: map reads with bowtie'.format(sample))
             bowtie_msg_out = bowtie_map(organism, bowtie_in, bowtie_out)
             # store bowtie data for each sample in dictionary
             mapping_data[sample] = {'bowtie_results': [], 'insertion_sites': []}
             mapping_data[sample]['bowtie_results'] = parse_bowtie(bowtie_msg_out)
         # Map each bowtie result to the chromosome
-        insertions = len(mapSites(sample, samplesDict, settings))
+        logger.info('Sample {}: aggregate the site data from the bowtie results'.format(sample))
+        insertions = len(map_sites(sample, samplesDict, settings))
         mapping_data[sample]['insertion_sites'] = insertions
         # Add gene-level results for the sample to geneMappings
         # Filtered on gene fraction disrupted as specified by -d flag
-        geneMappings[sample] = mapGenes(organism, sample, disruption, settings)
+        logger.info('Sample {}: map site data to genes'.format(sample))
+        geneMappings[sample] = map_genes(organism, sample, disruption, settings)
         #if not settings.keepall:
         #    # Delete trimmed fastq file, bowtie mapping file after writing mapping results
         #    os.remove(s['trimmedPath'])
         #    os.remove('results/{0}/{1}'.format(Settings.experiment, bowtieOutputFile))
-    buildGeneTable(organism, samplesDict, geneMappings, settings.experiment)
+    build_gene_table(organism, samplesDict, geneMappings, settings.experiment)
 
 
 def pipeline_analysis(samplesDict, settings):
-    logger.info('Print summary logs.')
+    #logger.info('Print summary logs.')
     #print('Writing file with summary data for each sample:\n  {}'.format(settings.samples_yaml))
     #print(settings.samples_yaml)
-    print(samplesDict)
+    #logger.info('samplesDict: {}'.format(samplesDict))
     #print(yaml.dump(settings.samples_yaml, default_flow_style=False))
     #with open(settings.samples_yaml, 'w') as fo:
     #    fo.write(yaml.dump(samplesDict, default_flow_style=False))
@@ -231,20 +233,19 @@ def main(args):
     logger.debug('samplesDict: {0}'.format(samplesDict))
 
     # --- SET UP DIRECTORIES --- #
-    createExperimentDirectories(settings.experiment)
+    create_experiment_directories(settings.experiment)
 
     # --- WRITE DEMULTIPLEXED AND TRIMED FASTQ FILES --- #
     logger.info('Demultiplex reads')
     demultiplex_fastq(reads, samplesDict, settings)
 
-    # --- MAPPING TO SITES WITH BOWTIE --- #
-    logger.info('Mapping with bowtie')
-    pipeline_mapping(gbkfile, organism, settings, samplesDict, disruption)
-
-    # --- MAPPING TO GENES --- #
-    logger.info('Mapping to genes')
-
-    # --- BOWTIE MAPPING --- #
+    # --- MAPPING TO SITES AND GENES --- #
+    logger.info('Prepare genome features (.ftt) and fasta nucleotide (.fna) files')
+    build_fna_and_ftt_files(gbkfile, organism, settings)
+    logger.info('Prepare bowtie index')
+    build_bowtie_index(organism, settings)
+    logger.info('Map with bowtie')
+    pipeline_mapping(organism, settings, samplesDict, disruption)
 
     #if not samples:
     #    Settings.summaryDict['total reads'] = 0
@@ -256,7 +257,7 @@ def main(args):
     pipeline_analysis(settings, samplesDict)
 
     # --- CONFIRM COMPLETION --- #
-    logger.info('pyinseq pipeline complete!')
+    logger.info('***** pyinseq pipeline complete! *****')
 
 if __name__ == '__main__':
     main()
