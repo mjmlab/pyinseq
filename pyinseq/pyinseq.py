@@ -172,7 +172,7 @@ def pipeline_mapping(organism, settings, samplesDict, disruption):
             # Paths are relative to the genome_lookup directory
             # from where bowtie is called
             bowtie_in = '../' + sample + '_trimmed.fastq'
-            bowtie_out = '../' + sample + '_bowtie.fastq'
+            bowtie_out = '../' + sample + '_bowtie.txt'
             # map to bowtie and produce the output file
             logger.info('Sample {}: map reads with bowtie'.format(sample))
             bowtie_msg_out = bowtie_map(organism, bowtie_in, bowtie_out)
@@ -180,7 +180,7 @@ def pipeline_mapping(organism, settings, samplesDict, disruption):
             mapping_data[sample] = {'bowtie_results': [], 'insertion_sites': []}
             mapping_data[sample]['bowtie_results'] = parse_bowtie(bowtie_msg_out)
         # Map each bowtie result to the chromosome
-        logger.info('Sample {}: aggregate the site data from the bowtie results'.format(sample))
+        logger.info('Sample {}: summarize the site data from the bowtie results'.format(sample))
         insertions = len(map_sites(sample, samplesDict, settings))
         mapping_data[sample]['insertion_sites'] = insertions
         # Add gene-level results for the sample to geneMappings
@@ -191,24 +191,28 @@ def pipeline_mapping(organism, settings, samplesDict, disruption):
         #    # Delete trimmed fastq file, bowtie mapping file after writing mapping results
         #    os.remove(s['trimmedPath'])
         #    os.remove('results/{0}/{1}'.format(Settings.experiment, bowtieOutputFile))
+    logger.info('Aggregate gene mapping from all samples into the summary_data_table'.format(sample))
     build_gene_table(organism, samplesDict, geneMappings, settings.experiment)
 
 
 def pipeline_analysis(samplesDict, settings):
-    pass
-    #logger.info('Print summary logs.')
-    #print('Writing file with summary data for each sample:\n  {}'.format(settings.samples_yaml))
-    #print(settings.samples_yaml)
-    #logger.info('samplesDict: {}'.format(samplesDict))
-    #print(yaml.dump(settings.samples_yaml, default_flow_style=False))
-    #with open(settings.samples_yaml, 'w') as fo:
+    # logger.info('Print summary logs.')
+    # print('Writing file with summary data for each sample:\n  {}'.format(settings.samples_yaml))
+    # print(settings.samples_yaml)
+    # logger.info('samplesDict: {}'.format(samplesDict))
+    # print(yaml.dump(settings.samples_yaml, default_flow_style=False))
+    # with open(settings.samples_yaml, 'w') as fo:
     #    fo.write(yaml.dump(samplesDict, default_flow_style=False))
 
     # write summary.yml with more data
-    #print('Writing file with overall summary information:\n  {}'.format(settings.summary_yaml))
-    #print(yaml.dump(settings.summary_yaml, default_flow_style=False))
-    #with open(settings.summary_yaml, 'w') as fo:
+    # print('Writing file with overall summary information:\n  {}'.format(settings.summary_yaml))
+    # print(yaml.dump(settings.summary_yaml, default_flow_style=False))
+    # with open(settings.summary_yaml, 'w') as fo:
     #    fo.write(yaml.dump(settings.summary_yaml, default_flow_style=False))
+    pass
+    # analyze individual samples
+    # for sample in samplesDict:
+    #    nfifty(read_sites(sample))
 
 
 def main(args):

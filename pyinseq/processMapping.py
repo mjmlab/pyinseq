@@ -15,8 +15,9 @@ def map_sites(sample, samplesDict, settings):
     # overallTotal = denominator for cpm calculation
     overallTotal = 0
     cpm = 0
-    bowtie_outfile = settings.path + sample + '_bowtie.fastq'
-    with open(bowtie_outfile, 'r') as fi:
+    bowtie_file = settings.path + sample + '_bowtie.txt'
+    sites_file = settings.path + sample + '_sites.txt'
+    with open(bowtie_file, 'r') as fi:
         for line in fi:
             bowtiedata = line.rstrip().split('\t')
             # Calculate transposon insertion point = transposonNT
@@ -30,8 +31,7 @@ def map_sites(sample, samplesDict, settings):
             overallTotal += 1
     # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount/cpm
     # use the index totalCounts as the denominator for cpm calculation
-    root, ext = os.path.splitext(bowtie_outfile)
-    with open('{0}_mapped{1}'.format(root, ext), 'a') as fo:
+    with open(sites_file, 'a') as fo:
         writer = csv.writer(fo, delimiter='\t', dialect='excel')
         header_entry = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm')
         writer.writerow(header_entry)
@@ -69,8 +69,8 @@ def map_genes(organism, sample, disruption, settings):
     # by the disruption threshold.
     # if disruption = 1.0 then every hit in the gene is included
     geneDict = {}
-    sites_file = settings.path + sample + '_bowtie_mapped.fastq'
-    genes_file = settings.path + sample + '_bowtie_mapped_genes.fastq'
+    sites_file = settings.path + sample + '_sites.txt'
+    genes_file = settings.path + sample + '_genes.txt'
     with open(sites_file, 'r', newline='') as csvfileR:
         sitesReader = csv.reader(csvfileR, delimiter='\t')
         next(sitesReader, None) #skip the headers
@@ -104,7 +104,7 @@ def map_genes(organism, sample, disruption, settings):
                                 # that it is subscriptable to add cpm counts
                                 geneDict.setdefault(locus_tag, [0])[0] += cpm
                 prevFeature = locus_tag
-    # Write individual insertions to *_bowtie_mapped_genes.txt
+    # Write individual insertions to *_genes.txt
     with open(genes_file, 'w', newline='') as csvfileW:
         headers = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm', 'three_primeness', 'locus_tag')
         mappedGeneWriter = csv.writer(csvfileW, delimiter='\t')
