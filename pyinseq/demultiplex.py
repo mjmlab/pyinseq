@@ -14,6 +14,7 @@ import logging
 import regex as re
 import screed
 import sys
+from .config import transposon_end
 from .utils import convert_to_filename
 
 logger = logging.getLogger(__name__)
@@ -41,19 +42,20 @@ def demultiplex_fastq(reads, samplesDict, settings):
     #   Cache by barcode; write to the appropriate output files (untrimmed and trimmed)
     pattern = re.compile('''
     ^                               # beginning of string
-    ([ACGT]{4})                     # group(1) = barcode, any 4-bp of mixed ACGT
-    ([NACGT][ACGT]{13,14}(?:TA))    # group(2) = 16-17 bp of chromosomal sequence
+    ([ACGT]{{4}})                   # group(1) = barcode, any 4-bp of mixed ACGT
+    ([NACGT][ACGT]{{13,14}}(?:TA))  # group(2) = 16-17 bp of chromosomal sequence
                                     # first bp can be N
                                     # last two must be TA for transposon
-    ACAGGTTG                        # flanking transposon sequence
-    ''', re.VERBOSE)
+    ({left}|{right})                # group(3) flanking transposon sequence (left, right)
+    '''.format(left=transposon_end['left'], right=transposon_end['right']), re.VERBOSE)
     with screed.open(reads) as seqfile:
         for read in seqfile:
             m = re.search(pattern, read.sequence)
             try:
-                barcode, chrom_seq = m.group(1), m.group(2)
+                barcode, chrom_seq, tn_side = m.group(1), m.group(2), m.group(3)
+                read['trim'] = m.span(2)  # trim slice
+                read['tn_side'] = 'left' if tn_side == transposon_end['left'] else 'right'
                 if barcode in demultiplex_dict:
-                    read['trim'] = m.span(2) # trim slice
                     demultiplex_dict[barcode].append(read)
                 else:
                     demultiplex_dict['other'].append(read)
