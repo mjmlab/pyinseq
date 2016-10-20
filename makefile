@@ -4,4 +4,4 @@ install:
 	python setup.py install
 
 test:
-	py.test pyinseq/tests/
+	py.test --cov=./ pyinseq/tests
