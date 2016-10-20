@@ -14,6 +14,7 @@ import sys
 import yaml
 from shutil import copyfile
 from collections import OrderedDict
+from .analyze import read_sites_file, nfifty, plot_insertions
 from .demultiplex import demultiplex_fastq, write_reads
 from .gbkconvert import gbk2fna, gbk2ftt
 from .mapReads import bowtie_build, bowtie_map, parse_bowtie
@@ -209,10 +210,10 @@ def pipeline_analysis(samplesDict, settings):
     # print(yaml.dump(settings.summary_yaml, default_flow_style=False))
     # with open(settings.summary_yaml, 'w') as fo:
     #    fo.write(yaml.dump(settings.summary_yaml, default_flow_style=False))
-    pass
     # analyze individual samples
-    # for sample in samplesDict:
-    #    nfifty(read_sites(sample))
+    for sample in samplesDict:
+        print('N50', sample, nfifty(sample, settings))
+        # plot_insertions(sample, settings)
 
 
 def main(args):
@@ -260,7 +261,7 @@ def main(args):
     #        Settings.summaryDict['total reads'] += Settings.samplesDict[sample]['reads_with_bc']
 
     # --- ANALYSIS OF RESULTS --- #
-    pipeline_analysis(settings, samplesDict)
+    pipeline_analysis(samplesDict, settings)
 
     # --- CONFIRM COMPLETION --- #
     logger.info('***** pyinseq pipeline complete! *****')
