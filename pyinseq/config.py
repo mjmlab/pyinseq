@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-"""Configuration file for pyinseq.py package."""
+
+'''Configuration file for pyinseq.py package.'''
 import os
 import sys
 
@@ -14,7 +15,7 @@ transposonRight = 'ACAGGTTG'
 # Bowtie package selected (linux/mac/windows) based on operating system detected
 platform = sys.platform.lower()
 current_folder = os.path.dirname(os.path.abspath(__file__))
-packages_folder = os.path.join(current_folder, '..', 'packages')
+packages_folder = os.path.join(current_folder, 'third-party')
 
 default_version = 'bowtie-1.1.1-mac'
 

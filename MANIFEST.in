@@ -1,0 +1,2 @@
+include pyinseq/VERSION
+graft pyinseq/third-party

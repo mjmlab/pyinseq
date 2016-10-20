@@ -1,4 +1,6 @@
-screed==0.9
-#setuptools==20.3
-pytest==2.8.1
-PyYAML==3.11
+numpy>=1.11.0
+pandas>=0.18.1
+pytest>=2.8.1
+PyYAML>=3.11
+regex>=2016.6.5
+screed>=0.9

@@ -7,7 +7,7 @@ Counts the bowtie hits at each position in each sample
 import csv
 import os
 
-def mapSites(bowtieOutput):
+def map_sites(sample, samplesDict, settings):
     '''Map insertions to nucleotide sites.'''
     # Placeholder for dictionary of mapped reads in format:
     # {(contig, position) : [Lcount, Rcount]}
@@ -15,7 +15,9 @@ def mapSites(bowtieOutput):
     # overallTotal = denominator for cpm calculation
     overallTotal = 0
     cpm = 0
-    with open(bowtieOutput, 'r') as fi:
+    bowtie_file = settings.path + sample + '_bowtie.txt'
+    sites_file = settings.path + sample + '_sites.txt'
+    with open(bowtie_file, 'r') as fi:
         for line in fi:
             bowtiedata = line.rstrip().split('\t')
             # Calculate transposon insertion point = transposonNT
@@ -29,8 +31,7 @@ def mapSites(bowtieOutput):
             overallTotal += 1
     # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount/cpm
     # use the index totalCounts as the denominator for cpm calculation
-    root, ext = os.path.splitext(bowtieOutput)
-    with open('{0}_mapped{1}'.format(root, ext), 'a') as fo:
+    with open(sites_file, 'a') as fo:
         writer = csv.writer(fo, delimiter='\t', dialect='excel')
         header_entry = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm')
         writer.writerow(header_entry)
@@ -43,25 +44,24 @@ def mapSites(bowtieOutput):
             writer.writerow(row_entry)
     return mapDict
 
-def mapGenes(organism, sample, disruption, experiment=''):
-    """
-    Maps insertions to genes
+def map_genes(organism, sample, disruption, settings):
+    '''Maps insertions to genes
 
-    1. Writes a csv file listing the gene for each insertion with the tabs:
-    contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm, threePrimeness, locus_tag
-    2. Returns a dictionary of aggregate counts per gene (for any gene with at
-    least one hit)
+       1. Writes a csv file listing the gene for each insertion with the tabs:
+       contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm, threePrimeness, locus_tag
+       2. Returns a dictionary of aggregate counts per gene (for any gene with at
+       least one hit)
 
-    Insertions that map to multiple genes result in multiple lines in the CSV file
-    and are counted for both genes in the returned dictionary.
+       Insertions that map to multiple genes result in multiple lines in the CSV file
+       and are counted for both genes in the returned dictionary.
 
-    ThreePrimeness = insertion location in gene (5' end = 0.0, 3' end = 1.0)
-    All insertions are written to the file but only ones <= disruption threshold
-    are counted in the dictionary.
+       ThreePrimeness = insertion location in gene (5' end = 0.0, 3' end = 1.0)
+       All insertions are written to the file but only ones <= disruption threshold
+       are counted in the dictionary.
+    '''
 
-    """
     # List of tuples of genome features
-    genome = fttLookup(organism, experiment)
+    genome = fttLookup(organism, settings.experiment)
     # list of tuples of each mapped insertion to be immediately written per insertion
     mappedHitList = []
     # Dictionary with running total of cpm per gene; keys are genes, values are aggregate cpm
@@ -69,7 +69,9 @@ def mapGenes(organism, sample, disruption, experiment=''):
     # by the disruption threshold.
     # if disruption = 1.0 then every hit in the gene is included
     geneDict = {}
-    with open('results/{0}/{1}_bowtie_mapped.txt'.format(experiment, sample), 'r', newline='') as csvfileR:
+    sites_file = settings.path + sample + '_sites.txt'
+    genes_file = settings.path + sample + '_genes.txt'
+    with open(sites_file, 'r', newline='') as csvfileR:
         sitesReader = csv.reader(csvfileR, delimiter='\t')
         next(sitesReader, None) #skip the headers
         for line in sitesReader:
@@ -102,8 +104,8 @@ def mapGenes(organism, sample, disruption, experiment=''):
                                 # that it is subscriptable to add cpm counts
                                 geneDict.setdefault(locus_tag, [0])[0] += cpm
                 prevFeature = locus_tag
-    # Write individual insertions to *_bowtie_mapped_genes.txt
-    with open('results/{0}/{1}_bowtie_mapped_genes.txt'.format(experiment, sample), 'w', newline='') as csvfileW:
+    # Write individual insertions to *_genes.txt
+    with open(genes_file, 'w', newline='') as csvfileW:
         headers = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm', 'three_primeness', 'locus_tag')
         mappedGeneWriter = csv.writer(csvfileW, delimiter='\t')
         mappedGeneWriter.writerow(headers)
@@ -112,12 +114,11 @@ def mapGenes(organism, sample, disruption, experiment=''):
     # Return aggregated insertions by gene (filtered on 5'-3' threshold)
     return geneDict
 
-def buildGeneTable(organism, sample_dict, gene_mappings, experiment=''):
-    """
-    For each entry in a feature table (.ftt) list the summary of hits
-    for each sample in the experiment
-
-    """
+def build_gene_table(organism, sample_dict, gene_mappings, experiment=''):
+    '''
+       For each entry in a feature table (.ftt) list the summary of hits
+       for each sample in the experiment
+    '''
 
     #TODO: Bring back in the header row in the future. Use it here; ignore it for previous steps
     gene_table = fttLookup(organism, experiment)
@@ -161,21 +162,14 @@ def buildGeneTable(organism, sample_dict, gene_mappings, experiment=''):
             writer = csv.writer(fo, delimiter='\t', dialect='excel')
             writer.writerows(gene_table)
 
-        """
-        with open('results/{0}/summary_gene_table.txt'.format(experiment), 'w') as fo:
-            for line in gene_table:
-                for entry in line:
-                    fo.write('{0}\t'.format(entry))
-                fo.write('\n')"""
 
 def fttLookup(organism, experiment=''):
-    """
-    Import the ftt file and process as a dictionary of lookup values
-    indexed on Synonym (i.e., Locus Tag)
-    {'VF_0001': {'locus': 'CP000020', 'start': ...},
-        'VF_0002': {'locus': 'CP000020', 'start': ...}}
+    '''Import the ftt file and process as a dictionary of lookup values
+       indexed on Synonym (i.e., Locus Tag)
+       {'VF_0001': {'locus': 'CP000020', 'start': ...},
+           'VF_0002': {'locus': 'CP000020', 'start': ...}}
+    '''
 
-    """
     # TODO: Error checking when generating the ftt file that locus tags are \
     # unique and complete.
     fttList = []
@@ -192,19 +186,9 @@ def fttLookup(organism, experiment=''):
     return fttList
 
 
-
-# ===== Start here ===== #
-
 def main():
-    #bowtieOutput = sys.argv[1]
-    experiment, organism = 'example01', 'genome'
-    #mapSites(bowtieOutput)
-    fttLookup(organism, experiment)
-    #sample_file = sys.argv[2]
-    #experiment = sys.argv[3]
-    #processList = samplesToProcess(sample_file, experiment)
-    #for s in processList:
-    #    print(s)
+    '''Start here.'''
+    pass
 
 if __name__ == '__main__':
     main()

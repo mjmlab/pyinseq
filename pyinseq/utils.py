@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
 import os
+import logging
 import re
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(module)s %(levelname)s %(message)s')
+logger = logging.getLogger(__name__)
 
-def createExperimentDirectories(experiment):
+
+def create_experiment_directories(experiment):
     """
     Create the project directory and subdirectories
 
@@ -33,10 +37,10 @@ def createExperimentDirectories(experiment):
     # Create path or exit with error if it exists.
     try:
         os.makedirs('results/{}/raw_data/'.format(experiment))
-        print('\nMaking directory: results/{}'.format(experiment))
-        print('Making directory: results/{}/raw_data/'.format(experiment))
+        logger.info('Make directory: results/{}'.format(experiment))
+        logger.info('Make directory: results/{}/raw_data/'.format(experiment))
         os.makedirs('results/{}/genome_lookup/'.format(experiment))
-        print('Making directory: results/{}/genome_lookup/'.format(experiment))
+        logger.info('Make directory: results/{}/genome_lookup/'.format(experiment))
     except OSError:
         print(errorDirectoryExists)
         exit(1)

@@ -27,13 +27,16 @@ Format similar to .ptt and .rnt files except:
 """
 
 import csv
+import logging
 import os
 import re
 import sys
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+logger = logging.getLogger(__name__)
 
 def gbk2fna(infile, organism, outputdirectory=''):
-    """Convert genbank format to fna format."""
+    '''Convert genbank format to fna format.'''
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.fna'.format(outputdirectory, organism)
         print('  Nucleotide file output file: {}'.format(outfile))
@@ -64,7 +67,7 @@ def gbk2fna(infile, organism, outputdirectory=''):
 
 
 def gbk2ftt(infile, organism, outputdirectory=''):
-    """Convert genbank format to ptt-like ftt format."""
+    '''Convert genbank format to ptt-like ftt format.'''
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.ftt'.format(outputdirectory, organism)
         print('  Feature table output file: {}'.format(outfile))
@@ -141,6 +144,7 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                                 'in GenBank file. Additional attention required.'.format(locus_tag)
                                 print(errorComplexFeature)
                                 exit(0)
+                            strand = '-' if parts[1].startswith('complement') else '+'
 
                         if '/protein_id=' in parts[0]:
                             protein_id = parts[0][13:-1]
@@ -175,7 +179,7 @@ def gbk2ftt(infile, organism, outputdirectory=''):
 
 
 def main():
-    """Start here."""
+    '''Start here.'''
     inputfile = sys.argv[1]
     organism = sys.argv[2]
     # gbk2fna(inputfile, organism)
