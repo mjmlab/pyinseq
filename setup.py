@@ -23,10 +23,10 @@ SCRIPTS = glob('scripts/*')
 def main():
     setup(  name = 'pyinseq',
             version = __version__,
-            description = '',
+            description = 'Analysis of transposon insertion sequencing (INSeq) data in Python',
             url = 'https://github.com/mandel01/pyinseq',
-            author = '',
-            author_email = '',
+            author = 'Mark J. Mandel',
+            author_email = 'mandel01@gmail.com',
             license = 'BSD',
             packages = find_packages(),
             scripts = SCRIPTS,
@@ -40,7 +40,7 @@ def main():
                                 'screed>=0.9'],
             zip_safe = False,
             include_package_data = True )
-            
+
 
 if __name__ == "__main__":
     main()
