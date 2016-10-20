@@ -213,7 +213,7 @@ def pipeline_analysis(samplesDict, settings):
     # analyze individual samples
     for sample in samplesDict:
         print('N50', sample, nfifty(sample, settings))
-        plot_insertions(sample, settings)
+        # plot_insertions(sample, settings)
 
 
 def main(args):
