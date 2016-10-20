@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 
 GenBank conversion utilities for the pyinseq pipeline.

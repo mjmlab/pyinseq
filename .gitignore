@@ -6,6 +6,7 @@ __pycache__/
 build/
 dist/
 pyinseq.egg-info/
+.eggs/
 
 # Input data files for experiment
 private/

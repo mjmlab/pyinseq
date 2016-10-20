@@ -1,7 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import csv
 from collections import OrderedDict
-#from io import StringIO
 from pyinseq.runner import Settings, tab_delimited_samples_to_dict
 from pyinseq import utils
 import numpy as np
@@ -37,18 +36,12 @@ def test_class_Settings_init():
 
 def test_tab_delimited_samples_to_dict_trailing_newline():
     #s = StringIO('sample_1\tAAAA\tsample_2\tTTTT\n')
-    s = 'pyinseq/tests/testdata/sample01_01.txt'
+    s = 'pyinseq/tests/data/additional/sample01_01.txt'
     assert tab_delimited_samples_to_dict(s) == \
         OrderedDict([('sample_1', {'barcode': 'AAAA'}), ('sample_2', {'barcode': 'TTTT'})])
 
 def test_tab_delimited_samples_to_dict_no_trailing_newline():
-    #s = StringIO('sample_1\tAAAA\tsample_2\tTTTT\n')
-    s = 'pyinseq/tests/testdata/sample01_02.txt'
-    assert tab_delimited_samples_to_dict(s) == \
-        OrderedDict([('sample_1', {'barcode': 'AAAA'}), ('sample_2', {'barcode': 'TTTT'})])
-
-def test_tab_delimited_samples_to_dict_no_trailing_newline():
-    #s = StringIO('sample_1\tAAAA\tsample_2\tTTTT\n')
-    s = 'pyinseq/tests/testdata/sample01_02.txt'
+    #s = StringIO('sample_1\tAAAA\tsample_2\tTTTT')
+    s = 'pyinseq/tests/data/additional/sample01_02.txt'
     assert tab_delimited_samples_to_dict(s) == \
         OrderedDict([('sample_1', {'barcode': 'AAAA'}), ('sample_2', {'barcode': 'TTTT'})])

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from .test_utils import runscript, datadir
 import filecmp
 import pytest
@@ -15,7 +16,7 @@ def test_pyinseq_script(datadir, tmpdir):
     status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
 
     assert status == 0
-    
+
     dcmp = filecmp.dircmp(datadir('output'),
                           str(output_dir),
                           ignore=['E001_01_bowtie.txt', 'E001_02_bowtie.txt'])

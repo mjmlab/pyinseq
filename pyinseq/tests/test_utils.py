@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from distutils import dir_util
 import os
 from pkg_resources import Requirement, resource_filename, ResolutionError
@@ -121,14 +122,11 @@ def runscript(scriptname, args, directory=None,
         os.chdir(cwd)
 
     if status != 0 and not fail_ok:
-        print('Script Failed:', scriptname, 
-              'Status:', status, 
+        print('Script Failed:', scriptname,
+              'Status:', status,
               'Output:', out,
               'Error:', err,
               sep='\n')
         assert False
 
     return status, out, err
-
-
-
