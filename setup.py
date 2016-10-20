@@ -33,7 +33,7 @@ def main():
             setup_requires = ['pytest-runner'],
             tests_require = ['pytest'],
             install_requires = ['matplotlib>=1.5.0',
-                                'seborn>=0.6.0'
+                                'seaborn>=0.6.0'
                                 'numpy>=1.10.0',
                                 'pandas>=0.18.1',
                                 'pytest>=2.8.1',
