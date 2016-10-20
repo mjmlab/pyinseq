@@ -25,4 +25,5 @@ install:
 script:
   # Your test script goes here
   - make test
+after_success:
   - codecov
