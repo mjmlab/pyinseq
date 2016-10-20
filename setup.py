@@ -37,6 +37,7 @@ def main():
                                 'numpy>=1.10.0',
                                 'pandas>=0.18.1',
                                 'pytest>=2.8.1',
+                                'pytest-cov>=2.4.0',
                                 'PyYAML>=3.11',
                                 'regex>=2016.6.5',
                                 'screed>=0.9'],
