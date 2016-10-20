@@ -9,7 +9,8 @@ import sys
 # This sequence is filtered from the reads prior to mapping
 # Mariner transposons inserts at TA dinucleotides; do not include the corresponding
 # TA from the tranpsoson here
-transposon_end = {'left': 'ACAGGTTG', 'right': 'ACAGGTTG'}
+transposonLeft = 'ACAGGTTG'
+transposonRight = 'ACAGGTTG'
 
 # Bowtie package selected (linux/mac/windows) based on operating system detected
 platform = sys.platform.lower()
