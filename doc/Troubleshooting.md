@@ -1,7 +1,13 @@
 # Troubleshooting
 
-Please use the [GitHub Issues](https://github.com/mandel01/pyinseq/issues).
+## FAQ
 
-### FAQ
+Why do I get errors in processing the GenBank file?
+  - Ensure that the file is in GenBank and not RefSeq format.
 
-1. **Why do I get errors in processing the GenBank file?** Ensure that the file is in GenBank and not RefSeq format.
+How do I uninstall `pyinseq`?
+  - ```pip uninstall pyinseq```
+
+## Something new
+
+  - Please use the [GitHub Issues](https://github.com/mandel01/pyinseq/issues).
