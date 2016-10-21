@@ -17,3 +17,6 @@ results/*
 # Test and coverage
 .cache
 .coverage
+
+# Sphinx builds
+doc/_build/

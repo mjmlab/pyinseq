@@ -6,11 +6,14 @@
 pyinseq
 =======
 
+Map transposon insertion sequencing (INSeq) data in bacteria.
+
 .. toctree::
    :maxdepth: 2
 
-   Installation
-   Tutorial
+   Input file formats
+   Tutorial: local
+   Tutorial: AWS
    Troubleshooting
 
 
