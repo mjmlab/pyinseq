@@ -11,13 +11,25 @@ Map transposon insertion sequencing (INSeq) data
 .. toctree::
    :maxdepth: 2
 
+   About
    Tutorial
    Troubleshooting
 
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+Details
+-------
+
+:Author: Mark Mandel
+:Contact: mandel01@gmail.com
+:GitHub: https://github.com/mandel01/pyinseq
+.. :Contributors: https://github.com/mandel01/pyinseq/graphs/contributors
+.. :License: BSD
+
+
+.. Indices and tables
+.. ==================
+
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`

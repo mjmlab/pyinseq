@@ -5,8 +5,6 @@
 Mac or Linux-based operating systems.
   - See these directions for [running on an Amazon EC2 instance](https://angus.readthedocs.io/en/2016/amazon/index.html).
 
-Python 3.5 or higher (installation described below).
-
 ## Install Python
 
 Install the [Anaconda Python 3.5 download](https://www.continuum.io/downloads).  
@@ -125,6 +123,6 @@ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name>
 - `genome.ftt`: genome feature file  
 - bowtie indexes  
 
-### `results/raw_data/` subdirectory 
+### `results/raw_data/` subdirectory
 - `<sample>.fastq` (for each sample): demultiplexed files for each sample/barcode
 - `_other.fastq`: demultiplexed files for unrecognized barcodes
