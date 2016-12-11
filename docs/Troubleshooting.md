@@ -8,6 +8,6 @@ Why do I get errors in processing the GenBank file?
 How do I uninstall `pyinseq`?
   - ```pip uninstall pyinseq```
 
-## Something new
+## New issues
 
   - Please use the [GitHub Issues](https://github.com/mandel01/pyinseq/issues).
