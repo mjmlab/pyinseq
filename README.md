@@ -6,6 +6,4 @@
 Lightweight package to map transposon insertion sequencing (INSeq) data in
 bacteria.
 
-# Documentation
-
-See the [pyinseq documentation](https://mandel01.github.io/pyinseq/).
+[Documentation](https://mandel01.github.io/pyinseq/)
