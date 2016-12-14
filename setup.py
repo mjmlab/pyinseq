@@ -24,7 +24,7 @@ def main():
     setup(  name = 'pyinseq',
             version = __version__,
             description = 'Analysis of transposon insertion sequencing (INSeq) data in Python',
-            url = 'https://github.com/mandel01/pyinseq',
+            url = 'https://mandel01.github.io/pyinseq/',
             author = 'Mark J. Mandel',
             author_email = 'mandel01@gmail.com',
             license = 'BSD',
@@ -42,6 +42,15 @@ def main():
                                 'PyYAML>=3.11',
                                 'regex>=2016.6.5',
                                 'screed>=0.9'],
+            classifiers=['Development Status :: 4 - Beta',
+                         'Intended Audience :: Science/Research',
+                         'License :: OSI Approved :: BSD License',
+                         'Operating System :: MacOS :: MacOS X',
+                         'Operating System :: POSIX',
+                         'Programming Language :: Python :: 3.5',
+                         'Topic :: Scientific/Engineering :: Bio-Informatics',
+                         ],
+
             zip_safe = False,
             include_package_data = True )
 
