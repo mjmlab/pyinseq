@@ -27,7 +27,7 @@ install:
 script:
   # Your test script goes here
   - make test
-  - travis-sphinx build
+  - travis-sphinx --source=docs build
 after_success:
   - travis-sphinx deploy
   - codecov
