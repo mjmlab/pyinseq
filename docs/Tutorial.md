@@ -76,7 +76,7 @@ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name>
 
 **Illumina sequencing reads [`-i`]** for the experiment. File can be uncompressed (.fastq or .fq) or gzip-compressed (.fastq.gz or .fq.gz).
 
-[Example input file](../../../pyinseq/tests/data/input/example01.fastq)  
+[Example input file](https://github.com/mandel01/pyinseq/blob/master/pyinseq/tests/data/input/example01.fastq)  
 
 ```txt
 @DGL9ZZQ1:720:C6YD0ACXX:2:1101:1246:2185 1:N:0:
@@ -88,16 +88,16 @@ CCCFFFDDHHHHHCGHHHIJDHIIJJFHHJIJJJJIJJDHIJJHIAGIJJJ
 
 **Sample file [`-s`]** describing the sample names and barcodes. Sample names should be restricted to letters, numbers, dash (-), and underscore (_), with a tab between the sample and the barcode in each row of a text file. It is recommended that the file be prepared in a text editor to ensure that additional hidden characters are not introduced. [Textwrangler](http://www.barebones.com/products/TextWrangler/) is recommended for Mac.
 
-[Example sample file](../../../pyinseq/tests/data/input/example01.txt)  
+[Example sample file](https://github.com/mandel01/pyinseq/blob/master/pyinseq/tests/data/input/example01.txt)  
 
 ```txt
 E001_01	GAAG
 E001_02	CTTT
 ```
 
-**GenBank file [-g]** listing the features and DNA sequence for the organism. If the organism has multiple chromosomes/contigs in the sequence the file they should be concatenated into a single file. Ensure that the double slash `//` at the end of the file remains to separate each contig.
+**GenBank file [`-g`]** listing the features and DNA sequence for the organism. If the organism has multiple chromosomes/contigs in the sequence the file they should be concatenated into a single file. Ensure that the double slash `//` at the end of the file remains to separate each contig.
 
-[Example GenBank file](../../../pyinseq/tests/data/input/ES114v2.gb)  
+[Example GenBank file](https://github.com/mandel01/pyinseq/blob/master/pyinseq/tests/data/input/ES114v2.gb)  
 
 ```txt
 LOCUS       CP000020             2897536 bp    DNA     circular BCT 02-APR-2008
