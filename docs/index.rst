@@ -24,6 +24,7 @@ Details
 :Contact: mandel01@gmail.com
 :GitHub: https://github.com/mandel01/pyinseq
 :License: BSD
+
 .. :Contributors: https://github.com/mandel01/pyinseq/graphs/contributors
 
 
