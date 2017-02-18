@@ -23,10 +23,13 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
   - pip install -r requirements.txt
+  # for sphinx documentation
+  - pip install recommonmark sphinxcontrib-images
   - pip install --user travis-sphinx
 script:
   # Your test script goes here
   - make test
+  # for sphinx documentation
   - travis-sphinx --source=docs build
 after_success:
   - travis-sphinx deploy
