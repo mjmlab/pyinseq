@@ -30,7 +30,7 @@ script:
   # Your test script goes here
   - make test
   # for sphinx documentation
-  - travis-sphinx --source=docs build
+  - travis-sphinx -n --source=docs build
 after_success:
   - travis-sphinx deploy
   - codecov
