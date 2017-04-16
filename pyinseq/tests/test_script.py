@@ -3,6 +3,7 @@ from .test_utils import runscript, datadir
 import filecmp
 import pytest
 
+
 def test_pyinseq_script(datadir, tmpdir):
 
     input_fn = datadir('input/example01.fastq')

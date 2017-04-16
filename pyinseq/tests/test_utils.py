@@ -17,6 +17,7 @@ These script running functions were taken from the khmer project:
 https://github.com/dib-lab/khmer/blob/master/tests/khmer_tst_utils.py
 '''
 
+
 @pytest.fixture(scope='session')
 def datadir(tmpdir_factory, request):
     '''

@@ -30,9 +30,9 @@ def create_experiment_directories(experiment):
 
     # ERROR MESSAGES
     errorDirectoryExists = \
-    'PyINSeq Error: The directory already exists for experiment {0}\n' \
-    'Delete or rename the {0} directory, or provide a new experiment\n' \
-    'name for the current analysis'.format(experiment)
+        'PyINSeq Error: The directory already exists for experiment {0}\n' \
+        'Delete or rename the {0} directory, or provide a new experiment\n' \
+        'name for the current analysis'.format(experiment)
 
     # Create path or exit with error if it exists.
     try:
@@ -44,6 +44,7 @@ def create_experiment_directories(experiment):
     except OSError:
         print(errorDirectoryExists)
         exit(1)
+
 
 def convert_to_filename(sample_name):
     """
@@ -59,6 +60,7 @@ def convert_to_filename(sample_name):
 
 def main():
     pass
+
 
 if __name__ == '__main__':
     main()
