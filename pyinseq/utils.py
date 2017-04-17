@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(module)s %(levelna
 logger = logging.getLogger(__name__)
 
 
-def create_experiment_directories(experiment):
+def create_experiment_directories(settings):
     """
     Create the project directory and subdirectories
 
@@ -16,7 +16,7 @@ def create_experiment_directories(experiment):
 
     results/
     |
-    +-{experiment}/        # User-specified experiment name
+    +-{settings.experiment}/        # User-specified experiment name
       |
       +-raw_data/          # For demultiplexed reads
       |
@@ -26,7 +26,7 @@ def create_experiment_directories(experiment):
     the full path of the present directory to the user"""
 
     # Check that experiment name has no special characters or spaces
-    experiment = convert_to_filename(experiment)
+    experiment = convert_to_filename(settings.experiment)
 
     # ERROR MESSAGES
     errorDirectoryExists = \
@@ -39,8 +39,10 @@ def create_experiment_directories(experiment):
         os.makedirs('results/{}/raw_data/'.format(experiment))
         logger.info('Make directory: results/{}'.format(experiment))
         logger.info('Make directory: results/{}/raw_data/'.format(experiment))
-        os.makedirs('results/{}/genome_lookup/'.format(experiment))
-        logger.info('Make directory: results/{}/genome_lookup/'.format(experiment))
+        # Only make the genome lookup directory if needed
+        if settings.command in ['pyinseq']:
+            os.makedirs('results/{}/genome_lookup/'.format(experiment))
+            logger.info('Make directory: results/{}/genome_lookup/'.format(experiment))
     except OSError:
         print(errorDirectoryExists)
         exit(1)

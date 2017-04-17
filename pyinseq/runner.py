@@ -53,10 +53,6 @@ def parseArgs(args):
                         corresponding to the sample names',
                         action='store_true',
                         default=False)
-    parser.add_argument('--demultiplex',
-                        help='demultiplex initial file into separate files by barcode',
-                        action='store_true',
-                        default=False)
     parser.add_argument('--compress',
                         help='compress (gzip) demultiplexed samples',
                         action='store_true',
@@ -65,6 +61,21 @@ def parseArgs(args):
                         help='keep all intermediate files generated',
                         action='store_true',
                         default=False)'''
+    return parser.parse_args(args)
+
+
+def demultiplex_parseArgs(args):
+    """Parse command line arguments for `pyinseq demultiplex`."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input',
+                        help='input Illumina reads file or folder',
+                        required=True)
+    parser.add_argument('-s', '--samples',
+                        help='sample list with barcodes',
+                        required=True)
+    parser.add_argument('-e', '--experiment',
+                        help='experiment name (no spaces or special characters)',
+                        required=True)
     return parser.parse_args(args)
 
 
@@ -84,7 +95,8 @@ class cd:
 class Settings():
     """Instantiate to set up settings for the experiment."""
     def __init__(self, experiment_name):
-        # standard
+        # command options are: ['pyinseq', 'demultiplex']
+        self.command = 'pyinseq'
         self.experiment = convert_to_filename(experiment_name)
         self.path = 'results/{}/'.format(self.experiment)
         self.genome_path = self.path + 'genome_lookup/'
@@ -95,8 +107,6 @@ class Settings():
         # may be modified
         self.keepall = False
         self.barcode_length = 4
-
-    # Set up directories?
 
 
 def set_paths(experiment_name):
@@ -229,14 +239,22 @@ def pipeline_analysis(samplesDict, settings):
 def main(args):
     """Start here."""
     logger.info('Process command line arguments')
-    args = parseArgs(args)
+    # pyinseq demultiplex
+    if args[0] == 'demultiplex':
+        command = 'demultiplex'
+        args = demultiplex_parseArgs(args[1:])
+    else:
+        command = 'pyinseq'
+        args = parseArgs(args)
     # Initialize the settings object
     settings = Settings(args.experiment)
+    settings.command = command
     # Keep intermediate files
     settings.keepall = False  # args.keepall
-    gbkfile = args.genome
     reads = args.input
-    disruption = set_disruption(float(args.disruption))
+    if settings.command in ['pyinseq']:
+        gbkfile = args.genome
+        disruption = set_disruption(float(args.disruption))
     # Organism reference files called 'genome.fna' etc
     organism = 'genome'
     # sample names and paths
@@ -250,19 +268,20 @@ def main(args):
     logger.debug('samplesDict: {0}'.format(samplesDict))
 
     # --- SET UP DIRECTORIES --- #
-    create_experiment_directories(settings.experiment)
+    create_experiment_directories(settings)
 
     # --- WRITE DEMULTIPLEXED AND TRIMED FASTQ FILES --- #
     logger.info('Demultiplex reads')
     demultiplex_fastq(reads, samplesDict, settings)
 
     # --- MAPPING TO SITES AND GENES --- #
-    logger.info('Prepare genome features (.ftt) and fasta nucleotide (.fna) files')
-    build_fna_and_ftt_files(gbkfile, organism, settings)
-    logger.info('Prepare bowtie index')
-    build_bowtie_index(organism, settings)
-    logger.info('Map with bowtie')
-    pipeline_mapping(organism, settings, samplesDict, disruption)
+    if settings.command in ['pyinseq']:
+        logger.info('Prepare genome features (.ftt) and fasta nucleotide (.fna) files')
+        build_fna_and_ftt_files(gbkfile, organism, settings)
+        logger.info('Prepare bowtie index')
+        build_bowtie_index(organism, settings)
+        logger.info('Map with bowtie')
+        pipeline_mapping(organism, settings, samplesDict, disruption)
 
     # if not samples:
     #    Settings.summaryDict['total reads'] = 0
@@ -271,10 +290,11 @@ def main(args):
     #        Settings.summaryDict['total reads'] += Settings.samplesDict[sample]['reads_with_bc']
 
     # --- ANALYSIS OF RESULTS --- #
-    pipeline_analysis(samplesDict, settings)
+    if settings.command in ['pyinseq']:
+        pipeline_analysis(samplesDict, settings)
 
     # --- CONFIRM COMPLETION --- #
-    logger.info('***** pyinseq pipeline complete! *****')
+    logger.info('***** {} complete! *****'.format(settings.command))
 
 
 if __name__ == '__main__':
