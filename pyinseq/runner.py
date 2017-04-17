@@ -99,14 +99,24 @@ class Settings():
         self.command = 'pyinseq'
         self.experiment = convert_to_filename(experiment_name)
         self.path = 'results/{}/'.format(self.experiment)
+        self.parse_genbank_file = True
         self.genome_path = self.path + 'genome_lookup/'
         self.genome_index_path = self.path + 'genome_lookup/genome'
         self.raw_path = self.path + 'raw_data/'
+        self.map_to_genome = True
         self.samples_yaml = self.path + 'samples.yml'
         self.summary_yaml = self.path + 'summary.yml'
+        self.write_trimmed_reads = True
         # may be modified
         self.keepall = False
         self.barcode_length = 4
+
+    def set_command_specific_settings(self, cmd):
+        if cmd == 'demultiplex':
+            self.command = 'demultiplex'
+            self.parse_genbank_file = False
+            self.write_trimmed_reads = False
+            self.map_to_genome = False
 
 
 def set_paths(experiment_name):
@@ -248,11 +258,11 @@ def main(args):
         args = parseArgs(args)
     # Initialize the settings object
     settings = Settings(args.experiment)
-    settings.command = command
+    settings.set_command_specific_settings(command)
     # Keep intermediate files
     settings.keepall = False  # args.keepall
     reads = args.input
-    if settings.command in ['pyinseq']:
+    if settings.parse_genbank_file:
         gbkfile = args.genome
         disruption = set_disruption(float(args.disruption))
     # Organism reference files called 'genome.fna' etc
@@ -275,7 +285,7 @@ def main(args):
     demultiplex_fastq(reads, samplesDict, settings)
 
     # --- MAPPING TO SITES AND GENES --- #
-    if settings.command in ['pyinseq']:
+    if settings.map_to_genome:
         logger.info('Prepare genome features (.ftt) and fasta nucleotide (.fna) files')
         build_fna_and_ftt_files(gbkfile, organism, settings)
         logger.info('Prepare bowtie index')

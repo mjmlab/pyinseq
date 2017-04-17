@@ -65,14 +65,14 @@ def demultiplex_fastq(reads, samplesDict, settings):
                 logger.info('Demultiplexed {:,} samples'.format(nreads))
                 write_reads(demultiplex_dict, samplesDict, settings)
                 # Write trimmed reads only when needed
-                if settings.command in ['pyinseq']:
+                if settings.write_trimmed_reads:
                     write_trimmed_reads(demultiplex_dict, samplesDict, settings)
                 # Clear the dictionary after writing to file
                 for sampleName in demultiplex_dict:
                     demultiplex_dict[sampleName] = []
     write_reads(demultiplex_dict, samplesDict, settings)
     # Write trimmed reads only when needed
-    if settings.command in ['pyinseq']:
+    if settings.write_trimmed_reads:
         write_trimmed_reads(demultiplex_dict, samplesDict, settings)
     logger.info('Total records demultiplexed: {:,}'.format(nreads))
     return nreads
