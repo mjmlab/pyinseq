@@ -48,3 +48,25 @@ def test_pyinseq_demultiplex_script(datadir, tmpdir):
     # with dircmp object values
     for subdcmp in dcmp.subdirs.values():
         assert subdcmp.diff_files == []
+
+
+def test_pyinseq_demultiplex_notrim_script(datadir, tmpdir):
+
+    input_fn = datadir('input/example01.fastq')
+    sample_fn = datadir('input/example01.txt')
+    output_name = 'example_demultiplex_notrim'
+    expected_output = datadir('output_demultiplex_notrim')
+    output_dir = tmpdir.join('results/example_demultiplex_notrim')
+
+    args = ['demultiplex', '-i', input_fn, '-s', sample_fn, '-e', output_name, '--notrim']
+    status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
+
+    assert status == 0
+
+    dcmp = filecmp.dircmp(datadir('output_demultiplex_notrim'),
+                          str(output_dir))
+    assert dcmp.diff_files == []
+    # because subdirs is a dict keyed by dir name
+    # with dircmp object values
+    for subdcmp in dcmp.subdirs.values():
+        assert subdcmp.diff_files == []

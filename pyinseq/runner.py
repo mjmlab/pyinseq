@@ -76,6 +76,10 @@ def demultiplex_parseArgs(args):
     parser.add_argument('-e', '--experiment',
                         help='experiment name (no spaces or special characters)',
                         required=True)
+    parser.add_argument('--notrim',
+                        help='do not write trimmed reads (i.e. write raw reads only)',
+                        action='store_true',
+                        required=False)
     return parser.parse_args(args)
 
 
@@ -115,7 +119,6 @@ class Settings():
         if cmd == 'demultiplex':
             self.command = 'demultiplex'
             self.parse_genbank_file = False
-            self.write_trimmed_reads = False
             self.map_to_genome = False
 
 
@@ -259,6 +262,11 @@ def main(args):
     # Initialize the settings object
     settings = Settings(args.experiment)
     settings.set_command_specific_settings(command)
+    try:
+        # for `pyinseq demultiplex only`
+        settings.write_trimmed_reads = not args.notrim
+    except:
+        pass
     # Keep intermediate files
     settings.keepall = False  # args.keepall
     reads = args.input

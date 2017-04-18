@@ -29,7 +29,8 @@ make test
 `pyinseq`
 
 - Demultiplexes a file of Illumina reads.
-- Maps the reads to the genome.
+- Writes separate trimmed versions of the files (no barcode, no transposon sequence).
+- Maps the trimmed reads to the genome.
 
 ### Specialized tasks
 
@@ -38,6 +39,7 @@ These commands are useful when combining samples from multiple Illumina runs in 
 `pyinseq demultiplex`
 
 - Demultiplexes a file of Illumina reads.
+- Writes separate trimmed versions of the files (no barcode, no transposon sequence) unless the optional `--notrim` flag is added.
 - Run as below using `pyinseq demultiplex -i ...`, but omit the genbank file.
 
 ## Command line operation
