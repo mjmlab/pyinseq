@@ -34,7 +34,7 @@ def test_class_Settings_init():
     assert x.genome_path == 'results/example/genome_lookup/'
     assert x.raw_path == 'results/example/raw_data/'
     assert x.samples_yaml == 'results/example/samples.yml'
-    assert x.summary_yaml == 'results/example/summary.yml'
+    assert x.summary_log == 'results/example/log.txt'
     assert not x.keepall
     assert x.barcode_length == 4
 

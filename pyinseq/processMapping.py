@@ -46,7 +46,7 @@ def map_sites(sample, samplesDict, settings):
     return mapDict
 
 
-def map_genes(organism, sample, disruption, settings):
+def map_genes(sample, disruption, settings):
     '''Maps insertions to genes
 
        1. Writes a csv file listing the gene for each insertion with the tabs:
@@ -63,7 +63,7 @@ def map_genes(organism, sample, disruption, settings):
     '''
 
     # List of tuples of genome features
-    genome = fttLookup(organism, settings.experiment)
+    genome = fttLookup(settings.organism, settings.experiment)
     # list of tuples of each mapped insertion to be immediately written per insertion
     mappedHitList = []
     # Dictionary with running total of cpm per gene; keys are genes, values are aggregate cpm
