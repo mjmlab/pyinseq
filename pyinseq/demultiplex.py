@@ -16,7 +16,7 @@ import screed
 import sys
 from .utils import convert_to_filename
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('pyinseq')
 
 
 def demultiplex_fastq(reads, samplesDict, settings):

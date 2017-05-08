@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import regex as re
 import screed
+import subprocess
 import sys
 import yaml
 from shutil import copyfile
@@ -21,8 +22,9 @@ from .mapReads import bowtie_build, bowtie_map, parse_bowtie
 from .processMapping import map_sites, map_genes, build_gene_table
 from .utils import convert_to_filename, create_experiment_directories  # has logging config
 
-logger = logging.getLogger(__name__)
-
+# Note: stdout logging is set in utils.py
+logger = logging.getLogger('pyinseq')
+logger.setLevel(logging.INFO)
 
 def parseArgs(args):
     """Parse command line arguments."""
@@ -214,6 +216,7 @@ def pipeline_mapping(settings, samplesDict, disruption):
             # map to bowtie and produce the output file
             logger.info('Sample {}: map reads with bowtie'.format(sample))
             bowtie_msg_out = bowtie_map(settings.organism, bowtie_in, bowtie_out)
+            logger.info(bowtie_msg_out)
             # store bowtie data for each sample in dictionary
             mapping_data[sample] = {'bowtie_results': [], 'insertion_sites': []}
             mapping_data[sample]['bowtie_results'] = parse_bowtie(bowtie_msg_out)
@@ -239,17 +242,11 @@ def pipeline_summarize(samplesDict, settings, typed_command_after_pyinseq):
     with open(settings.samples_yaml, 'w') as fo:
         fo.write(yaml.dump(samplesDict, default_flow_style=False))
 
-    # write summary.yml with more data
+    # write summary log with more data
     logger.info('Print summary log: {}'.format(settings.summary_log))
-    with open(settings.summary_log, 'w') as fo:
-        # Write settings
-        fo.write('------------Command-------------\n\n')
-        fo.write('pyinseq ' + ' '.join(typed_command_after_pyinseq))
-        fo.write('\n\n------------Settings------------\n\n')
-        fo.write(str(settings))
-        fo.write('\n\n------------Samples-------------\n\n')
-        fo.write('This information is also recorded in the samples.yml file.\n\n')
-        fo.write(yaml.dump(samplesDict, default_flow_style=False))
+    logger.info('Print command entered' + '\npyinseq ' + ' '.join(typed_command_after_pyinseq))
+    logger.info('Print settings' + '\n' + str(settings))
+    logger.info('Print samples detail' + '\n' + yaml.dump(samplesDict, default_flow_style=False))
 
 #def pipeline_analysis(samplesDict, settings):
 #    """Analysis of output."""
@@ -295,6 +292,11 @@ def main(args):
 
     # --- SET UP DIRECTORIES --- #
     create_experiment_directories(settings)
+
+    # --- SET UP LOG FILE --- #
+    fh = logging.FileHandler(settings.summary_log)
+    fh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(module)s - %(message)s', datefmt='%Y-%m-%d %H:%M')) # also set in utils
+    logger.addHandler(fh)
 
     # --- WRITE DEMULTIPLEXED AND TRIMED FASTQ FILES --- #
     logger.info('Demultiplex reads')
