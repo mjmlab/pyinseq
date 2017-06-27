@@ -41,7 +41,9 @@ def main():
                                 'codecov>=2.0.5',
                                 'PyYAML>=3.11',
                                 'regex>=2016.6.5',
-                                'screed>=0.9'],
+                                'screed>=0.9',
+                                'recommonmark>=0.4.0',           # documentation
+                                'sphinxcontrib-images>=0.7.0'],  # documentation
             classifiers = ['Development Status :: 4 - Beta',
                            'Intended Audience :: Science/Research',
                            'License :: OSI Approved :: BSD License',
