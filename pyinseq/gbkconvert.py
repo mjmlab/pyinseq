@@ -32,11 +32,11 @@ import os
 import re
 import sys
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('pyinseq')
+
 
 def gbk2fna(infile, organism, outputdirectory=''):
-    '''Convert genbank format to fna format.'''
+    """Convert genbank format to fna format."""
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.fna'.format(outputdirectory, organism)
         print('  Nucleotide file output file: {}'.format(outfile))
@@ -67,7 +67,7 @@ def gbk2fna(infile, organism, outputdirectory=''):
 
 
 def gbk2ftt(infile, organism, outputdirectory=''):
-    '''Convert genbank format to ptt-like ftt format.'''
+    """Convert genbank format to ptt-like ftt format."""
     with open(infile, 'r') as fi:
         outfile = '{0}{1}.ftt'.format(outputdirectory, organism)
         print('  Feature table output file: {}'.format(outfile))
@@ -140,8 +140,8 @@ def gbk2ftt(infile, organism, outputdirectory=''):
                                 length = int(last) - int(first) + 1
                             except AttributeError:
                                 errorComplexFeature = \
-                                'PyINSeq Error: Complex feature coordinates at or near {0} ' \
-                                'in GenBank file. Additional attention required.'.format(locus_tag)
+                                    'PyINSeq Error: Complex feature coordinates at or near {0} ' \
+                                    'in GenBank file. Additional attention required.'.format(locus_tag)
                                 print(errorComplexFeature)
                                 exit(0)
                             strand = '-' if parts[1].startswith('complement') else '+'
@@ -179,11 +179,12 @@ def gbk2ftt(infile, organism, outputdirectory=''):
 
 
 def main():
-    '''Start here.'''
+    """Start here."""
     inputfile = sys.argv[1]
     organism = sys.argv[2]
     # gbk2fna(inputfile, organism)
     gbk2ftt(inputfile, organism)
+
 
 if __name__ == '__main__':
     main()

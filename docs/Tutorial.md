@@ -6,11 +6,11 @@ Mac or Linux-based operating systems.
 
 ## Install Python
 
-Install the [Anaconda Python 3.5 download](https://www.continuum.io/downloads).  
+Install the [Anaconda Python 3.5 or 3.6 download](https://www.continuum.io/downloads).  
 
 ## Install pyinseq
 
-Install from Github.
+Install the version from GitHub described in this documentation.
 
 ```
 pip install git+git://github.com/mandel01/pyinseq
@@ -22,9 +22,29 @@ Test for correct installation
 make test
 ```
 
+## Overview of commands available
+
+### Main command
+
+`pyinseq`
+
+- Demultiplexes a file of Illumina reads.
+- Writes separate trimmed versions of the files (no barcode, no transposon sequence).
+- Maps the trimmed reads to the genome.
+
+### Specialized tasks
+
+These commands are useful when combining samples from multiple Illumina runs in a single `pyinseq` analysis.
+
+`pyinseq demultiplex`
+
+- Demultiplexes a file of Illumina reads.
+- Writes separate trimmed versions of the files (no barcode, no transposon sequence) unless the optional `--notrim` flag is added.
+- Run as below using `pyinseq demultiplex -i ...`, but omit the genbank file.
+
 ## Command line operation
 
-Basic operation and a short description of the files are listed here. Below are detailed desriptions and links to example input files.
+Basic operation and a short description of the files are listed here. Below are detailed descriptions and links to example input files.
 
 ```txt
 pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name>

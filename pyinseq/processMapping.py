@@ -7,6 +7,7 @@ Counts the bowtie hits at each position in each sample
 import csv
 import os
 
+
 def map_sites(sample, samplesDict, settings):
     '''Map insertions to nucleotide sites.'''
     # Placeholder for dictionary of mapped reads in format:
@@ -22,12 +23,12 @@ def map_sites(sample, samplesDict, settings):
             bowtiedata = line.rstrip().split('\t')
             # Calculate transposon insertion point = transposonNT
             contig, insertionNT, readLength = str(bowtiedata[2]), int(bowtiedata[3]), len(bowtiedata[4])
-            if bowtiedata[1] == '+': # positive strand read
+            if bowtiedata[1] == '+':  # positive strand read
                 insertionNt = insertionNT + readLength - 1
-                mapDict.setdefault((contig,insertionNt),[0,0])[0] += 1   # Lcount
-            else: # negative strand read
+                mapDict.setdefault((contig, insertionNt), [0, 0])[0] += 1   # Lcount
+            else:  # negative strand read
                 insertionNt = insertionNT + 1
-                mapDict.setdefault((contig,insertionNt),[0,0])[1] += 1   # Rcount
+                mapDict.setdefault((contig, insertionNt), [0, 0])[1] += 1   # Rcount
             overallTotal += 1
     # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount/cpm
     # use the index totalCounts as the denominator for cpm calculation
@@ -44,7 +45,8 @@ def map_sites(sample, samplesDict, settings):
             writer.writerow(row_entry)
     return mapDict
 
-def map_genes(organism, sample, disruption, settings):
+
+def map_genes(sample, disruption, settings):
     '''Maps insertions to genes
 
        1. Writes a csv file listing the gene for each insertion with the tabs:
@@ -61,7 +63,7 @@ def map_genes(organism, sample, disruption, settings):
     '''
 
     # List of tuples of genome features
-    genome = fttLookup(organism, settings.experiment)
+    genome = fttLookup(settings.organism, settings.experiment)
     # list of tuples of each mapped insertion to be immediately written per insertion
     mappedHitList = []
     # Dictionary with running total of cpm per gene; keys are genes, values are aggregate cpm
@@ -73,7 +75,7 @@ def map_genes(organism, sample, disruption, settings):
     genes_file = settings.path + sample + '_genes.txt'
     with open(sites_file, 'r', newline='') as csvfileR:
         sitesReader = csv.reader(csvfileR, delimiter='\t')
-        next(sitesReader, None) #skip the headers
+        next(sitesReader, None)  # skip the headers
         for line in sitesReader:
             contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm = line[0:6]
             nucleotide = int(nucleotide)
@@ -83,7 +85,7 @@ def map_genes(organism, sample, disruption, settings):
             for gene in genome:
                 locus, start, end, strand, length, pid, gene, locus_tag, code, cog, product = \
                     gene[0], int(gene[1]), int(gene[2]), gene[3], gene[4], \
-                        gene[5], gene[6], gene[7], gene[8], gene[9], gene[10]
+                    gene[5], gene[6], gene[7], gene[8], gene[9], gene[10]
                 # contig from insertion; locus from lookup table
                 if contig == locus:
                     if nucleotide >= start:
@@ -91,11 +93,11 @@ def map_genes(organism, sample, disruption, settings):
                             # 0.0 = 5'end ; 1.0 = 3'end
                             # TODO: Should featureEnd have +1 added?
                             if strand == '+':
-                                threePrimeness = (nucleotide-start)/(end-start)
+                                threePrimeness = (nucleotide - start) / (end - start)
                             if strand == '-':
-                                threePrimeness = (end-nucleotide)/(end-start)
+                                threePrimeness = (end - nucleotide) / (end - start)
                             mappedHit = (contig, nucleotide, Lcounts, Rcounts,
-                                totalCounts, cpm, threePrimeness, locus_tag)
+                                         totalCounts, cpm, threePrimeness, locus_tag)
                             mappedHitList.append(mappedHit)
                             # Filter based on location in the gene
                             if threePrimeness <= disruption:
@@ -114,19 +116,20 @@ def map_genes(organism, sample, disruption, settings):
     # Return aggregated insertions by gene (filtered on 5'-3' threshold)
     return geneDict
 
+
 def build_gene_table(organism, sample_dict, gene_mappings, experiment=''):
     '''
        For each entry in a feature table (.ftt) list the summary of hits
        for each sample in the experiment
     '''
 
-    #TODO: Bring back in the header row in the future. Use it here; ignore it for previous steps
+    # TODO(Bring back in the header row in the future. Use it here; ignore it for previous steps)
     gene_table = fttLookup(organism, experiment)
 
     # Header will be extended in the future to
     # list the experiment and barcode of each sample of interest
     header = ['Contig', 'Start', 'End', 'Strand', 'Length', 'PID',
-        'Gene', 'Synonym', 'Code', 'COG', 'Product']
+              'Gene', 'Synonym', 'Code', 'COG', 'Product']
 
     # Add header row to ftt file
     gene_table.insert(0, header)
@@ -135,7 +138,7 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=''):
     # mappedHitList = mapToGene(organism, experiment)
 
     # current column, sample being matched
-    currentColumn = len(gene_table[0])-1
+    currentColumn = len(gene_table[0]) - 1
     currentSample = ''
 
     for sampleName in sample_dict:
@@ -147,8 +150,8 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=''):
             row.append(0)
         # add the sample's results to the building gene_table
         mapped_genes = gene_mappings[sampleName]
-        ### mapped_genes = gene_mappings.get(sampleName)
-        #TODO: simplify this:
+        # mapped_genes = gene_mappings.get(sampleName)
+        # TODO(simplify this:)
         # for each row in the table, *try* from mapped_genes. Add if found.
         for gene in mapped_genes:
             for i, f in enumerate(gene_table):
@@ -180,8 +183,8 @@ def fttLookup(organism, experiment=''):
             if line[0] != ('Locus'):
                 # Locus, Location_Start, Location_End, Strand, Length, PID,
                 # Gene, Synonym, Code, COG, Product
-                featureData = [line[0], line[1], line[2], line[3], line[4], \
-                    line[5], line[6], line[7], line[8], line[9], line[10]]
+                featureData = [line[0], line[1], line[2], line[3], line[4],
+                               line[5], line[6], line[7], line[8], line[9], line[10]]
                 fttList.append(featureData)
     return fttList
 
@@ -189,6 +192,7 @@ def fttLookup(organism, experiment=''):
 def main():
     '''Start here.'''
     pass
+
 
 if __name__ == '__main__':
     main()

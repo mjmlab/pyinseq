@@ -6,13 +6,14 @@ import re
 import subprocess
 import pyinseq.config as config
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('pyinseq')
 
 
 def bowtie_build(organism):
     '''Build a bowtie index given a fasta nucleotide file.'''
     fna = organism + '.fna'
     subprocess.check_call([config.bowtieBuild, '-q', fna, organism])
+
 
 def bowtie_map(organism, reads, bowtieOutput):
     '''Map fastq reads to a bowtie index.'''
@@ -28,8 +29,8 @@ def bowtie_map(organism, reads, bowtieOutput):
     bowtie_msg_out = proc.communicate()[0]
     # decode from bytes to unicode
     bowtie_msg_out = bowtie_msg_out.decode('utf8')
-    print(bowtie_msg_out)
     return bowtie_msg_out
+
 
 def parse_bowtie(bowtieMessage):
     '''Parse bowtie results into a dictionary.'''
@@ -49,6 +50,7 @@ def parse_bowtie(bowtieMessage):
 
 def main():
     pass
+
 
 if __name__ == '__main__':
     main()
