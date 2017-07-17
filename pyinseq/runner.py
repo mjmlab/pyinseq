@@ -258,8 +258,11 @@ def pipeline_summarize(samplesDict, settings, typed_command_after_pyinseq):
 def main(args):
     """Start here."""
     logger.info('Process command line arguments')
-    # pyinseq demultiplex
     typed_command_after_pyinseq = args
+    # pyinseq with nothing typed after it
+    if args == []:
+        args = ['-h']
+    # pyinseq demultiplex
     if args[0] == 'demultiplex':
         command = 'demultiplex'
         args = demultiplex_parseArgs(args[1:])

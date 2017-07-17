@@ -4,6 +4,13 @@ import filecmp
 import pytest
 
 
+def test_pyinseq_script_no_args(datadir, tmpdir):
+
+    args = []
+    status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
+    assert out[0:5] == 'usage'
+
+
 def test_pyinseq_script(datadir, tmpdir):
 
     input_fn = datadir('input/example01.fastq')
