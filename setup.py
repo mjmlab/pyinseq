@@ -24,7 +24,7 @@ def main():
     setup(  name = 'pyinseq',
             version = __version__,
             description = 'Analysis of transposon insertion sequencing (INSeq) data in Python',
-            url = 'https://mandel01.github.io/pyinseq/',
+            url = 'https://github.com/mandel01/pyinseq',
             author = 'Mark J. Mandel',
             author_email = 'mandel01@gmail.com',
             license = 'BSD',
