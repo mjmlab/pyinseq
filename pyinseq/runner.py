@@ -85,6 +85,22 @@ def demultiplex_parseArgs(args):
     return parser.parse_args(args)
 
 
+def genomeprep_parseArgs(args):
+    """Parse command line arguments for `pyinseq genomeprep`."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-e', '--experiment',
+                        help='experiment name (no spaces or special characters)',
+                        required=True)
+    parser.add_argument('-g', '--genome',
+                        help='genome in GenBank format (one concatenated file for multiple contigs/chromosomes)',
+                        required=True)
+    parser.add_argument('--noindex',
+                        help='do not generate bowtie indexes',
+                        action='store_true',
+                        required=False)
+    return parser.parse_args(args)
+
+
 class cd:
     """Context manager to change to the specified directory then back."""
     def __init__(self, newPath):
@@ -110,6 +126,9 @@ class Settings():
         # organism reference files called 'genome.fna' etc
         self.organism = 'genome'
         self.raw_path = self.path + 'raw_data/'
+        self.generate_bowtie_index = True
+        self.process_reads = True
+        self.process_sample_list = True
         self.map_to_genome = True
         self.samples_yaml = self.path + 'samples.yml'
         self.summary_log = self.path + 'log.txt'
@@ -126,8 +145,13 @@ class Settings():
         if cmd == 'demultiplex':
             self.command = 'demultiplex'
             self.parse_genbank_file = False
+            self.generate_bowtie_index = False
             self.map_to_genome = False
-
+        if cmd == 'genomeprep':
+            self.command = 'genomeprep'
+            self.process_reads = False
+            self.process_sample_list = False
+            self.map_to_genome = False
 
 def set_paths(experiment_name):
     """Set up relative paths for subdirectories."""
@@ -262,10 +286,15 @@ def main(args):
     # pyinseq with nothing typed after it
     if args == []:
         args = ['-h']
+        #command = 'pyinseq'
+        #args = parseArgs(args)
     # pyinseq demultiplex
     if args[0] == 'demultiplex':
         command = 'demultiplex'
         args = demultiplex_parseArgs(args[1:])
+    elif args[0] == 'genomeprep':
+        command = 'genomeprep'
+        args = genomeprep_parseArgs(args[1:])
     else:
         command = 'pyinseq'
         args = parseArgs(args)
@@ -273,25 +302,38 @@ def main(args):
     settings = Settings(args.experiment)
     settings.set_command_specific_settings(command)
     try:
-        # for `pyinseq demultiplex only`
+        # for `pyinseq demultiplex` only
         settings.write_trimmed_reads = not args.notrim
+    except:
+        pass
+    try:
+        # for `pyinseq genomeprep` only
+        settings.generate_bowtie_index = not args.noindex
+        print('args.noindex', args.noindex)
+        print('settings.generate_bowtie_index', settings.generate_bowtie_index)
     except:
         pass
     # Keep intermediate files
     settings.keepall = False  # args.keepall
-    reads = args.input
+    if settings.process_reads:
+        reads = args.input
     if settings.parse_genbank_file:
         gbkfile = args.genome
-        disruption = set_disruption(float(args.disruption))
+        if settings.process_reads:
+            disruption = set_disruption(float(args.disruption))
     # sample names and paths
-    samples = args.samples
-    # barcodes_present = not args.nobarcodes
-    if samples:
-        samplesDict = tab_delimited_samples_to_dict(samples)
-    else:
-        reads = os.path.abspath(reads)
-        samplesDict = directory_of_samples_to_dict(samples)
-    logger.debug('samplesDict: {0}'.format(samplesDict))
+    if settings.process_sample_list:
+        samples = args.samples
+        # barcodes_present = not args.nobarcodes
+        if samples:
+            samplesDict = tab_delimited_samples_to_dict(samples)
+        else:
+            reads = os.path.abspath(reads)
+            samplesDict = directory_of_samples_to_dict(samples)
+    try:
+        logger.debug('samplesDict: {0}'.format(samplesDict))
+    except(UnboundLocalError):
+        pass
 
     # --- SET UP DIRECTORIES --- #
     create_experiment_directories(settings)
@@ -302,15 +344,18 @@ def main(args):
     logger.addHandler(fh)
 
     # --- WRITE DEMULTIPLEXED AND TRIMED FASTQ FILES --- #
-    logger.info('Demultiplex reads')
-    demultiplex_fastq(reads, samplesDict, settings)
+    if settings.process_reads:
+        logger.info('Demultiplex reads')
+        demultiplex_fastq(reads, samplesDict, settings)
 
     # --- MAPPING TO SITES AND GENES --- #
-    if settings.map_to_genome:
+    if settings.parse_genbank_file:
         logger.info('Prepare genome features (.ftt) and fasta nucleotide (.fna) files')
         build_fna_and_ftt_files(gbkfile, settings)
+    if settings.generate_bowtie_index:
         logger.info('Prepare bowtie index')
         build_bowtie_index(settings)
+    if settings.map_to_genome:
         logger.info('Map with bowtie')
         pipeline_mapping(settings, samplesDict, disruption)
 

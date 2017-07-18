@@ -77,3 +77,24 @@ def test_pyinseq_demultiplex_notrim_script(datadir, tmpdir):
     # with dircmp object values
     for subdcmp in dcmp.subdirs.values():
         assert subdcmp.diff_files == []
+
+
+def test_pyinseq_genomeprep_script(datadir, tmpdir):
+
+    output_name = 'example_genomeprep'
+    expected_output = datadir('output_genomeprep')
+    output_dir = tmpdir.join('results/example_genomeprep')
+    gb_fn = datadir('input/ES114v2.gb')
+
+    args = ['genomeprep', '-e', output_name, '-g', gb_fn]
+    status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
+
+    assert status == 0
+
+    dcmp = filecmp.dircmp(datadir('output_genomeprep'),
+                          str(output_dir))
+    assert dcmp.diff_files == []
+    # because subdirs is a dict keyed by dir name
+    # with dircmp object values
+    for subdcmp in dcmp.subdirs.values():
+        assert subdcmp.diff_files == []

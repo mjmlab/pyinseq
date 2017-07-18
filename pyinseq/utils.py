@@ -37,9 +37,10 @@ def create_experiment_directories(settings):
 
     # Create path or exit with error if it exists.
     try:
-        os.makedirs('results/{}/raw_data/'.format(experiment))
-        logger.info('Make directory: results/{}'.format(experiment))
-        logger.info('Make directory: results/{}/raw_data/'.format(experiment))
+        if settings.process_reads:
+            os.makedirs('results/{}/raw_data/'.format(experiment))
+            logger.info('Make directory: results/{}'.format(experiment))
+            logger.info('Make directory: results/{}/raw_data/'.format(experiment))
         # Only make the genome lookup directory if needed
         if settings.parse_genbank_file:
             os.makedirs('results/{}/genome_lookup/'.format(experiment))

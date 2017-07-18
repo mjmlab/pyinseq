@@ -42,6 +42,14 @@ These commands are useful when combining samples from multiple Illumina runs in 
 - Writes separate trimmed versions of the files (no barcode, no transposon sequence) unless the optional `--notrim` flag is added.
 - Run as below using `pyinseq demultiplex -i ...`, but omit the genbank file.
 
+`pyinseq genomeprep`
+
+- Prepares the fasta nucleotide (.fna) and feature table (.ftt) files from a GenBank file.
+- Is a good test to run for new GenBank files.
+- Generates bowtie indexes unless the `--noindex` flag is added.
+- Run as below using `pyinseq demultiplex -g ...`, but omit the fastq and sample files.
+
+
 ## Command line operation
 
 Basic operation and a short description of the files are listed here. Below are detailed descriptions and links to example input files.
