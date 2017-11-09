@@ -3,6 +3,8 @@
 ## [Unreleased]
 ### Fixed
 - `pyinseq` alone brings up the help documentation
+### Added
+- `pyinseq genomeprep` command
 
 ## [0.2.0] - 2017-07-16
 ### Added
