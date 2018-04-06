@@ -7,6 +7,14 @@ build/
 dist/
 pyinseq.egg-info/
 .eggs/
+.pytest_cache/
+
+# PyCharm
+.idea/
+.env/
+
+# Mac
+.DS_Store
 
 # Input data files for experiment
 private/

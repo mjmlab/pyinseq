@@ -11,7 +11,7 @@ import collections
 import csv
 import gzip
 import logging
-import regex as re
+import re
 import screed
 import sys
 from .utils import convert_to_filename
