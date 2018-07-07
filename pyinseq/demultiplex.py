@@ -19,7 +19,7 @@ from .utils import convert_to_filename
 logger = logging.getLogger('pyinseq')
 
 
-def demultiplex_fastq(reads, samplesDict, settings):
+def demultiplex_fastq(reads, samplesDict: dict, settings) -> int:
     """Demultiplex a fastq input file by 5' barcode into separate files.
 
        Use regex to identify the chromosome slice and save this in the read
