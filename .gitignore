@@ -24,3 +24,8 @@ pyinseq/third-party/.DS_Store
 .DS_Store
 pyinseq/.DS_Store
 pyinseq/third-party/.DS_Store
+
+# Ema Test
+logFiles/logTestScript
+.vscode/launch.json
+logFiles/logTestScript_2
