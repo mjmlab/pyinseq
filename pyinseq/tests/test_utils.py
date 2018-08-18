@@ -5,7 +5,6 @@ from pkg_resources import Requirement, resource_filename, ResolutionError
 import shutil
 import sys
 import traceback
-import pdb #TEST
 
 try:
     from StringIO import StringIO
@@ -25,21 +24,18 @@ def datadir(tmpdir_factory, request):
     Fixture responsible for locating the test data directory and copying it
     into a temporary directory.
     '''
-    pdb.set_trace() # TEST
     tmpdir = tmpdir_factory.mktemp('data')
-    pdb.set_trace()# TEST
     # this is the data/ dir in pyinseq/tests
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     dir_util.copy_tree(data_dir, str(tmpdir))
-    pdb.set_trace()
+
     def getter(filename='', as_str=True):
         filepath = tmpdir.join(filename)
-        pdb.set_trace() #TEST
         if as_str:
             return str(filepath)
         return filepath
 
-    return getter
+    return getter 
 
 
 def scriptpath(scriptname='pyinseq'):
@@ -82,8 +78,8 @@ def _runscript(scriptname):
     return -1
 
 
-def runscript(scriptname, args, directory=None,
-              fail_ok=False, sandbox=False):
+def runscript(scriptname:str, args:list, directory=None,
+              fail_ok=False, sandbox=False) -> [str,str,str]:
     """Run a Python script using exec().
     Run the given Python script, with the given args, in the given directory,
     using 'exec'.  Mimic proper shell functionality with argv, and capture
@@ -93,6 +89,7 @@ def runscript(scriptname, args, directory=None,
     sysargs = [scriptname]
     sysargs.extend(args)
     cwd = os.getcwd()
+    print(os.getcwd())
 
     try:
         status = -1
@@ -105,7 +102,7 @@ def runscript(scriptname, args, directory=None,
         sys.stderr = StringIO()
 
         if directory:
-            os.chdir(directory)
+            os.chdir(directory) 
         else:
             directory = cwd
 
@@ -113,7 +110,7 @@ def runscript(scriptname, args, directory=None,
             print('running:', scriptname, 'in:', directory, file=oldout)
             print('arguments', sysargs, file=oldout)
             status = _runscript(scriptname)
-        except SystemExit as e:
+        except SystemExit as e: 
             status = e.code
         except:
             traceback.print_exc(file=sys.stderr)
