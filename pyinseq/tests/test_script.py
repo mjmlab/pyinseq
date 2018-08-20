@@ -2,9 +2,6 @@
 from .test_utils import runscript, datadir
 import filecmp
 import pytest
-import multiprocessing as mp # TEST
-import os # TEST
-import pickle # TEST
 
 def test_pyinseq_script_no_args(datadir,tmpdir):
 
