@@ -35,7 +35,7 @@ def datadir(tmpdir_factory, request):
             return str(filepath)
         return filepath
 
-    return getter
+    return getter 
 
 
 def scriptpath(scriptname='pyinseq'):
@@ -78,8 +78,8 @@ def _runscript(scriptname):
     return -1
 
 
-def runscript(scriptname, args, directory=None,
-              fail_ok=False, sandbox=False):
+def runscript(scriptname:str, args:list, directory=None,
+              fail_ok=False, sandbox=False) -> [str,str,str]:
     """Run a Python script using exec().
     Run the given Python script, with the given args, in the given directory,
     using 'exec'.  Mimic proper shell functionality with argv, and capture
@@ -89,6 +89,7 @@ def runscript(scriptname, args, directory=None,
     sysargs = [scriptname]
     sysargs.extend(args)
     cwd = os.getcwd()
+    print(os.getcwd())
 
     try:
         status = -1
@@ -101,16 +102,15 @@ def runscript(scriptname, args, directory=None,
         sys.stderr = StringIO()
 
         if directory:
-            os.chdir(directory)
+            os.chdir(directory) 
         else:
             directory = cwd
 
         try:
             print('running:', scriptname, 'in:', directory, file=oldout)
             print('arguments', sysargs, file=oldout)
-
             status = _runscript(scriptname)
-        except SystemExit as e:
+        except SystemExit as e: 
             status = e.code
         except:
             traceback.print_exc(file=sys.stderr)
