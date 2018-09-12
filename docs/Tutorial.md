@@ -6,7 +6,7 @@ Mac or Linux-based operating systems.
 
 ## Install Python
 
-Install the [Anaconda Python 3.5 or 3.6 download](https://www.continuum.io/downloads).
+Install [Anaconda Python, version 3.6 or higher](https://www.anaconda.com/download).
 
 ## Install pyinseq
 
