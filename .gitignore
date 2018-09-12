@@ -28,7 +28,7 @@ results/*
 
 # Sphinx builds
 doc/_build/
-pyinseq/third-party/.DS_Store
+
+# Directory cruft
 .DS_Store
-pyinseq/.DS_Store
-pyinseq/third-party/.DS_Store
+**/.DS_Store
