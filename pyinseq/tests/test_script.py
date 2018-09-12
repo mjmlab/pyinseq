@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
+
 from .test_utils import runscript, datadir
 import filecmp
-import pytest
+import os
 
 
 def test_pyinseq_script_no_args(datadir, tmpdir):
-
     args = []
     status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
     assert out[0:5] == 'usage'
+    print(status, err)
 
 
 def test_pyinseq_script(datadir, tmpdir):
-
     input_fn = datadir('input/example01.fastq')
     sample_fn = datadir('input/example01.txt')
     gb_fn = datadir('input/ES114v2.gb')
@@ -22,21 +22,30 @@ def test_pyinseq_script(datadir, tmpdir):
 
     args = ['-i', input_fn, '-s', sample_fn, '-g', gb_fn, '-e', output_name]
     status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
+    print(status, out, err)
+    assert not status
+    dcmp = filecmp.dircmp(expected_output,
+                          output_dir,
+                          ignore=['E001_01_bowtie.txt', 'E001_02_bowtie.txt', '.DS_Store', 'log.txt'])
 
-    assert status == 0
+    assert 'log.txt' in os.listdir(output_dir)  # check that log file is created from pyinseq
 
-    dcmp = filecmp.dircmp(datadir('output_pyinseq'),
-                          str(output_dir),
-                          ignore=['E001_01_bowtie.txt', 'E001_02_bowtie.txt'])
-    assert dcmp.diff_files == []
-    # because subdirs is a dict keyed by dir name
-    # with dircmp object values
+    # checks that files are same in both directories
+    assert not dcmp.left_only and not dcmp.right_only
+
+    # check files to see if content differs
+    assert not dcmp.diff_files
+    assert not dcmp.funny_files  # Check for files that cannot be compared
+
+    # because subdirs is a dict keyed by subdir name
+    # with dircmp objects as values
     for subdcmp in dcmp.subdirs.values():
-        assert subdcmp.diff_files == []
+        assert not subdcmp.diff_files
+        assert not subdcmp.funny_files
+        assert not subdcmp.left_only and not subdcmp.right_only
 
 
 def test_pyinseq_demultiplex_script(datadir, tmpdir):
-
     input_fn = datadir('input/example01.fastq')
     sample_fn = datadir('input/example01.txt')
     output_name = 'example_demultiplex'
@@ -45,20 +54,30 @@ def test_pyinseq_demultiplex_script(datadir, tmpdir):
 
     args = ['demultiplex', '-i', input_fn, '-s', sample_fn, '-e', output_name]
     status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
+    assert not status
 
-    assert status == 0
+    dcmp = filecmp.dircmp(expected_output,
+                          str(output_dir),
+                          ignore=['.DS_Store', 'log.txt'])
 
-    dcmp = filecmp.dircmp(datadir('output_demultiplex'),
-                          str(output_dir))
-    assert dcmp.diff_files == []
-    # because subdirs is a dict keyed by dir name
-    # with dircmp object values
+    assert 'log.txt' in os.listdir(output_dir)  # check that log file is created from pyinseq
+
+    # checks that files are same in both directories
+    assert not dcmp.left_only and not dcmp.right_only
+
+    # check files to see if content differs
+    assert not dcmp.diff_files
+    assert not dcmp.funny_files  # Check for files that cannot be compared
+
+    # because subdirs is a dict keyed by subdir name
+    # with dircmp objects as values
     for subdcmp in dcmp.subdirs.values():
-        assert subdcmp.diff_files == []
+        assert not subdcmp.diff_files
+        assert not subdcmp.funny_files
+        assert not subdcmp.left_only and not subdcmp.right_only
 
 
 def test_pyinseq_demultiplex_notrim_script(datadir, tmpdir):
-
     input_fn = datadir('input/example01.fastq')
     sample_fn = datadir('input/example01.txt')
     output_name = 'example_demultiplex_notrim'
@@ -68,19 +87,30 @@ def test_pyinseq_demultiplex_notrim_script(datadir, tmpdir):
     args = ['demultiplex', '-i', input_fn, '-s', sample_fn, '-e', output_name, '--notrim']
     status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
 
-    assert status == 0
+    assert not status
 
-    dcmp = filecmp.dircmp(datadir('output_demultiplex_notrim'),
-                          str(output_dir))
-    assert dcmp.diff_files == []
-    # because subdirs is a dict keyed by dir name
-    # with dircmp object values
+    dcmp = filecmp.dircmp(expected_output,
+                          str(output_dir),
+                          ignore=['.DS_Store', 'log.txt'])
+
+    assert 'log.txt' in os.listdir(output_dir)  # check that log file is created from pyinseq
+
+    # checks that files are same in both directories
+    assert not dcmp.left_only and not dcmp.right_only
+
+    # check files to see if content differs
+    assert not dcmp.diff_files
+    assert not dcmp.funny_files  # Check for files that cannot be compared
+
+    # because subdirs is a dict keyed by subdir name
+    # with dircmp objects as values
     for subdcmp in dcmp.subdirs.values():
-        assert subdcmp.diff_files == []
+        assert not subdcmp.diff_files
+        assert not subdcmp.funny_files
+        assert not subdcmp.left_only and not subdcmp.right_only
 
 
 def test_pyinseq_genomeprep_script(datadir, tmpdir):
-
     output_name = 'example_genomeprep'
     expected_output = datadir('output_genomeprep')
     output_dir = tmpdir.join('results/example_genomeprep')
@@ -89,12 +119,24 @@ def test_pyinseq_genomeprep_script(datadir, tmpdir):
     args = ['genomeprep', '-e', output_name, '-g', gb_fn]
     status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
 
-    assert status == 0
+    assert not status
 
-    dcmp = filecmp.dircmp(datadir('output_genomeprep'),
-                          str(output_dir))
-    assert dcmp.diff_files == []
-    # because subdirs is a dict keyed by dir name
-    # with dircmp object values
+    dcmp = filecmp.dircmp(expected_output,
+                          str(output_dir),
+                          ignore=['.DS_Store', 'log.txt'])
+
+    assert 'log.txt' in os.listdir(output_dir)  # check that log file is created from pyinseq
+
+    # checks that files are same in both directories
+    assert not dcmp.left_only and not dcmp.right_only
+
+    # check files to see if content differs
+    assert not dcmp.diff_files
+    assert not dcmp.funny_files  # Check for files that cannot be compared
+
+    # because subdirs is a dict keyed by subdir name
+    # with dircmp objects as values
     for subdcmp in dcmp.subdirs.values():
-        assert subdcmp.diff_files == []
+        assert not subdcmp.diff_files
+        assert not subdcmp.funny_files
+        assert not subdcmp.left_only and not subdcmp.right_only

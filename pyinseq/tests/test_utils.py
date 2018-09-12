@@ -12,6 +12,7 @@ except ImportError:
     from io import StringIO
 
 import pytest
+
 '''
 These script running functions were taken from the khmer project:
 https://github.com/dib-lab/khmer/blob/master/tests/khmer_tst_utils.py
@@ -78,8 +79,8 @@ def _runscript(scriptname):
     return -1
 
 
-def runscript(scriptname, args, directory=None,
-              fail_ok=False, sandbox=False):
+def runscript(scriptname: str, args: list, directory=None,
+              fail_ok=False, sandbox=False) -> [str, str, str]:
     """Run a Python script using exec().
     Run the given Python script, with the given args, in the given directory,
     using 'exec'.  Mimic proper shell functionality with argv, and capture
@@ -89,6 +90,7 @@ def runscript(scriptname, args, directory=None,
     sysargs = [scriptname]
     sysargs.extend(args)
     cwd = os.getcwd()
+    print(os.getcwd())
 
     try:
         status = -1
@@ -108,7 +110,6 @@ def runscript(scriptname, args, directory=None,
         try:
             print('running:', scriptname, 'in:', directory, file=oldout)
             print('arguments', sysargs, file=oldout)
-
             status = _runscript(scriptname)
         except SystemExit as e:
             status = e.code
