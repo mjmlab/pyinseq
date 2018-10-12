@@ -133,6 +133,9 @@ class Settings():
         self.samples_yaml = self.path + 'samples.yml'
         self.summary_log = self.path + 'log.txt'
         self.write_trimmed_reads = True
+        # TODO(modify test data to behave properly)
+        # self.min_counts = 3  # counts at one transposon site for it to qualify
+        # self.max_ratio = 10  # max ration of left/right sites for it to qualify
         # may be modified
         self.keepall = False
         self.barcode_length = 4

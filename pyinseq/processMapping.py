@@ -5,7 +5,6 @@ Counts the bowtie hits at each position in each sample
 '''
 
 import csv
-import os
 
 
 def map_sites(sample, samplesDict, settings):
@@ -25,10 +24,10 @@ def map_sites(sample, samplesDict, settings):
             contig, insertionNT, readLength = str(bowtiedata[2]), int(bowtiedata[3]), len(bowtiedata[4])
             if bowtiedata[1] == '+':  # positive strand read
                 insertionNt = insertionNT + readLength - 1
-                mapDict.setdefault((contig, insertionNt), [0, 0])[0] += 1   # Lcount
+                mapDict.setdefault((contig, insertionNt), [0, 0])[0] += 1  # Lcount
             else:  # negative strand read
                 insertionNt = insertionNT + 1
-                mapDict.setdefault((contig, insertionNt), [0, 0])[1] += 1   # Rcount
+                mapDict.setdefault((contig, insertionNt), [0, 0])[1] += 1  # Rcount
             overallTotal += 1
     # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount/cpm
     # use the index totalCounts as the denominator for cpm calculation
@@ -73,6 +72,9 @@ def map_genes(sample, disruption, settings):
     geneDict = {}
     sites_file = settings.path + sample + '_sites.txt'
     genes_file = settings.path + sample + '_genes.txt'
+    # TODO(minimum counts and maximum ratio)\
+    # min_counts = settings.min_counts
+    # max_ratio = settings.max_ratio
     with open(sites_file, 'r', newline='') as csvfileR:
         sitesReader = csv.reader(csvfileR, delimiter='\t')
         next(sitesReader, None)  # skip the headers
@@ -98,17 +100,21 @@ def map_genes(sample, disruption, settings):
                                 threePrimeness = (end - nucleotide) / (end - start)
                             mappedHit = (contig, nucleotide, Lcounts, Rcounts,
                                          totalCounts, cpm, threePrimeness, locus_tag)
-                            mappedHitList.append(mappedHit)
-                            # Filter based on location in the gene
-                            if threePrimeness <= disruption:
-                                # Add to the total for that gene --
-                                # Single-element list (rather than interger) so
-                                # that it is subscriptable to add cpm counts
-                                geneDict.setdefault(locus_tag, [0])[0] += cpm
+                            # TODO(minimum counts and maximum ratio)
+                            # if totalCounts >= min_counts and (min(Lcounts, Rcounts) * max_ratio) >= max(Lcounts, Rcounts):
+                            if True:
+                                mappedHitList.append(mappedHit)
+                                # Filter based on location in the gene
+                                if threePrimeness <= disruption:
+                                    # Add to the total for that gene --
+                                    # Single-element list (rather than interger) so
+                                    # that it is subscriptable to add cpm counts
+                                    geneDict.setdefault(locus_tag, [0])[0] += cpm
                 prevFeature = locus_tag
     # Write individual insertions to *_genes.txt
     with open(genes_file, 'w', newline='') as csvfileW:
-        headers = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm', 'three_primeness', 'locus_tag')
+        headers = (
+        'contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm', 'three_primeness', 'locus_tag')
         mappedGeneWriter = csv.writer(csvfileW, delimiter='\t')
         mappedGeneWriter.writerow(headers)
         for hit in mappedHitList:
