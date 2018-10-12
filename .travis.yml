@@ -36,5 +36,6 @@ deploy:
   github-token: $GITHUB_TOKEN  # Set in the Travis-CI settings
   local_dir: site
   keep-history: true
-  on:
-    branch: master
+  #on:
+  #  branch: master
+  #  repo: mjmlab/pyinseq
