@@ -1,4 +1,4 @@
-# Tutorial
+# pyinseq
 
 ## Requirements
 
@@ -13,7 +13,7 @@ Install [Anaconda Python, version 3.6 or higher](https://www.anaconda.com/downlo
 Install the version from GitHub described in this documentation.
 
 ```
-pip install git+git://github.com/mandel01/pyinseq
+pip install git+git://github.com/mjmlab/pyinseq
 ```
 
 Test for correct installation

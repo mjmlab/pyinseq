@@ -23,8 +23,18 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
   - pip install -r requirements.txt
+  # mkdocs documentation
+  - pip install mkdocs mkdocs-cinder
 script:
-  # Your test script goes here
   - make test
+  - mkdocs build --verbose --clean --strict
 after_success:
   - codecov
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN  # Set in the Travis-CI settings
+  local_dir: site
+  keep-history: true
+  on:
+    branch: master

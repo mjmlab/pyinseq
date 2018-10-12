@@ -15,3 +15,8 @@
 1. At the end of the analysis results are aggregated into a tab-delimited table.
 
 1. `pyinseq` is written primarily in Python. You probably figured that out already.
+
+
+# Code
+
+[pyinseq on GitHub](https://github.com/mandel01/pyinseq)
