@@ -133,9 +133,8 @@ class Settings():
         self.samples_yaml = self.path + 'samples.yml'
         self.summary_log = self.path + 'log.txt'
         self.write_trimmed_reads = True
-        # TODO(modify test data to behave properly)
-        # self.min_counts = 3  # counts at one transposon site for it to qualify
-        # self.max_ratio = 10  # max ration of left/right sites for it to qualify
+        self.min_counts = 3  # counts at one transposon site for it to qualify
+        self.max_ratio = 10  # max ratio of left/right sites for it to qualify
         # may be modified
         self.keepall = False
         self.barcode_length = 4
@@ -259,7 +258,7 @@ def pipeline_mapping(settings, samplesDict, disruption):
         #    # Delete trimmed fastq file, bowtie mapping file after writing mapping results
         #    os.remove(s['trimmedPath'])
         #    os.remove('results/{0}/{1}'.format(Settings.experiment, bowtieOutputFile))
-    logger.info('Aggregate gene mapping from all samples into the summary_data_table'.format(sample))
+    logger.info('Aggregate gene mapping from all samples into the summary_data_table')
     build_gene_table(settings.organism, samplesDict, geneMappings, settings.experiment)
 
 
@@ -346,7 +345,7 @@ def main(args):
     fh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(module)s - %(message)s', datefmt='%Y-%m-%d %H:%M')) # also set in utils
     logger.addHandler(fh)
 
-    # --- WRITE DEMULTIPLEXED AND TRIMED FASTQ FILES --- #
+    # --- WRITE DEMULTIPLEXED AND TRIMMED FASTQ FILES --- #
     if settings.process_reads:
         logger.info('Demultiplex reads')
         demultiplex_fastq(reads, samplesDict, settings)

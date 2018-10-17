@@ -100,9 +100,8 @@ def map_genes(sample, disruption, settings):
                                 threePrimeness = (end - nucleotide) / (end - start)
                             mappedHit = (contig, nucleotide, Lcounts, Rcounts,
                                          totalCounts, cpm, threePrimeness, locus_tag)
-                            # TODO(minimum counts and maximum ratio)
-                            # if totalCounts >= min_counts and (min(Lcounts, Rcounts) * max_ratio) >= max(Lcounts, Rcounts):
-                            if True:
+                            # Checks minimum count and max ratio
+                            if int(totalCounts) >= settings.min_counts and (min(int(Lcounts), int(Rcounts)) * settings.max_ratio) >= max(int(Lcounts), int(Rcounts)):
                                 mappedHitList.append(mappedHit)
                                 # Filter based on location in the gene
                                 if threePrimeness <= disruption:
