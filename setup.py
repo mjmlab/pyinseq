@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, platform, os
+import sys, os
 
 try:
     from setuptools import *
@@ -13,8 +13,8 @@ finally:
 
 from glob import glob
 
-if sys.version_info < (3, 5):
-    print >> sys.stderr, "ERROR: pyinseq requires python 3.5 or greater"
+if sys.version_info < (3, 6):
+    print >> sys.stderr, "ERROR: pyinseq requires python 3.6 or greater"
     sys.exit()
 
 __version__ = open(os.path.join('pyinseq', 'VERSION')).read().strip()
@@ -31,7 +31,7 @@ def main():
           description='Analysis of transposon insertion sequencing (INSeq) data in Python',
           long_description=long_description,
           long_description_content_type="text/markdown",
-          url='https://github.com/mandel01/pyinseq',
+          url='https://github.com/mjmlab/pyinseq',
           author='Mark J. Mandel',
           author_email='mandel01@gmail.com',
           license='BSD',

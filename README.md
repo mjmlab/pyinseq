@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mandel01/pyinseq.svg?branch=master)](https://travis-ci.org/mandel01/pyinseq)
+[![Build Status](https://travis-ci.org/mjmlab/pyinseq.svg?branch=master)](https://travis-ci.org/mjmlab/pyinseq)
 ![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
 
 # pyinseq
@@ -7,7 +7,7 @@ Lightweight package to map transposon insertion sequencing (INSeq) data in
 bacteria.
 
 
-### Stable version
+### Installation
 
 ```
 pip install pyinseq
@@ -15,10 +15,8 @@ pip install pyinseq
 [Release documentation](http://pyinseq.readthedocs.io/en/stable/)
 
 
-### Latest version
+### Installation of the bleeding edge version
 
 ```
-pip install git+git://github.com/mandel01/pyinseq
+pip install git+git://github.com/mjmlab/pyinseq
 ```
-
-[Latest documentation](http://pyinseq.readthedocs.io/en/latest/)

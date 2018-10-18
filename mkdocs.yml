@@ -1,0 +1,7 @@
+site_name: pyinseq
+copyright: 2015-2018 Mark Mandel and Contributors
+
+nav:
+  - Home: index.md
+  - Troubleshooting: troubleshooting.md
+  - About: about.md

@@ -24,7 +24,6 @@ install:
   - source activate test-environment
   - pip install -r requirements.txt
 script:
-  # Your test script goes here
   - make test
 after_success:
   - codecov
