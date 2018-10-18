@@ -25,15 +25,16 @@ results/*
 .cache
 .coverage
 
-# Sphinx builds
-doc/_build/
+# MkDocs builds
+site/
 
 # Directory cruft
 .DS_Store
 **/.DS_Store
 
+
 ###################################
-# Below copied from https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
+# Below modified from https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
 ###################################
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
@@ -48,6 +49,7 @@ doc/_build/
 
 # Generated files
 .idea/**/contentModel.xml
+.idea/**/markdown-exported-files.xml
 
 # Sensitive or high-churn files
 .idea/**/dataSources/

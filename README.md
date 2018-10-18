@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mjmlab/pyinseq.svg?branch=master)](https://travis-ci.org/mandel01/pyinseq)
+[![Build Status](https://travis-ci.org/mjmlab/pyinseq.svg?branch=master)](https://travis-ci.org/mjmlab/pyinseq)
 ![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
 
 # pyinseq
