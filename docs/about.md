@@ -19,4 +19,4 @@
 
 # Code
 
-[pyinseq on GitHub](https://github.com/mandel01/pyinseq)
+[pyinseq on GitHub](https://github.com/mjmlab/pyinseq)
