@@ -25,6 +25,5 @@ install:
   - pip install -r requirements.txt
 script:
   - make test
-  - mkdocs build --verbose --clean --strict
 after_success:
   - codecov
