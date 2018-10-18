@@ -1,4 +1,5 @@
 site_name: pyinseq
+theme: cinder
 copyright: 2015-2018 Mark Mandel and Contributors
 
 nav:
