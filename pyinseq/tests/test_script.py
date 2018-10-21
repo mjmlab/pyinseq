@@ -9,7 +9,6 @@ def test_pyinseq_script_no_args(datadir, tmpdir):
     args = []
     status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
     assert out[0:5] == 'usage'
-    print(status, err)
 
 
 def test_pyinseq_script(datadir, tmpdir):
@@ -22,13 +21,14 @@ def test_pyinseq_script(datadir, tmpdir):
 
     args = ['-i', input_fn, '-s', sample_fn, '-g', gb_fn, '-e', output_name]
     status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
-    print(status, out, err)
+
     assert not status
     dcmp = filecmp.dircmp(expected_output,
                           output_dir,
                           ignore=['E001_01_bowtie.txt', 'E001_02_bowtie.txt', '.DS_Store', 'log.txt'])
 
-    assert 'log.txt' in os.listdir(output_dir)  # check that log file is created from pyinseq
+    # check that log file is created from pyinseq
+    assert 'log.txt' in os.listdir(output_dir)
 
     # checks that files are same in both directories
     assert not dcmp.left_only and not dcmp.right_only
@@ -60,7 +60,8 @@ def test_pyinseq_demultiplex_script(datadir, tmpdir):
                           str(output_dir),
                           ignore=['.DS_Store', 'log.txt'])
 
-    assert 'log.txt' in os.listdir(output_dir)  # check that log file is created from pyinseq
+    # check that log file is created from pyinseq
+    assert 'log.txt' in os.listdir(output_dir)
 
     # checks that files are same in both directories
     assert not dcmp.left_only and not dcmp.right_only
@@ -84,7 +85,8 @@ def test_pyinseq_demultiplex_notrim_script(datadir, tmpdir):
     expected_output = datadir('output_demultiplex_notrim')
     output_dir = tmpdir.join('results/example_demultiplex_notrim')
 
-    args = ['demultiplex', '-i', input_fn, '-s', sample_fn, '-e', output_name, '--notrim']
+    args = ['demultiplex', '-i', input_fn, '-s',
+            sample_fn, '-e', output_name, '--notrim']
     status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
 
     assert not status
@@ -93,7 +95,8 @@ def test_pyinseq_demultiplex_notrim_script(datadir, tmpdir):
                           str(output_dir),
                           ignore=['.DS_Store', 'log.txt'])
 
-    assert 'log.txt' in os.listdir(output_dir)  # check that log file is created from pyinseq
+    # check that log file is created from pyinseq
+    assert 'log.txt' in os.listdir(output_dir)
 
     # checks that files are same in both directories
     assert not dcmp.left_only and not dcmp.right_only
@@ -125,7 +128,8 @@ def test_pyinseq_genomeprep_script(datadir, tmpdir):
                           str(output_dir),
                           ignore=['.DS_Store', 'log.txt'])
 
-    assert 'log.txt' in os.listdir(output_dir)  # check that log file is created from pyinseq
+    # check that log file is created from pyinseq
+    assert 'log.txt' in os.listdir(output_dir)
 
     # checks that files are same in both directories
     assert not dcmp.left_only and not dcmp.right_only

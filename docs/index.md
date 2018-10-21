@@ -61,6 +61,14 @@ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name>
 `-d` / `--disruption`
 
 - Five-prime fraction of gene (`0.0` - `1.0`) that must be disrupted for the hit to be counted in the summary_gene_table. Often insertions at the 3' end of a gene do not disrupt function so it may be of interest to run the pipeline with a disruption value of `0.8` or `0.9`.
+  
+`--min_count`
+
+- Minimum number of reads per insertion site.
+
+`--max_ratio`
+
+- Maximum ratio of left:right or right:left reads per insertion site. 
 
 ## Output files
 

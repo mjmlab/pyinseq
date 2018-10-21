@@ -1,0 +1,4 @@
+2018-10-21 17:11 - INFO - runner - Prepare genome features (.ftt) and fasta nucleotide (.fna) files
+2018-10-21 17:11 - INFO - runner - Prepare bowtie index
+2018-10-21 17:11 - INFO - runner - Building bowtie index files in results/output_genomeprep/genome_lookup
+2018-10-21 17:11 - INFO - runner - ***** genomeprep complete! *****
