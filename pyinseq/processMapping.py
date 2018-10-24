@@ -21,31 +21,26 @@ def map_sites(sample, samplesDict, settings):
         for line in fi:
             bowtiedata = line.rstrip().split('\t')
             # Calculate transposon insertion point = transposonNT
-            contig, insertionNT, readLength = str(
-                bowtiedata[2]), int(bowtiedata[3]), len(bowtiedata[4])
+            contig, insertionNT, readLength = str(bowtiedata[2]), int(bowtiedata[3]), len(bowtiedata[4])
             if bowtiedata[1] == '+':  # positive strand read
                 insertionNt = insertionNT + readLength - 1
-                mapDict.setdefault((contig, insertionNt), [0, 0])[
-                    0] += 1  # Lcount
+                mapDict.setdefault((contig, insertionNt), [0, 0])[0] += 1  # Lcount
             else:  # negative strand read
                 insertionNt = insertionNT + 1
-                mapDict.setdefault((contig, insertionNt), [0, 0])[
-                    1] += 1  # Rcount
+                mapDict.setdefault((contig, insertionNt), [0, 0])[1] += 1  # Rcount
             overallTotal += 1
     # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount/cpm
     # use the index totalCounts as the denominator for cpm calculation
     with open(sites_file, 'a') as fo:
         writer = csv.writer(fo, delimiter='\t', dialect='excel')
-        header_entry = ('contig', 'nucleotide', 'left_counts',
-                        'right_counts', 'total_counts', 'cpm')
+        header_entry = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm')
         writer.writerow(header_entry)
         for insertion in sorted(mapDict):
             Lcounts = mapDict[insertion][0]
             Rcounts = mapDict[insertion][1]
             totalCounts = mapDict[insertion][0] + mapDict[insertion][1]
             cpm = float(1E6) * totalCounts / overallTotal
-            row_entry = (insertion[0], insertion[1],
-                         Lcounts, Rcounts, totalCounts, cpm)
+            row_entry = (insertion[0], insertion[1], Lcounts, Rcounts, totalCounts, cpm)
             writer.writerow(row_entry)
     return mapDict
 
@@ -100,13 +95,10 @@ def map_genes(sample, settings):
                             # 0.0 = 5'end ; 1.0 = 3'end
                             # TODO: Should featureEnd have +1 added?
                             if strand == '+':
-                                threePrimeness = (
-                                    nucleotide - start) / (end - start)
+                                threePrimeness = (nucleotide - start) / (end - start)
                             if strand == '-':
-                                threePrimeness = (
-                                    end - nucleotide) / (end - start)
-                            mappedHit = (contig, nucleotide, Lcounts, Rcounts,
-                                         totalCounts, cpm, threePrimeness, locus_tag)
+                                threePrimeness = (end - nucleotide) / (end - start)
+                            mappedHit = (contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm, threePrimeness, locus_tag)
                             # Checks minimum count and max ratio
                             if int(totalCounts) >= settings.min_counts and (min(int(Lcounts), int(Rcounts)) * settings.max_ratio) >= max(int(Lcounts), int(Rcounts)):
                                 mappedHitList.append(mappedHit)
@@ -120,8 +112,7 @@ def map_genes(sample, settings):
                 prevFeature = locus_tag
     # Write individual insertions to *_genes.txt
     with open(genes_file, 'w', newline='') as csvfileW:
-        headers = (
-            'contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm', 'three_primeness', 'locus_tag')
+        headers = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm', 'three_primeness', 'locus_tag')
         mappedGeneWriter = csv.writer(csvfileW, delimiter='\t')
         mappedGeneWriter.writerow(headers)
         for hit in mappedHitList:
