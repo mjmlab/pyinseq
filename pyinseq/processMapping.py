@@ -45,7 +45,7 @@ def map_sites(sample, samplesDict, settings):
     return mapDict
 
 
-def map_genes(sample, disruption, settings):
+def map_genes(sample, settings):
     '''Maps insertions to genes
 
        1. Writes a csv file listing the gene for each insertion with the tabs:
@@ -98,22 +98,21 @@ def map_genes(sample, disruption, settings):
                                 threePrimeness = (nucleotide - start) / (end - start)
                             if strand == '-':
                                 threePrimeness = (end - nucleotide) / (end - start)
-                            mappedHit = (contig, nucleotide, Lcounts, Rcounts,
-                                         totalCounts, cpm, threePrimeness, locus_tag)
+                            mappedHit = (contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm, threePrimeness, locus_tag)
                             # Checks minimum count and max ratio
                             if int(totalCounts) >= settings.min_counts and (min(int(Lcounts), int(Rcounts)) * settings.max_ratio) >= max(int(Lcounts), int(Rcounts)):
                                 mappedHitList.append(mappedHit)
                                 # Filter based on location in the gene
-                                if threePrimeness <= disruption:
+                                if threePrimeness <= settings.disruption:
                                     # Add to the total for that gene --
                                     # Single-element list (rather than interger) so
                                     # that it is subscriptable to add cpm counts
-                                    geneDict.setdefault(locus_tag, [0])[0] += cpm
+                                    geneDict.setdefault(locus_tag, [0])[
+                                        0] += cpm
                 prevFeature = locus_tag
     # Write individual insertions to *_genes.txt
     with open(genes_file, 'w', newline='') as csvfileW:
-        headers = (
-        'contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm', 'three_primeness', 'locus_tag')
+        headers = ('contig', 'nucleotide', 'left_counts', 'right_counts', 'total_counts', 'cpm', 'three_primeness', 'locus_tag')
         mappedGeneWriter = csv.writer(csvfileW, delimiter='\t')
         mappedGeneWriter.writerow(headers)
         for hit in mappedHitList:

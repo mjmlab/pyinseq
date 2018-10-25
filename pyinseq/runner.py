@@ -44,6 +44,12 @@ def parseArgs(args):
     parser.add_argument('-d', '--disruption',
                         help='fraction of gene disrupted (0.0 - 1.0)',
                         default=1.0)
+    parser.add_argument('--min_count',
+                        help='Minimum number of reads per insertion site',
+                        default=3)
+    parser.add_argument('--max_ratio',
+                        help='Maximum ratio of left:right or right:left reads per insertion site',
+                        default=10)
     '''Inactive arguments in current version
     parser.add_argument('-s', '--samples',
                         help='sample list with barcodes. \
@@ -138,6 +144,7 @@ class Settings():
         # may be modified
         self.keepall = False
         self.barcode_length = 4
+        self.disruption = 1
 
     def __repr__(self):
         # Print each variable on a separate line
@@ -165,13 +172,28 @@ def set_paths(experiment_name):
             'summary_log': summary_log}
     return path
 
-
-def set_disruption(d):
-    """Check that gene disrution is 0.0 to 1.0; otherwise set to 1.0."""
+def set_disruption(d, setting):
+    """Check that gene disruption is 0.0 to 1.0; otherwise set to 1.0."""
     if d < 0.0 or d > 1.0:
         logger.error('Disruption value provided ({0}) is not in range 0.0 to 1.0; proceeding with default value of 1.0'.format(d))
         d = 1.0
-    return d
+
+    setting.disruption = d
+    return
+
+
+def set_gene_parameters(min_count, max_ratio, setting):
+    """Check that min_count and max_ratio are positive, otherwise set default."""
+    if min_count < 0:
+        logger.error('Min_count value provided ({0}) is not positive; proceeding with default value of 3'.format(min_count))
+    else:
+        setting.min_counts = min_count
+
+    if max_ratio < 0:
+        logger.error('Max_ratio value provided ({0}) is not positive; proceeding with default value of 10'.format(max_ratio))
+    else:
+        setting.max_ratio = max_ratio
+    return
 
 
 def tab_delimited_samples_to_dict(sample_file):
@@ -179,13 +201,14 @@ def tab_delimited_samples_to_dict(sample_file):
     samplesDict = OrderedDict()
     with open(sample_file, 'r', newline='') as csvfile:
         for line in csv.reader(csvfile, delimiter='\t'):
-            if not line[0].startswith('#'):  # ignore comment lines in original file
+            # ignore comment lines in original file
+            if not line[0].startswith('#'):
                 # sample > filename-acceptable string
                 # barcode > uppercase
                 sample = convert_to_filename(line[0])
                 barcode = line[1].upper()
                 if sample not in samplesDict and barcode not in samplesDict.values():
-                        samplesDict[sample] = {'barcode': barcode}
+                    samplesDict[sample] = {'barcode': barcode}
                 else:
                     raise IOError('Error: duplicate sample {0} barcode {1}'.format(sample, barcode))
     return samplesDict
@@ -228,7 +251,7 @@ def build_bowtie_index(settings):
         bowtie_build(settings.organism)
 
 
-def pipeline_mapping(settings, samplesDict, disruption):
+def pipeline_mapping(settings, samplesDict):
     """Aggregate bowtie output, map to genes in the feature table, and aggregate samples."""
     # Dictionary of each sample's cpm by gene
     geneMappings = {}
@@ -253,7 +276,7 @@ def pipeline_mapping(settings, samplesDict, disruption):
         # Add gene-level results for the sample to geneMappings
         # Filtered on gene fraction disrupted as specified by -d flag
         logger.info('Sample {}: map site data to genes'.format(sample))
-        geneMappings[sample] = map_genes(sample, disruption, settings)
+        geneMappings[sample] = map_genes(sample, settings)
         # if not settings.keepall:
         #    # Delete trimmed fastq file, bowtie mapping file after writing mapping results
         #    os.remove(s['trimmedPath'])
@@ -274,7 +297,7 @@ def pipeline_summarize(samplesDict, settings, typed_command_after_pyinseq):
     logger.info('Print settings' + '\n' + str(settings))
     logger.info('Print samples detail' + '\n' + yaml.dump(samplesDict, default_flow_style=False))
 
-#def pipeline_analysis(samplesDict, settings):
+# def pipeline_analysis(samplesDict, settings):
 #    """Analysis of output."""
 #    for sample in samplesDict:
 #        print('N50', sample, nfifty(sample, settings))
@@ -322,7 +345,8 @@ def main(args):
     if settings.parse_genbank_file:
         gbkfile = args.genome
         if settings.process_reads:
-            disruption = set_disruption(float(args.disruption))
+            set_disruption(float(args.disruption), settings)
+            set_gene_parameters(int(args.min_count), int(args.max_ratio), settings)
     # sample names and paths
     if settings.process_sample_list:
         samples = args.samples
@@ -342,7 +366,7 @@ def main(args):
 
     # --- SET UP LOG FILE --- #
     fh = logging.FileHandler(settings.summary_log)
-    fh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(module)s - %(message)s', datefmt='%Y-%m-%d %H:%M')) # also set in utils
+    fh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(module)s - %(message)s', datefmt='%Y-%m-%d %H:%M'))  # also set in utils
     logger.addHandler(fh)
 
     # --- WRITE DEMULTIPLEXED AND TRIMMED FASTQ FILES --- #
@@ -359,7 +383,7 @@ def main(args):
         build_bowtie_index(settings)
     if settings.map_to_genome:
         logger.info('Map with bowtie')
-        pipeline_mapping(settings, samplesDict, disruption)
+        pipeline_mapping(settings, samplesDict)
 
     # if not samples:
     #    Settings.summaryDict['total reads'] = 0

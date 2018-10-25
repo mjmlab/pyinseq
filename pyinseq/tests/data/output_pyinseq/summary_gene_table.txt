@@ -10,7 +10,7 @@ CP000020	6352	7104	-	753	AAW84503.1	fliY	VF_0008	-	-	cystine-binding protein	0	0
 CP000020	7401	8810	+	1410	AAW84504.1	dnaA	VF_0009	-	-	chromosomal replication initiator protein DnaA	0	0
 CP000020	8843	9943	+	1101	AAW84505.1	dnaN	VF_0010	-	-	DNA polymerase III, beta subunit	0	0
 CP000020	9957	11036	+	1080	AAW84506.1	recF	VF_0011	-	-	gap repair protein	0	0
-CP000020	11054	13471	+	2418	AAW84507.1	gyrB	VF_0012	-	-	DNA gyrase, subunit B	100000.0	100000.0
+CP000020	11054	13471	+	2418	AAW84507.1	gyrB	VF_0012	-	-	DNA gyrase, subunit B	0	29197.080291970804
 CP000020	13895	14329	+	435	AAW84508.1	ibpA	VF_0013	-	-	heat shock chaperone	0	0
 CP000020	14539	15786	-	1248	AAW84509.1	avtA	VF_0014	-	-	valine-pyruvate aminotransferase	0	0
 CP000020	16015	16935	+	921	AAW84510.1	glyQ	VF_0015	-	-	glycyl-tRNA synthetase, alpha subunit	0	0
@@ -32,7 +32,7 @@ CP000020	32310	35063	+	2754	AAW84524.1	pqqL	VF_0029	-	-	zinc protease, insulinas
 CP000020	35144	35338	+	195	AAW84525.1	-	VF_0030	-	-	hypothetical protein	0	0
 CP000020	35637	37016	+	1380	AAW84526.1	-	VF_0031	-	-	chloride channel protein	0	0
 CP000020	37617	39551	+	1935	AAW84527.1	thiC	VF_0032	-	-	thiamin (pyrimidine moiety) biosynthesis protein	0	0
-CP000020	39622	40281	+	660	AAW84528.1	thiE	VF_0033	-	-	thiamin phosphate synthase (thiamin phosphate pyrophosphorylase)	50000.0	100000.0
+CP000020	39622	40281	+	660	AAW84528.1	thiE	VF_0033	-	-	thiamin phosphate synthase (thiamin phosphate pyrophosphorylase)	55555.555555555555	102189.78102189781
 CP000020	40274	41107	+	834	AAW84529.1	thiF	VF_0034	-	-	thiamin (thiazole moiety) biosynthesis protein	0	0
 CP000020	41100	41312	+	213	ACB55624.1	thiS	VF_2576	-	-	sulfur carrier protein ThiS	0	0
 CP000020	41314	42084	+	771	AAW84530.1	thiG	VF_0035	-	-	thiamin biosynthesis protein ThiG	0	0
@@ -3237,7 +3237,7 @@ CP000021	561982	562857	-	876	AAW87558.1	-	VF_A0488	-	-	hypothetical protein	0	0
 CP000021	563023	563955	-	933	AAW87559.1	-	VF_A0489	-	-	transcriptional regulator, LysR family	0	0
 CP000021	564064	565059	+	996	AAW87560.1	-	VF_A0490	-	-	soluble lytic murein transglycosylase	0	0
 CP000021	565069	566073	+	1005	AAW87561.1	-	VF_A0491	-	-	soluble lytic murein transglycosylase	0	0
-CP000021	566145	567248	-	1104	AAW87562.1	anmK	VF_A0492	-	-	anhydro-N-acetylmuramic acid kinase	300000.0	250000.0
+CP000021	566145	567248	-	1104	AAW87562.1	anmK	VF_A0492	-	-	anhydro-N-acetylmuramic acid kinase	166666.66666666666	102189.78102189781
 CP000021	567421	568416	+	996	AAW87563.1	nagZ	VF_A0493	-	-	beta N-acetyl-glucosaminidase	0	0
 CP000021	568497	569942	-	1446	AAW87564.1	pykA	VF_A0494	-	-	pyruvate kinase II	0	0
 CP000021	570044	570724	-	681	AAW87565.1	ygcF	VF_A0495	-	-	conserved protein	0	0
@@ -3935,7 +3935,7 @@ CP000022	2274	2723	-	450	AAW88245.1	-	VF_B0003	-	-	hypothetical protein	0	0
 CP000022	2743	3072	-	330	AAW88246.1	-	VF_B0004	-	-	hypothetical protein	0	0
 CP000022	3075	3266	-	192	AAW88247.1	-	VF_B0005	-	-	hypothetical protein	0	0
 CP000022	3293	3694	-	402	AAW88248.1	-	VF_B0006	-	-	hypothetical protein	0	0
-CP000022	3771	4268	-	498	AAW88249.1	-	VF_B0007	-	-	DNA repair protein RadC	300000.0	300000.0
+CP000022	3771	4268	-	498	AAW88249.1	-	VF_B0007	-	-	DNA repair protein RadC	277777.77777777775	255474.45255474452
 CP000022	4574	4954	-	381	AAW88250.1	-	VF_B0008	-	-	hypothetical protein	0	0
 CP000022	5759	6046	-	288	AAW88251.1	-	VF_B0009	-	-	hypothetical protein	0	0
 CP000022	6085	6282	-	198	AAW88252.1	-	VF_B0010	-	-	hypothetical protein	0	0
