@@ -101,3 +101,11 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequestssite/
+
+\.idea/misc\.xml
+
+\.idea/pyinseq\.iml
+
+\.idea/codeStyles/codeStyleConfig\.xml
+
+\.idea/codeStyles/Project\.xml

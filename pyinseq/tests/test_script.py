@@ -19,7 +19,7 @@ def test_pyinseq_script(datadir, tmpdir):
     expected_output = datadir('output_pyinseq')
     output_dir = tmpdir.join('results/example_pyinseq')
 
-    args = ['-i', input_fn, '-s', sample_fn, '-g', gb_fn, '-e', output_name]
+    args = ['-i', input_fn, '-s', sample_fn, '-g', gb_fn, '-e', output_name, '-d' , '0.9']
     status, out, err = runscript('pyinseq', args, directory=str(tmpdir))
 
     assert not status
