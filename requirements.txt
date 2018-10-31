@@ -1,7 +1,9 @@
+black>=18.9b0
 matplotlib>=1.5.0
 seaborn>=0.6.0
 numpy>=1.10.0
 pandas>=0.18.1
+pre-commit>=1.12.0
 pytest>=2.8.1
 pytest-cov>=2.4.0
 codecov>=2.0.5

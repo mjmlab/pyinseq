@@ -27,5 +27,6 @@ install:
   - pip install -r requirements.txt
 script:
   - make test
+  - black --check pyinseq/ scripts/pyinseq
 after_success:
   - codecov

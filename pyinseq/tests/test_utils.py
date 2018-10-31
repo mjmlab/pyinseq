@@ -13,24 +13,24 @@ except ImportError:
 
 import pytest
 
-'''
+"""
 These script running functions were taken from the khmer project:
 https://github.com/dib-lab/khmer/blob/master/tests/khmer_tst_utils.py
-'''
+"""
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def datadir(tmpdir_factory, request):
-    '''
+    """
     Fixture responsible for locating the test data directory and copying it
     into a temporary directory.
-    '''
-    tmpdir = tmpdir_factory.mktemp('data')
+    """
+    tmpdir = tmpdir_factory.mktemp("data")
     # this is the data/ dir in pyinseq/tests
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    data_dir = os.path.join(os.path.dirname(__file__), "data")
     dir_util.copy_tree(data_dir, str(tmpdir))
 
-    def getter(filename='', as_str=True):
+    def getter(filename="", as_str=True):
         filepath = tmpdir.join(filename)
         if as_str:
             return str(filepath)
@@ -39,7 +39,7 @@ def datadir(tmpdir_factory, request):
     return getter
 
 
-def scriptpath(scriptname='pyinseq'):
+def scriptpath(scriptname="pyinseq"):
     "Return the path to the scripts, in both dev and install situations."
 
     path = os.path.join(os.path.dirname(__file__), "../../scripts")
@@ -50,7 +50,7 @@ def scriptpath(scriptname='pyinseq'):
     if os.path.exists(os.path.join(path, scriptname)):
         return path
 
-    for path in os.environ['PATH'].split(':'):
+    for path in os.environ["PATH"].split(":"):
         if os.path.exists(os.path.join(path, scriptname)):
             return path
 
@@ -61,8 +61,9 @@ def _runscript(scriptname):
     """
 
     import pkg_resources
+
     ns = {"__name__": "__main__"}
-    ns['sys'] = globals()['sys']
+    ns["sys"] = globals()["sys"]
 
     try:
         pkg_resources.get_distribution("pyinseq").run_script(scriptname, ns)
@@ -73,14 +74,15 @@ def _runscript(scriptname):
         scriptfile = os.path.join(path, scriptname)
         if os.path.isfile(scriptfile):
             if os.path.isfile(scriptfile):
-                exec(compile(open(scriptfile).read(), scriptfile, 'exec'), ns)
+                exec(compile(open(scriptfile).read(), scriptfile, "exec"), ns)
                 return 0
 
     return -1
 
 
-def runscript(scriptname: str, args: list, directory=None,
-              fail_ok=False, sandbox=False) -> [str, str, str]:
+def runscript(
+    scriptname: str, args: list, directory=None, fail_ok=False, sandbox=False
+) -> [str, str, str]:
     """Run a Python script using exec().
     Run the given Python script, with the given args, in the given directory,
     using 'exec'.  Mimic proper shell functionality with argv, and capture
@@ -108,8 +110,8 @@ def runscript(scriptname: str, args: list, directory=None,
             directory = cwd
 
         try:
-            print('running:', scriptname, 'in:', directory, file=oldout)
-            print('arguments', sysargs, file=oldout)
+            print("running:", scriptname, "in:", directory, file=oldout)
+            print("arguments", sysargs, file=oldout)
             status = _runscript(scriptname)
         except SystemExit as e:
             status = e.code
@@ -124,11 +126,17 @@ def runscript(scriptname: str, args: list, directory=None,
         os.chdir(cwd)
 
     if status != 0 and not fail_ok:
-        print('Script Failed:', scriptname,
-              'Status:', status,
-              'Output:', out,
-              'Error:', err,
-              sep='\n')
+        print(
+            "Script Failed:",
+            scriptname,
+            "Status:",
+            status,
+            "Output:",
+            out,
+            "Error:",
+            err,
+            sep="\n",
+        )
         assert False
 
     return status, out, err
