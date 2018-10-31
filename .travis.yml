@@ -27,5 +27,6 @@ install:
   - pip install -r requirements.txt
 script:
   - make test
+  - black --check my_package/
 after_success:
   - codecov
