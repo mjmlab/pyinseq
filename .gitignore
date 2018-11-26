@@ -109,3 +109,4 @@ fabric.properties
 \.idea/codeStyles/codeStyleConfig\.xml
 
 \.idea/codeStyles/Project\.xml
+.vscode/settings.json
