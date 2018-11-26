@@ -1,3 +1,3 @@
-2018-11-25 19:27 - INFO - runner - Demultiplex reads
-2018-11-25 19:27 - INFO - demultiplex - Total records demultiplexed: 534
-2018-11-25 19:27 - INFO - runner - ***** demultiplex complete! *****
+2018-10-21 17:10 - INFO - runner - Demultiplex reads
+2018-10-21 17:10 - INFO - demultiplex - Total records demultiplexed: 534
+2018-10-21 17:10 - INFO - runner - ***** demultiplex complete! *****

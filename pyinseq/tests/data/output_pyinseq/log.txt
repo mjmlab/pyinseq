@@ -1,33 +1,31 @@
-2018-11-25 19:24 - INFO - runner - Demultiplex reads
-2018-11-25 19:24 - INFO - demultiplex - Total records demultiplexed: 534
-2018-11-25 19:24 - INFO - runner - Prepare genome features (.ftt) and fasta nucleotide (.fna) files
-2018-11-25 19:24 - INFO - runner - Prepare bowtie index
-2018-11-25 19:24 - INFO - runner - Building bowtie index files in results/output_pyinseq/genome_lookup
-2018-11-25 19:24 - INFO - runner - Map with bowtie
-2018-11-25 19:24 - INFO - runner - Sample E001_01: map reads with bowtie
-2018-11-25 19:24 - INFO - runner - # reads processed: 252
+2018-10-21 17:08 - INFO - runner - Demultiplex reads
+2018-10-21 17:08 - INFO - demultiplex - Total records demultiplexed: 534
+2018-10-21 17:08 - INFO - runner - Prepare genome features (.ftt) and fasta nucleotide (.fna) files
+2018-10-21 17:08 - INFO - runner - Prepare bowtie index
+2018-10-21 17:08 - INFO - runner - Building bowtie index files in results/output_pyinseq/genome_lookup
+2018-10-21 17:09 - INFO - runner - Map with bowtie
+2018-10-21 17:09 - INFO - runner - Sample E001_01: map reads with bowtie
+2018-10-21 17:09 - INFO - runner - # reads processed: 252
 # reads with at least one reported alignment: 252 (100.00%)
 # reads that failed to align: 0 (0.00%)
 Reported 252 alignments to 1 output stream(s)
 
-2018-11-25 19:24 - INFO - runner - Sample E001_01: summarize the site data from the bowtie results
-2018-11-25 19:24 - INFO - runner - Sample E001_01: map site data to genes
-2018-11-25 19:24 - INFO - runner - N50 result for E001_01: 3
-2018-11-25 19:24 - INFO - runner - Sample E001_02: map reads with bowtie
-2018-11-25 19:24 - INFO - runner - # reads processed: 274
+2018-10-21 17:09 - INFO - runner - Sample E001_01: summarize the site data from the bowtie results
+2018-10-21 17:09 - INFO - runner - Sample E001_01: map site data to genes
+2018-10-21 17:09 - INFO - runner - Sample E001_02: map reads with bowtie
+2018-10-21 17:09 - INFO - runner - # reads processed: 274
 # reads with at least one reported alignment: 274 (100.00%)
 # reads that failed to align: 0 (0.00%)
 Reported 274 alignments to 1 output stream(s)
 
-2018-11-25 19:24 - INFO - runner - Sample E001_02: summarize the site data from the bowtie results
-2018-11-25 19:24 - INFO - runner - Sample E001_02: map site data to genes
-2018-11-25 19:24 - INFO - runner - N50 result for E001_02: 3
-2018-11-25 19:24 - INFO - runner - Aggregate gene mapping from all samples into the summary_data_table
-2018-11-25 19:24 - INFO - runner - Print samples info: results/output_pyinseq/samples.yml
-2018-11-25 19:24 - INFO - runner - Print summary log: results/output_pyinseq/log.txt
-2018-11-25 19:24 - INFO - runner - Print command entered
-pyinseq -i input/example01.fastq -s input/example01.txt -g input/ES114v2.gb -d 0.9 -e output_pyinseq
-2018-11-25 19:24 - INFO - runner - Print settings
+2018-10-21 17:09 - INFO - runner - Sample E001_02: summarize the site data from the bowtie results
+2018-10-21 17:09 - INFO - runner - Sample E001_02: map site data to genes
+2018-10-21 17:09 - INFO - runner - Aggregate gene mapping from all samples into the summary_data_table
+2018-10-21 17:09 - INFO - runner - Print samples info: results/output_pyinseq/samples.yml
+2018-10-21 17:09 - INFO - runner - Print summary log: results/output_pyinseq/log.txt
+2018-10-21 17:09 - INFO - runner - Print command entered
+pyinseq -i example01.fastq -s example01.txt -g ES114v2.gb -e output_pyinseq -d 0.9
+2018-10-21 17:09 - INFO - runner - Print settings
 command: pyinseq
 experiment: output_pyinseq
 path: results/output_pyinseq/
@@ -47,11 +45,11 @@ max_ratio: 10
 keepall: False
 barcode_length: 4
 disruption: 0.9
-2018-11-25 19:24 - INFO - runner - Print samples detail
+2018-10-21 17:09 - INFO - runner - Print samples detail
 !!python/object/apply:collections.OrderedDict
 - - - E001_01
     - barcode: GAAG
   - - E001_02
     - barcode: CTTT
 
-2018-11-25 19:24 - INFO - runner - ***** pyinseq complete! *****
+2018-10-21 17:09 - INFO - runner - ***** pyinseq complete! *****
