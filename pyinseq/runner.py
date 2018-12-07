@@ -334,6 +334,8 @@ def pipeline_mapping(settings, samplesDict):
         #    # Delete trimmed fastq file, bowtie mapping file after writing mapping results
         #    os.remove(s['trimmedPath'])
         #    os.remove('results/{0}/{1}'.format(Settings.experiment, bowtieOutputFile))
+        nfifty_result = nfifty(sample, settings)
+        logger.info("N50 result for {}: {}".format(sample, nfifty_result))
     logger.info("Aggregate gene mapping from all samples into the summary_data_table")
     build_gene_table(settings.organism, samplesDict, geneMappings, settings.experiment)
 
