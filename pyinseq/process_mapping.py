@@ -7,10 +7,10 @@ Counts the bowtie hits at each position in each sample
 import csv
 
 
-def map_sites(sample, samplesDict, settings):
+def map_sites(sample, samples_dict, settings):
     """Map insertions to nucleotide sites."""
     # Placeholder for dictionary of mapped reads in format:
-    # {(contig, position) : [Lcount, Rcount]}
+    # {(contig, position) : [left_counts, right_counts]}
     mapDict = {}
     # overallTotal = denominator for cpm calculation
     overallTotal = 0
@@ -33,7 +33,7 @@ def map_sites(sample, samplesDict, settings):
                 insertionNt = insertionNT + 1
                 mapDict.setdefault((contig, insertionNt), [0, 0])[1] += 1  # Rcount
             overallTotal += 1
-    # write tab-delimited of contig/nucleotide/Lcount/Rcount/TotalCount/cpm
+    # write tab-delimited of contig/nucleotide/left_counts/right_counts/total_counts/cpm
     # use the index totalCounts as the denominator for cpm calculation
     with open(sites_file, "a") as fo:
         writer = csv.writer(fo, delimiter="\t", dialect="excel")
@@ -47,11 +47,18 @@ def map_sites(sample, samplesDict, settings):
         )
         writer.writerow(header_entry)
         for insertion in sorted(mapDict):
-            Lcounts = mapDict[insertion][0]
-            Rcounts = mapDict[insertion][1]
-            totalCounts = mapDict[insertion][0] + mapDict[insertion][1]
-            cpm = float(1e6) * totalCounts / overallTotal
-            row_entry = (insertion[0], insertion[1], Lcounts, Rcounts, totalCounts, cpm)
+            left_counts = mapDict[insertion][0]
+            right_counts = mapDict[insertion][1]
+            total_counts = mapDict[insertion][0] + mapDict[insertion][1]
+            cpm = float(1e6) * total_counts / overallTotal
+            row_entry = (
+                insertion[0],
+                insertion[1],
+                left_counts,
+                right_counts,
+                total_counts,
+                cpm,
+            )
             writer.writerow(row_entry)
     return mapDict
 
@@ -73,41 +80,34 @@ def map_genes(sample, settings):
     """
 
     # List of tuples of genome features
-    genome = fttLookup(settings.organism, settings.experiment)
+    genome = ftt_lookup(settings.organism, settings.experiment)
     # list of tuples of each mapped insertion to be immediately written per insertion
-    mappedHitList = []
+    mapped_hit_list = []
     # Dictionary with running total of cpm per gene; keys are genes, values are aggregate cpm
     # only hits in the first part of the gene are added to the count, as defined
     # by the disruption threshold.
     # if disruption = 1.0 then every hit in the gene is included
-    geneDict = {}
+    gene_dict = {}
     sites_file = settings.path + sample + "_sites.txt"
     genes_file = settings.path + sample + "_genes.txt"
     # TODO(minimum counts and maximum ratio)\
     # min_counts = settings.min_counts
     # max_ratio = settings.max_ratio
     with open(sites_file, "r", newline="") as csvfileR:
-        sitesReader = csv.reader(csvfileR, delimiter="\t")
-        next(sitesReader, None)  # skip the headers
-        for line in sitesReader:
-            contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm = line[0:6]
+        sites_reader = csv.reader(csvfileR, delimiter="\t")
+        next(sites_reader, None)  # skip the headers
+        for line in sites_reader:
+            contig, nucleotide, left_counts, right_counts, total_counts, cpm = line[0:6]
             nucleotide = int(nucleotide)
             cpm = float(cpm)
             # Used to save previous feature for intergenic calling
-            prevFeature = ""
+            previous_feature = ""
             for gene in genome:
                 locus, start, end, strand, length, pid, gene, locus_tag, code, cog, product = (
                     gene[0],
                     int(gene[1]),
                     int(gene[2]),
-                    gene[3],
-                    gene[4],
-                    gene[5],
-                    gene[6],
-                    gene[7],
-                    gene[8],
-                    gene[9],
-                    gene[10],
+                    *gene[3:11],
                 )
                 # contig from insertion; locus from lookup table
                 if contig == locus:
@@ -116,31 +116,32 @@ def map_genes(sample, settings):
                             # 0.0 = 5'end ; 1.0 = 3'end
                             # TODO: Should featureEnd have +1 added?
                             if strand == "+":
-                                threePrimeness = (nucleotide - start) / (end - start)
+                                three_primeness = (nucleotide - start) / (end - start)
                             if strand == "-":
-                                threePrimeness = (end - nucleotide) / (end - start)
+                                three_primeness = (end - nucleotide) / (end - start)
                             mappedHit = (
                                 contig,
                                 nucleotide,
-                                Lcounts,
-                                Rcounts,
-                                totalCounts,
+                                left_counts,
+                                right_counts,
+                                total_counts,
                                 cpm,
-                                threePrimeness,
+                                three_primeness,
                                 locus_tag,
                             )
                             # Checks minimum count and max ratio
-                            if int(totalCounts) >= settings.min_counts and (
-                                min(int(Lcounts), int(Rcounts)) * settings.max_ratio
-                            ) >= max(int(Lcounts), int(Rcounts)):
-                                mappedHitList.append(mappedHit)
+                            if int(total_counts) >= settings.min_counts and (
+                                min(int(left_counts), int(right_counts))
+                                * settings.max_ratio
+                            ) >= max(int(left_counts), int(right_counts)):
+                                mapped_hit_list.append(mappedHit)
                                 # Filter based on location in the gene
-                                if threePrimeness <= settings.disruption:
+                                if three_primeness <= settings.disruption:
                                     # Add to the total for that gene --
-                                    # Single-element list (rather than interger) so
+                                    # Single-element list (rather than integer) so
                                     # that it is subscriptable to add cpm counts
-                                    geneDict.setdefault(locus_tag, [0])[0] += cpm
-                prevFeature = locus_tag
+                                    gene_dict.setdefault(locus_tag, [0])[0] += cpm
+                previous_feature = locus_tag
     # Write individual insertions to *_genes.txt
     with open(genes_file, "w", newline="") as csvfileW:
         headers = (
@@ -153,12 +154,12 @@ def map_genes(sample, settings):
             "three_primeness",
             "locus_tag",
         )
-        mappedGeneWriter = csv.writer(csvfileW, delimiter="\t")
-        mappedGeneWriter.writerow(headers)
-        for hit in mappedHitList:
-            mappedGeneWriter.writerow(hit)
+        mapped_gene_writer = csv.writer(csvfileW, delimiter="\t")
+        mapped_gene_writer.writerow(headers)
+        for hit in mapped_hit_list:
+            mapped_gene_writer.writerow(hit)
     # Return aggregated insertions by gene (filtered on 5'-3' threshold)
-    return geneDict
+    return gene_dict
 
 
 def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
@@ -168,7 +169,7 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
     """
 
     # TODO(Bring back in the header row in the future. Use it here; ignore it for previous steps)
-    gene_table = fttLookup(organism, experiment)
+    gene_table = ftt_lookup(organism, experiment)
 
     # Header will be extended in the future to
     # list the experiment and barcode of each sample of interest
@@ -193,35 +194,34 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
     # mappedHitList = mapToGene(organism, experiment)
 
     # current column, sample being matched
-    currentColumn = len(gene_table[0]) - 1
-    currentSample = ""
+    current_column = len(gene_table[0]) - 1
 
-    for sampleName in sample_dict:
+    for sample in sample_dict:
         # Add the new sample name as a new column the table
-        currentColumn += 1
-        gene_table[0].append(sampleName)
+        current_column += 1
+        gene_table[0].append(sample)
         # Fill the rest of the new column with 0 as the count for each gene
         for row in gene_table[1:]:
             row.append(0)
         # add the sample's results to the building gene_table
-        mapped_genes = gene_mappings[sampleName]
+        mapped_genes = gene_mappings[sample]
         # mapped_genes = gene_mappings.get(sampleName)
         # TODO(simplify this:)
         # for each row in the table, *try* from mapped_genes. Add if found.
         for gene in mapped_genes:
             for i, f in enumerate(gene_table):
-                hitLocusTag = gene
-                fttLocusTag = f[7]
+                hit_locus_tag = gene
+                ftt_locus_tag = f[7]
                 # matches based on locusTag.
                 # In future should I instead create an index field in the .ftt?
-                if hitLocusTag == fttLocusTag:
-                    gene_table[i][currentColumn] += mapped_genes[gene][0]
-        with open("results/{0}/summary_gene_table.txt".format(experiment), "w") as fo:
+                if hit_locus_tag == ftt_locus_tag:
+                    gene_table[i][current_column] += mapped_genes[gene][0]
+        with open(f"results/{experiment}/summary_gene_table.txt", "w") as fo:
             writer = csv.writer(fo, delimiter="\t", dialect="excel")
             writer.writerows(gene_table)
 
 
-def fttLookup(organism, experiment=""):
+def ftt_lookup(organism, experiment=""):
     """Import the ftt file and process as a dictionary of lookup values
        indexed on Synonym (i.e., Locus Tag)
        {'VF_0001': {'locus': 'CP000020', 'start': ...},
@@ -230,9 +230,9 @@ def fttLookup(organism, experiment=""):
 
     # TODO: Error checking when generating the ftt file that locus tags are \
     # unique and complete.
-    fttList = []
+    ftt_list = []
     with open(
-        "results/{0}/genome_lookup/{1}.ftt".format(experiment, organism), newline=""
+        f"results/{experiment}/genome_lookup/{organism}.ftt", newline=""
     ) as csvfile:
         fttreader = csv.reader(csvfile, delimiter="\t")
         for line in fttreader:
@@ -240,21 +240,9 @@ def fttLookup(organism, experiment=""):
             if line[0] != ("Locus"):
                 # Locus, Location_Start, Location_End, Strand, Length, PID,
                 # Gene, Synonym, Code, COG, Product
-                featureData = [
-                    line[0],
-                    line[1],
-                    line[2],
-                    line[3],
-                    line[4],
-                    line[5],
-                    line[6],
-                    line[7],
-                    line[8],
-                    line[9],
-                    line[10],
-                ]
-                fttList.append(featureData)
-    return fttList
+                featureData = line[0:11]
+                ftt_list.append(featureData)
+    return ftt_list
 
 
 def main():

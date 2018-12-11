@@ -34,24 +34,24 @@ def create_experiment_directories(settings):
     experiment = convert_to_filename(settings.experiment)
 
     # ERROR MESSAGES
-    errorDirectoryExists = (
+    error_directory_exists = (
         "PyINSeq Error: The directory already exists for experiment {0}\n"
-        "Delete or rename the {0} directory, or provide a new experiment\n"
-        "name for the current analysis".format(experiment)
+        f"Delete or rename the {experiment} directory, or provide a new experiment\n"
+        "name for the current analysis"
     )
 
     # Create path or exit with error if it exists.
     try:
         if settings.process_reads:
-            os.makedirs("results/{}/raw_data/".format(experiment))
-            logger.info("Make directory: results/{}".format(experiment))
-            logger.info("Make directory: results/{}/raw_data/".format(experiment))
+            os.makedirs(f"results/{experiment}/raw_data/")
+            logger.info(f"Make directory: results/{experiment}")
+            logger.info(f"Make directory: results/{experiment}/raw_data/")
         # Only make the genome lookup directory if needed
         if settings.parse_genbank_file:
-            os.makedirs("results/{}/genome_lookup/".format(experiment))
-            logger.info("Make directory: results/{}/genome_lookup/".format(experiment))
+            os.makedirs(f"results/{experiment}/genome_lookup/")
+            logger.info(f"Make directory: results/{experiment}/genome_lookup/")
     except OSError:
-        print(errorDirectoryExists)
+        print(error_directory_exists)
         exit(1)
 
 

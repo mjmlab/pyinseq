@@ -35,13 +35,13 @@ import sys
 logger = logging.getLogger("pyinseq")
 
 
-def gbk2fna(infile, organism, outputdirectory=""):
+def gbk2fna(infile, organism, output_directory=""):
     """Convert genbank format to fna format."""
     with open(infile, "r") as fi:
-        outfile = "{0}{1}.fna".format(outputdirectory, organism)
-        print("  Nucleotide file output file: {}".format(outfile))
-        if not os.path.exists("{0}".format(outputdirectory)):
-            print("Error: {0} directory was not created.".format(outputdirectory))
+        outfile = f"{output_directory}{organism}.fna"
+        print(f"  Nucleotide file output file: {outfile}")
+        if not os.path.exists(f"{output_directory}"):
+            print(f"Error: {output_directory} directory was not created.")
             exit(1)
         with open(outfile, "w") as fo:
             dna_seq = False  # in the DNA sequence of the file
@@ -54,14 +54,14 @@ def gbk2fna(infile, organism, outputdirectory=""):
                     # Locus (replicon) as header
                     if parts[0] == "LOCUS":
                         locus = parts[1]
-                        fo.write(">{}\n".format(locus))
+                        fo.write(f">{locus}\n")
 
                     # DNA Sequence
                     if parts[0] == "//":
                         dna_seq = False
                     if dna_seq:
                         sequence = "".join(n for n in line.strip() if n.isalpha())
-                        fo.write("{0}\n".format(sequence))
+                        fo.write(f"{sequence}\n")
                     if parts[0] == "ORIGIN":
                         dna_seq = True
 
@@ -69,8 +69,8 @@ def gbk2fna(infile, organism, outputdirectory=""):
 def gbk2ftt(infile, organism, outputdirectory=""):
     """Convert genbank format to ptt-like ftt format."""
     with open(infile, "r") as fi:
-        outfile = "{0}{1}.ftt".format(outputdirectory, organism)
-        print("  Feature table output file: {}".format(outfile))
+        outfile = f"{outputdirectory}{organism}.ftt"
+        print(f"  Feature table output file: {outfile}")
         with open(outfile, "w") as fo:
             writer = csv.writer(fo, delimiter="\t", dialect="excel")
             header = (
@@ -157,16 +157,14 @@ def gbk2ftt(infile, organism, outputdirectory=""):
                             first = location.group(1)
                             last = location.group(2)
                             try:
-                                location_raw = "{0}..{1}".format(first, last)
+                                location_raw = f"{first}..{last}"
                                 length = int(last) - int(first) + 1
                             except AttributeError:
-                                errorComplexFeature = (
-                                    "PyINSeq Error: Complex feature coordinates at or near {0} "
-                                    "in GenBank file. Additional attention required.".format(
-                                        locus_tag
-                                    )
+                                error_complex_feature = (
+                                    f"PyINSeq Error: Complex feature coordinates at or near {locus_tag} "
+                                    "in GenBank file. Additional attention required."
                                 )
-                                print(errorComplexFeature)
+                                print(error_complex_feature)
                                 exit(0)
                             strand = "-" if parts[1].startswith("complement") else "+"
 

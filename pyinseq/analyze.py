@@ -3,19 +3,16 @@
 Analyzes resulting output
 """
 
-from collections import OrderedDict
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-import yaml
 
 
 def read_sites_file(sample, settings):
     return pd.read_csv(settings.path + sample + "_sites.txt", sep="\t")
 
 
-def nfifty(sample, settings):
+def n_fifty(sample, settings):
     """N50: number of insertions that account for >=50% of counts"""
     # calculate sum of counts in d
     df = read_sites_file(sample, settings)
@@ -36,8 +33,7 @@ def plot_insertions(sample, settings):
             title=str(i),
         )
         plt.savefig(
-            settings.path + "insertions_scatter_{0}_{1}.pdf".format(sample, str(i)),
-            format="pdf",
+            settings.path + f"insertions_scatter_{sample}_{str(i)}.pdf", format="pdf"
         )
 
 
@@ -59,7 +55,7 @@ def pearson_correlation():
 
 def main():
     """Start here."""
-    samples = "results/{}/samples.yml".format("example02")
+    samples = f"results/{'example02'}/samples.yml"
     with open(samples, "r") as f:
         organize_samples(f)
 

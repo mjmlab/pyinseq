@@ -9,8 +9,8 @@ import sys
 # This sequence is filtered from the reads prior to mapping
 # Mariner transposons inserts at TA dinucleotides; do not include the corresponding
 # TA from the tranpsoson here
-transposonLeft = "ACAGGTTG"
-transposonRight = "ACAGGTTG"
+transposon_left = "ACAGGTTG"
+transposon_right = "ACAGGTTG"
 
 # Bowtie package selected (linux/mac/windows) based on operating system detected
 platform = sys.platform.lower()
@@ -30,4 +30,4 @@ elif platform.startswith("win"):
 bowtie = os.path.join(packages_folder, default_version, "bowtie")
 
 # PATH TO BOWTIE-BUILD (appends '-build' on the path above)
-bowtieBuild = "{bowtiepath}-build".format(bowtiepath=bowtie)
+bowtieBuild = f"{bowtie}-build"
