@@ -6,20 +6,12 @@ import csv
 import glob
 import logging
 import os
-import numpy as np
-import pandas as pd
-import re
-import screed
-import subprocess
-import sys
 import yaml
-from shutil import copyfile
-from collections import OrderedDict
-from .analyze import read_sites_file, nfifty, plot_insertions
-from .demultiplex import demultiplex_fastq, write_reads
-from .gbkconvert import gbk2fna, gbk2ftt
-from .mapReads import bowtie_build, bowtie_map, parse_bowtie
-from .processMapping import map_sites, map_genes, build_gene_table
+from .analyze import n_fifty
+from .demultiplex import demultiplex_fastq
+from .gbk_convert import gbk2fna, gbk2ftt
+from .map_reads import bowtie_build, bowtie_map, parse_bowtie
+from .process_mapping import map_sites, map_genes, build_gene_table
 from .utils import (
     convert_to_filename,
     create_experiment_directories,
@@ -30,7 +22,7 @@ logger = logging.getLogger("pyinseq")
 logger.setLevel(logging.INFO)
 
 
-def parseArgs(args):
+def parse_args(args):
     """Parse command line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -77,14 +69,14 @@ def parseArgs(args):
                         help='compress (gzip) demultiplexed samples',
                         action='store_true',
                         default=False)
-    parser.add_argument('--keepall',
+    parser.add_argument('--keep_all',
                         help='keep all intermediate files generated',
                         action='store_true',
                         default=False)"""
     return parser.parse_args(args)
 
 
-def demultiplex_parseArgs(args):
+def demultiplex_parse_args(args):
     """Parse command line arguments for `pyinseq demultiplex`."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -108,7 +100,7 @@ def demultiplex_parseArgs(args):
     return parser.parse_args(args)
 
 
-def genomeprep_parseArgs(args):
+def genomeprep_parse_args(args):
     """Parse command line arguments for `pyinseq genomeprep`."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -135,12 +127,12 @@ def genomeprep_parseArgs(args):
 class cd:
     """Context manager to change to the specified directory then back."""
 
-    def __init__(self, newPath):
-        self.newPath = os.path.expanduser(newPath)
+    def __init__(self, new_path):
+        self.new_path = os.path.expanduser(new_path)
 
     def __enter__(self):
         self.savedPath = os.getcwd()
-        os.chdir(self.newPath)
+        os.chdir(self.new_path)
 
     def __exit__(self, etype, value, traceback):
         os.chdir(self.savedPath)
@@ -153,7 +145,7 @@ class Settings:
         # command options are: ['pyinseq', 'demultiplex']
         self.command = "pyinseq"
         self.experiment = convert_to_filename(experiment_name)
-        self.path = "results/{}/".format(self.experiment)
+        self.path = f"results/{self.experiment}/"
         self.parse_genbank_file = True
         self.genome_path = self.path + "genome_lookup/"
         # organism reference files called 'genome.fna' etc
@@ -169,7 +161,7 @@ class Settings:
         self.min_counts = 3  # counts at one transposon site for it to qualify
         self.max_ratio = 10  # max ratio of left/right sites for it to qualify
         # may be modified
-        self.keepall = False
+        self.keep_all = False
         self.barcode_length = 4
         self.disruption = 1
 
@@ -193,8 +185,8 @@ class Settings:
 def set_paths(experiment_name):
     """Set up relative paths for subdirectories."""
     experiment = convert_to_filename(experiment_name)
-    samples_yaml = "results/{}/samples.yml".format(experiment)
-    summary_log = "results/{}/log.txt".format(experiment)
+    samples_yaml = f"results/{experiment}/samples.yml"
+    summary_log = f"results/{experiment}/log.txt"
     path = {
         "experiment": experiment,
         "samples_yaml": samples_yaml,
@@ -207,9 +199,7 @@ def set_disruption(d, setting):
     """Check that gene disruption is 0.0 to 1.0; otherwise set to 1.0."""
     if d < 0.0 or d > 1.0:
         logger.error(
-            "Disruption value provided ({0}) is not in range 0.0 to 1.0; proceeding with default value of 1.0".format(
-                d
-            )
+            f"Disruption value provided ({d}) is not in range 0.0 to 1.0; proceeding with default value of 1.0"
         )
         d = 1.0
 
@@ -221,18 +211,14 @@ def set_gene_parameters(min_count, max_ratio, setting):
     """Check that min_count and max_ratio are positive, otherwise set default."""
     if min_count < 0:
         logger.error(
-            "Min_count value provided ({0}) is not positive; proceeding with default value of 3".format(
-                min_count
-            )
+            f"Min_count value provided ({min_count}) is not positive; proceeding with default value of 3"
         )
     else:
         setting.min_counts = min_count
 
     if max_ratio < 0:
         logger.error(
-            "Max_ratio value provided ({0}) is not positive; proceeding with default value of 10".format(
-                max_ratio
-            )
+            f"Max_ratio value provided ({max_ratio}) is not positive; proceeding with default value of 10"
         )
     else:
         setting.max_ratio = max_ratio
@@ -241,125 +227,121 @@ def set_gene_parameters(min_count, max_ratio, setting):
 
 def tab_delimited_samples_to_dict(sample_file):
     """Read sample names, barcodes from tab-delimited into an OrderedDict."""
-    samplesDict = OrderedDict()
-    with open(sample_file, "r", newline="") as csvfile:
-        for line in csv.reader(csvfile, delimiter="\t"):
+    samples_dict = {}
+    with open(sample_file, "r", newline="") as csv_file:
+        for line in csv.reader(csv_file, delimiter="\t"):
             # ignore comment lines in original file
             if not line[0].startswith("#"):
                 # sample > filename-acceptable string
                 # barcode > uppercase
                 sample = convert_to_filename(line[0])
                 barcode = line[1].upper()
-                if sample not in samplesDict and barcode not in samplesDict.values():
-                    samplesDict[sample] = {"barcode": barcode}
+                if sample not in samples_dict and barcode not in samples_dict.values():
+                    samples_dict[sample] = {"barcode": barcode}
                 else:
-                    raise IOError(
-                        "Error: duplicate sample {0} barcode {1}".format(
-                            sample, barcode
-                        )
-                    )
-    return samplesDict
+                    raise IOError(f"Error: duplicate sample {sample} barcode {barcode}")
+    return samples_dict
 
 
 def yaml_samples_to_dict(sample_file):
-    """Read sample names, barcodes from yaml into an OrderedDict."""
+    """Read sample names, barcodes from yaml."""
     with open(sample_file, "r") as f:
-        samplesDict = yaml.load(sample_file)
-    return samplesDict
+        samples_dict = yaml.load(sample_file)
+    return samples_dict
 
 
 def directory_of_samples_to_dict(directory):
-    """Read sample names from a directory of .gz files into an OrderedDict."""
-    samplesDict = OrderedDict()
-    for gzfile in list_files(directory):
+    """Read sample names from a directory of .gz files."""
+    samples_dict = {}
+    for gz_file in list_files(directory):
         # TODO(convert internal periods to underscore? use regex?)
         # extract file name before any periods
-        f = os.path.splitext(os.path.basename(gzfile))[0].split(".")[0]
-        samplesDict[f] = {}
-    return samplesDict
+        f = os.path.splitext(os.path.basename(gz_file))[0].split(".")[0]
+        samples_dict[f] = {}
+    return samples_dict
 
 
 def list_files(folder, ext="gz"):
     """Return list of .gz files from the specified folder."""
     with cd(folder):
-        return [f for f in glob.glob("*.{}".format(ext))]
+        return [f for f in glob.glob(f"*.{ext}")]
 
 
-def build_fna_and_ftt_files(gbkfile, settings):
+def build_fna_and_ftt_files(gbk_file, settings):
     """Convert GenBank file to a fasta nucleotide and feature table files."""
-    gbk2fna(gbkfile, settings.organism, settings.genome_path)
-    gbk2ftt(gbkfile, settings.organism, settings.genome_path)
+    gbk2fna(gbk_file, settings.organism, settings.genome_path)
+    gbk2ftt(gbk_file, settings.organism, settings.genome_path)
 
 
 def build_bowtie_index(settings):
     """Change directory, build bowtie indexes, and change directory back."""
     with cd(settings.genome_path):
         logger.info(
-            "Building bowtie index files in results/{}/genome_lookup".format(
-                settings.experiment
-            )
+            f"Building bowtie index files in results/{settings.experiment}/genome_lookup"
         )
         bowtie_build(settings.organism)
 
 
-def pipeline_mapping(settings, samplesDict):
+def pipeline_mapping(settings, samples_dict):
     """Aggregate bowtie output, map to genes in the feature table, and aggregate samples."""
     # Dictionary of each sample's cpm by gene
-    geneMappings = {}
+    gene_mappings = {}
     mapping_data = {}
-    for sample in samplesDict:
+    for sample in samples_dict:
         with cd(settings.genome_path):
             # Paths are relative to the genome_lookup directory
             # from where bowtie is called
             bowtie_in = "../" + sample + "_trimmed.fastq"
             bowtie_out = "../" + sample + "_bowtie.txt"
             # map to bowtie and produce the output file
-            logger.info("Sample {}: map reads with bowtie".format(sample))
+            logger.info(f"Sample {sample}: map reads with bowtie")
             bowtie_msg_out = bowtie_map(settings.organism, bowtie_in, bowtie_out)
             logger.info(bowtie_msg_out)
             # store bowtie data for each sample in dictionary
             mapping_data[sample] = {"bowtie_results": [], "insertion_sites": []}
             mapping_data[sample]["bowtie_results"] = parse_bowtie(bowtie_msg_out)
         # Map each bowtie result to the chromosome
-        logger.info(
-            "Sample {}: summarize the site data from the bowtie results".format(sample)
-        )
-        insertions = len(map_sites(sample, samplesDict, settings))
+        logger.info(f"Sample {sample}: summarize the site data from the bowtie results")
+        insertions = len(map_sites(sample, samples_dict, settings))
         mapping_data[sample]["insertion_sites"] = insertions
         # Add gene-level results for the sample to geneMappings
         # Filtered on gene fraction disrupted as specified by -d flag
-        logger.info("Sample {}: map site data to genes".format(sample))
-        geneMappings[sample] = map_genes(sample, settings)
-        # if not settings.keepall:
+        logger.info(f"Sample {sample}: map site data to genes")
+        gene_mappings[sample] = map_genes(sample, settings)
+        # if not settings.keep_all:
         #    # Delete trimmed fastq file, bowtie mapping file after writing mapping results
-        #    os.remove(s['trimmedPath'])
-        #    os.remove('results/{0}/{1}'.format(Settings.experiment, bowtieOutputFile))
-        nfifty_result = nfifty(sample, settings)
-        logger.info("N50 result for {}: {}".format(sample, nfifty_result))
+        #    os.remove(s["trimmedPath"])
+        #    os.remove("results/{Settings.experiment}/{bowtieOutputFile}"
+        n_fifty_result = n_fifty(sample, settings)
+        logger.info(f"N50 result for {sample}: {n_fifty_result}")
     logger.info("Aggregate gene mapping from all samples into the summary_data_table")
-    build_gene_table(settings.organism, samplesDict, geneMappings, settings.experiment)
+    build_gene_table(
+        settings.organism, samples_dict, gene_mappings, settings.experiment
+    )
 
 
-def pipeline_summarize(samplesDict, settings, typed_command_after_pyinseq):
+def pipeline_summarize(samples_dict, settings, typed_command_after_pyinseq):
     """Summary of INSeq run."""
-    logger.info("Print samples info: {}".format(settings.samples_yaml))
+    logger.info(f"Print samples info: {settings.samples_yaml}")
     with open(settings.samples_yaml, "w") as fo:
-        fo.write(yaml.dump(samplesDict, default_flow_style=False))
+        fo.write(yaml.dump(samples_dict, default_flow_style=False))
 
     # write summary log with more data
-    logger.info("Print summary log: {}".format(settings.summary_log))
+    logger.info(f"Print summary log: {settings.summary_log}")
     logger.info(
         "Print command entered" + "\npyinseq " + " ".join(typed_command_after_pyinseq)
     )
     logger.info("Print settings" + "\n" + str(settings))
     logger.info(
-        "Print samples detail" + "\n" + yaml.dump(samplesDict, default_flow_style=False)
+        "Print samples detail"
+        + "\n"
+        + yaml.dump(samples_dict, default_flow_style=False)
     )
 
 
-# def pipeline_analysis(samplesDict, settings):
+# def pipeline_analysis(samples_dict, settings):
 #    """Analysis of output."""
-#    for sample in samplesDict:
+#    for sample in samples_dict:
 #        print('N50', sample, nfifty(sample, settings))
 #        # plot_insertions(sample, settings)
 
@@ -376,13 +358,13 @@ def main(args):
     # pyinseq demultiplex
     if args[0] == "demultiplex":
         command = "demultiplex"
-        args = demultiplex_parseArgs(args[1:])
+        args = demultiplex_parse_args(args[1:])
     elif args[0] == "genomeprep":
         command = "genomeprep"
-        args = genomeprep_parseArgs(args[1:])
+        args = genomeprep_parse_args(args[1:])
     else:
         command = "pyinseq"
-        args = parseArgs(args)
+        args = parse_args(args)
     # Initialize the settings object
     settings = Settings(args.experiment)
     settings.set_command_specific_settings(command)
@@ -399,11 +381,11 @@ def main(args):
     except:
         pass
     # Keep intermediate files
-    settings.keepall = False  # args.keepall
+    settings.keep_all = False  # args.keep_all
     if settings.process_reads:
         reads = args.input
     if settings.parse_genbank_file:
-        gbkfile = args.genome
+        gbk_file = args.genome
         if settings.process_reads:
             set_disruption(float(args.disruption), settings)
             set_gene_parameters(int(args.min_count), int(args.max_ratio), settings)
@@ -412,12 +394,12 @@ def main(args):
         samples = args.samples
         # barcodes_present = not args.nobarcodes
         if samples:
-            samplesDict = tab_delimited_samples_to_dict(samples)
+            samples_dict = tab_delimited_samples_to_dict(samples)
         else:
             reads = os.path.abspath(reads)
-            samplesDict = directory_of_samples_to_dict(samples)
+            samples_dict = directory_of_samples_to_dict(samples)
     try:
-        logger.debug("samplesDict: {0}".format(samplesDict))
+        logger.debug(f"samples_dict: {samples_dict}")
     except (UnboundLocalError):
         pass
 
@@ -437,31 +419,31 @@ def main(args):
     # --- WRITE DEMULTIPLEXED AND TRIMMED FASTQ FILES --- #
     if settings.process_reads:
         logger.info("Demultiplex reads")
-        demultiplex_fastq(reads, samplesDict, settings)
+        demultiplex_fastq(reads, samples_dict, settings)
 
     # --- MAPPING TO SITES AND GENES --- #
     if settings.parse_genbank_file:
         logger.info("Prepare genome features (.ftt) and fasta nucleotide (.fna) files")
-        build_fna_and_ftt_files(gbkfile, settings)
+        build_fna_and_ftt_files(gbk_file, settings)
     if settings.generate_bowtie_index:
         logger.info("Prepare bowtie index")
         build_bowtie_index(settings)
     if settings.map_to_genome:
         logger.info("Map with bowtie")
-        pipeline_mapping(settings, samplesDict)
+        pipeline_mapping(settings, samples_dict)
 
     # if not samples:
     #    Settings.summaryDict['total reads'] = 0
-    #    for sample in Settings.samplesDict:
-    #        print(Settings.samplesDict[sample])
-    #        Settings.summaryDict['total reads'] += Settings.samplesDict[sample]['reads_with_bc']
+    #    for sample in Settings.samples_dict:
+    #        print(Settings.samples_dict[sample])
+    #        Settings.summaryDict['total reads'] += Settings.samples_dict[sample]['reads_with_bc']
 
     # --- SUMMARY OF RESULTS --- #
     if settings.command in ["pyinseq"]:
-        pipeline_summarize(samplesDict, settings, typed_command_after_pyinseq)
+        pipeline_summarize(samples_dict, settings, typed_command_after_pyinseq)
 
     # --- CONFIRM COMPLETION --- #
-    logger.info("***** {} complete! *****".format(settings.command))
+    logger.info(f"***** {settings.command} complete! *****")
 
 
 if __name__ == "__main__":
