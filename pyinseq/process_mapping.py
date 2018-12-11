@@ -11,28 +11,30 @@ def map_sites(sample, samples_dict, settings):
     """Map insertions to nucleotide sites."""
     # Placeholder for dictionary of mapped reads in format:
     # {(contig, position) : [left_counts, right_counts]}
-    mapDict = {}
-    # overallTotal = denominator for cpm calculation
-    overallTotal = 0
+    map_dict = {}
+    # overall_total = denominator for cpm calculation
+    overall_total = 0
     cpm = 0
     bowtie_file = settings.path + sample + "_bowtie.txt"
     sites_file = settings.path + sample + "_sites.txt"
     with open(bowtie_file, "r") as fi:
         for line in fi:
-            bowtiedata = line.rstrip().split("\t")
+            bowtie_data = line.rstrip().split("\t")
             # Calculate transposon insertion point = transposonNT
-            contig, insertionNT, readLength = (
-                str(bowtiedata[2]),
-                int(bowtiedata[3]),
-                len(bowtiedata[4]),
+            contig, insertion_NT, read_length = (
+                str(bowtie_data[2]),
+                int(bowtie_data[3]),
+                len(bowtie_data[4]),
             )
-            if bowtiedata[1] == "+":  # positive strand read
-                insertionNt = insertionNT + readLength - 1
-                mapDict.setdefault((contig, insertionNt), [0, 0])[0] += 1  # Lcount
+            if bowtie_data[1] == "+":  # positive strand read
+                insertion_NT = insertion_NT + read_length - 1
+                map_dict.setdefault((contig, insertion_NT), [0, 0])[
+                    0] += 1  # Lcount
             else:  # negative strand read
-                insertionNt = insertionNT + 1
-                mapDict.setdefault((contig, insertionNt), [0, 0])[1] += 1  # Rcount
-            overallTotal += 1
+                insertion_NT = insertion_NT + 1
+                map_dict.setdefault((contig, insertion_NT), [0, 0])[
+                    1] += 1  # Rcount
+            overall_total += 1
     # write tab-delimited of contig/nucleotide/left_counts/right_counts/total_counts/cpm
     # use the index totalCounts as the denominator for cpm calculation
     with open(sites_file, "a") as fo:
@@ -46,11 +48,11 @@ def map_sites(sample, samples_dict, settings):
             "cpm",
         )
         writer.writerow(header_entry)
-        for insertion in sorted(mapDict):
-            left_counts = mapDict[insertion][0]
-            right_counts = mapDict[insertion][1]
-            total_counts = mapDict[insertion][0] + mapDict[insertion][1]
-            cpm = float(1e6) * total_counts / overallTotal
+        for insertion in sorted(map_dict):
+            left_counts = map_dict[insertion][0]
+            right_counts = map_dict[insertion][1]
+            total_counts = map_dict[insertion][0] + map_dict[insertion][1]
+            cpm = float(1e6) * total_counts / overall_total
             row_entry = (
                 insertion[0],
                 insertion[1],
@@ -60,7 +62,7 @@ def map_sites(sample, samples_dict, settings):
                 cpm,
             )
             writer.writerow(row_entry)
-    return mapDict
+    return map_dict
 
 
 def map_genes(sample, settings):
@@ -116,9 +118,11 @@ def map_genes(sample, settings):
                             # 0.0 = 5'end ; 1.0 = 3'end
                             # TODO: Should featureEnd have +1 added?
                             if strand == "+":
-                                three_primeness = (nucleotide - start) / (end - start)
+                                three_primeness = (
+                                    nucleotide - start) / (end - start)
                             if strand == "-":
-                                three_primeness = (end - nucleotide) / (end - start)
+                                three_primeness = (
+                                    end - nucleotide) / (end - start)
                             mappedHit = (
                                 contig,
                                 nucleotide,
@@ -140,7 +144,8 @@ def map_genes(sample, settings):
                                     # Add to the total for that gene --
                                     # Single-element list (rather than integer) so
                                     # that it is subscriptable to add cpm counts
-                                    gene_dict.setdefault(locus_tag, [0])[0] += cpm
+                                    gene_dict.setdefault(locus_tag, [0])[
+                                        0] += cpm
                 previous_feature = locus_tag
     # Write individual insertions to *_genes.txt
     with open(genes_file, "w", newline="") as csvfileW:
@@ -233,15 +238,15 @@ def ftt_lookup(organism, experiment=""):
     ftt_list = []
     with open(
         f"results/{experiment}/genome_lookup/{organism}.ftt", newline=""
-    ) as csvfile:
-        fttreader = csv.reader(csvfile, delimiter="\t")
-        for line in fttreader:
+    ) as csv_file:
+        ftt_reader = csv.reader(csv_file, delimiter="\t")
+        for line in ftt_reader:
             # ignore header row
             if line[0] != ("Locus"):
                 # Locus, Location_Start, Location_End, Strand, Length, PID,
                 # Gene, Synonym, Code, COG, Product
-                featureData = line[0:11]
-                ftt_list.append(featureData)
+                feature_data = line[0:11]
+                ftt_list.append(feature_data)
     return ftt_list
 
 

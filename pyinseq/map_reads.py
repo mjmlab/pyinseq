@@ -32,10 +32,10 @@ def bowtie_map(organism, reads, bowtie_output):
     return bowtie_msg_out
 
 
-def parse_bowtie(bowtieMessage):
+def parse_bowtie(bowtie_message):
     """Parse bowtie results into a dictionary."""
     bowtie_msg_dict = {}
-    for line in bowtieMessage.split("\n"):
+    for line in bowtie_message.split("\n"):
         # extract counts from bowtie printing
         m = re.search("^(\#.+:) (\d+)", line)
         try:
