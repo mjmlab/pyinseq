@@ -64,7 +64,8 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
                 write_reads(demultiplex_dict, samples_dict, settings)
                 # Write trimmed reads only when needed
                 if settings.write_trimmed_reads:
-                    write_trimmed_reads(demultiplex_dict, samples_dict, settings)
+                    write_trimmed_reads(
+                        demultiplex_dict, samples_dict, settings)
                 # Clear the dictionary after writing to file
                 for sample_name in demultiplex_dict:
                     demultiplex_dict[sample_name] = []
@@ -88,7 +89,8 @@ def write_reads(demultiplex_dict, samples_dict, settings):
                 f"{settings.path}raw_data/{barcode_dict[barcode]}.fastq", "a"
             ) as fo:
                 for read in demultiplex_dict[barcode]:
-                    fo.write(f"@{read.name}\n{read.sequence}\n+\n{read.quality}\n")
+                    fo.write(
+                        f"@{read.name}\n{read.sequence}\n+\n{read.quality}\n")
 
 
 def write_trimmed_reads(demultiplex_dict, samples_dict, settings):

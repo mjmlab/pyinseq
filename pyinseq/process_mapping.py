@@ -28,10 +28,12 @@ def map_sites(sample, samples_dict, settings):
             )
             if bowtie_data[1] == "+":  # positive strand read
                 insertion_NT = insertion_NT + read_length - 1
-                map_dict.setdefault((contig, insertion_NT), [0, 0])[0] += 1  # Lcount
+                map_dict.setdefault((contig, insertion_NT), [0, 0])[
+                    0] += 1  # Lcount
             else:  # negative strand read
                 insertion_NT = insertion_NT + 1
-                map_dict.setdefault((contig, insertion_NT), [0, 0])[1] += 1  # Rcount
+                map_dict.setdefault((contig, insertion_NT), [0, 0])[
+                    1] += 1  # Rcount
             overall_total += 1
     # write tab-delimited of contig/nucleotide/left_counts/right_counts/total_counts/cpm
     # use the index totalCounts as the denominator for cpm calculation
@@ -116,9 +118,11 @@ def map_genes(sample, settings):
                             # 0.0 = 5'end ; 1.0 = 3'end
                             # TODO: Should featureEnd have +1 added?
                             if strand == "+":
-                                three_primeness = (nucleotide - start) / (end - start)
+                                three_primeness = (
+                                    nucleotide - start) / (end - start)
                             if strand == "-":
-                                three_primeness = (end - nucleotide) / (end - start)
+                                three_primeness = (
+                                    end - nucleotide) / (end - start)
                             mappedHit = (
                                 contig,
                                 nucleotide,
@@ -140,7 +144,8 @@ def map_genes(sample, settings):
                                     # Add to the total for that gene --
                                     # Single-element list (rather than integer) so
                                     # that it is subscriptable to add cpm counts
-                                    gene_dict.setdefault(locus_tag, [0])[0] += cpm
+                                    gene_dict.setdefault(locus_tag, [0])[
+                                        0] += cpm
                 previous_feature = locus_tag
     # Write individual insertions to *_genes.txt
     with open(genes_file, "w", newline="") as csvfileW:

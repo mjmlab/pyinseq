@@ -60,7 +60,8 @@ def gbk2fna(infile, organism, output_directory=""):
                     if parts[0] == "//":
                         dna_seq = False
                     if dna_seq:
-                        sequence = "".join(n for n in line.strip() if n.isalpha())
+                        sequence = "".join(
+                            n for n in line.strip() if n.isalpha())
                         fo.write(f"{sequence}\n")
                     if parts[0] == "ORIGIN":
                         dna_seq = True
@@ -153,7 +154,8 @@ def gbk2ftt(infile, organism, output_directory=""):
                             #    (> / <) are removed.
                             # 2. Complicated features use only the outer bounds
                             #    join(481257..481331,481333..482355) uses 481257..482355
-                            location = re.search(r"(\d+)\.+.*\.(\d+)", parts[1])
+                            location = re.search(
+                                r"(\d+)\.+.*\.(\d+)", parts[1])
                             first = location.group(1)
                             last = location.group(2)
                             try:
@@ -166,7 +168,8 @@ def gbk2ftt(infile, organism, output_directory=""):
                                 )
                                 print(error_complex_feature)
                                 exit(0)
-                            strand = "-" if parts[1].startswith("complement") else "+"
+                            strand = "-" if parts[1].startswith(
+                                "complement") else "+"
 
                         if "/protein_id=" in parts[0]:
                             protein_id = parts[0][13:-1]
