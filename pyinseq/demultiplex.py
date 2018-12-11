@@ -19,8 +19,8 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
 
        Use regex to identify the chromosome slice and save this in the read
        record as 'trim', e.g., read['trim'] = (4, 21)
-       Save raw reads into '{experiment}/raw_data/{sampleName}.fastq'
-       Save trimmed reads into '{experiment}/{sampleName}_trimmed.fastq'
+       Save raw reads into '{experiment}/raw_data/{sample_name}.fastq'
+       Save trimmed reads into '{experiment}/{sample_name}_trimmed.fastq'
     """
     # Dictionary of lists to hold FASTQ reads until they are written to files
     # Keys are barcodes
@@ -45,8 +45,8 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     """,
         re.VERBOSE,
     )
-    with screed.open(reads) as seqfile:
-        for read in seqfile:
+    with screed.open(reads) as seq_file:
+        for read in seq_file:
             m = re.search(pattern, read.sequence)
             try:
                 barcode, chrom_seq = m.group(1), m.group(2)
@@ -66,8 +66,8 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
                 if settings.write_trimmed_reads:
                     write_trimmed_reads(demultiplex_dict, samples_dict, settings)
                 # Clear the dictionary after writing to file
-                for sampleName in demultiplex_dict:
-                    demultiplex_dict[sampleName] = []
+                for sample_name in demultiplex_dict:
+                    demultiplex_dict[sample_name] = []
     write_reads(demultiplex_dict, samples_dict, settings)
     # Write trimmed reads only when needed
     if settings.write_trimmed_reads:

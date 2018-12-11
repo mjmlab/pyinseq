@@ -38,12 +38,12 @@ logger = logging.getLogger("pyinseq")
 def gbk2fna(infile, organism, output_directory=""):
     """Convert genbank format to fna format."""
     with open(infile, "r") as fi:
-        outfile = f"{output_directory}{organism}.fna"
-        print(f"  Nucleotide file output file: {outfile}")
+        out_file = f"{output_directory}{organism}.fna"
+        print(f"  Nucleotide file output file: {out_file}")
         if not os.path.exists(f"{output_directory}"):
             print(f"Error: {output_directory} directory was not created.")
             exit(1)
-        with open(outfile, "w") as fo:
+        with open(out_file, "w") as fo:
             dna_seq = False  # in the DNA sequence of the file
             for i, line in enumerate(fi):
 
@@ -66,12 +66,12 @@ def gbk2fna(infile, organism, output_directory=""):
                         dna_seq = True
 
 
-def gbk2ftt(infile, organism, outputdirectory=""):
+def gbk2ftt(infile, organism, output_directory=""):
     """Convert genbank format to ptt-like ftt format."""
     with open(infile, "r") as fi:
-        outfile = f"{outputdirectory}{organism}.ftt"
-        print(f"  Feature table output file: {outfile}")
-        with open(outfile, "w") as fo:
+        out_file = f"{output_directory}{organism}.ftt"
+        print(f"  Feature table output file: {out_file}")
+        with open(out_file, "w") as fo:
             writer = csv.writer(fo, delimiter="\t", dialect="excel")
             header = (
                 "Locus",
@@ -202,10 +202,10 @@ def gbk2ftt(infile, organism, outputdirectory=""):
 
 def main():
     """Start here."""
-    inputfile = sys.argv[1]
+    input_file = sys.argv[1]
     organism = sys.argv[2]
     # gbk2fna(inputfile, organism)
-    gbk2ftt(inputfile, organism)
+    gbk2ftt(input_file, organism)
 
 
 if __name__ == "__main__":

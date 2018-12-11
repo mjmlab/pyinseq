@@ -69,7 +69,7 @@ def parse_args(args):
                         help='compress (gzip) demultiplexed samples',
                         action='store_true',
                         default=False)
-    parser.add_argument('--keepall',
+    parser.add_argument('--keep_all',
                         help='keep all intermediate files generated',
                         action='store_true',
                         default=False)"""
@@ -127,12 +127,12 @@ def genomeprep_parse_args(args):
 class cd:
     """Context manager to change to the specified directory then back."""
 
-    def __init__(self, newPath):
-        self.newPath = os.path.expanduser(newPath)
+    def __init__(self, new_path):
+        self.new_path = os.path.expanduser(new_path)
 
     def __enter__(self):
         self.savedPath = os.getcwd()
-        os.chdir(self.newPath)
+        os.chdir(self.new_path)
 
     def __exit__(self, etype, value, traceback):
         os.chdir(self.savedPath)
@@ -161,7 +161,7 @@ class Settings:
         self.min_counts = 3  # counts at one transposon site for it to qualify
         self.max_ratio = 10  # max ratio of left/right sites for it to qualify
         # may be modified
-        self.keepall = False
+        self.keep_all = False
         self.barcode_length = 4
         self.disruption = 1
 
@@ -228,8 +228,8 @@ def set_gene_parameters(min_count, max_ratio, setting):
 def tab_delimited_samples_to_dict(sample_file):
     """Read sample names, barcodes from tab-delimited into an OrderedDict."""
     samples_dict = {}
-    with open(sample_file, "r", newline="") as csvfile:
-        for line in csv.reader(csvfile, delimiter="\t"):
+    with open(sample_file, "r", newline="") as csv_file:
+        for line in csv.reader(csv_file, delimiter="\t"):
             # ignore comment lines in original file
             if not line[0].startswith("#"):
                 # sample > filename-acceptable string
@@ -253,10 +253,10 @@ def yaml_samples_to_dict(sample_file):
 def directory_of_samples_to_dict(directory):
     """Read sample names from a directory of .gz files."""
     samples_dict = {}
-    for gzfile in list_files(directory):
+    for gz_file in list_files(directory):
         # TODO(convert internal periods to underscore? use regex?)
         # extract file name before any periods
-        f = os.path.splitext(os.path.basename(gzfile))[0].split(".")[0]
+        f = os.path.splitext(os.path.basename(gz_file))[0].split(".")[0]
         samples_dict[f] = {}
     return samples_dict
 
@@ -267,10 +267,10 @@ def list_files(folder, ext="gz"):
         return [f for f in glob.glob(f"*.{ext}")]
 
 
-def build_fna_and_ftt_files(gbkfile, settings):
+def build_fna_and_ftt_files(gbk_file, settings):
     """Convert GenBank file to a fasta nucleotide and feature table files."""
-    gbk2fna(gbkfile, settings.organism, settings.genome_path)
-    gbk2ftt(gbkfile, settings.organism, settings.genome_path)
+    gbk2fna(gbk_file, settings.organism, settings.genome_path)
+    gbk2ftt(gbk_file, settings.organism, settings.genome_path)
 
 
 def build_bowtie_index(settings):
@@ -282,12 +282,12 @@ def build_bowtie_index(settings):
         bowtie_build(settings.organism)
 
 
-def pipeline_mapping(settings, samplesDict):
+def pipeline_mapping(settings, samples_dict):
     """Aggregate bowtie output, map to genes in the feature table, and aggregate samples."""
     # Dictionary of each sample's cpm by gene
     gene_mappings = {}
     mapping_data = {}
-    for sample in samplesDict:
+    for sample in samples_dict:
         with cd(settings.genome_path):
             # Paths are relative to the genome_lookup directory
             # from where bowtie is called
@@ -302,20 +302,22 @@ def pipeline_mapping(settings, samplesDict):
             mapping_data[sample]["bowtie_results"] = parse_bowtie(bowtie_msg_out)
         # Map each bowtie result to the chromosome
         logger.info(f"Sample {sample}: summarize the site data from the bowtie results")
-        insertions = len(map_sites(sample, samplesDict, settings))
+        insertions = len(map_sites(sample, samples_dict, settings))
         mapping_data[sample]["insertion_sites"] = insertions
         # Add gene-level results for the sample to geneMappings
         # Filtered on gene fraction disrupted as specified by -d flag
         logger.info(f"Sample {sample}: map site data to genes")
         gene_mappings[sample] = map_genes(sample, settings)
-        # if not settings.keepall:
+        # if not settings.keep_all:
         #    # Delete trimmed fastq file, bowtie mapping file after writing mapping results
         #    os.remove(s["trimmedPath"])
         #    os.remove("results/{Settings.experiment}/{bowtieOutputFile}"
         n_fifty_result = n_fifty(sample, settings)
         logger.info(f"N50 result for {sample}: {n_fifty_result}")
     logger.info("Aggregate gene mapping from all samples into the summary_data_table")
-    build_gene_table(settings.organism, samplesDict, gene_mappings, settings.experiment)
+    build_gene_table(
+        settings.organism, samples_dict, gene_mappings, settings.experiment
+    )
 
 
 def pipeline_summarize(samples_dict, settings, typed_command_after_pyinseq):
@@ -337,9 +339,9 @@ def pipeline_summarize(samples_dict, settings, typed_command_after_pyinseq):
     )
 
 
-# def pipeline_analysis(samplesDict, settings):
+# def pipeline_analysis(samples_dict, settings):
 #    """Analysis of output."""
-#    for sample in samplesDict:
+#    for sample in samples_dict:
 #        print('N50', sample, nfifty(sample, settings))
 #        # plot_insertions(sample, settings)
 
@@ -379,7 +381,7 @@ def main(args):
     except:
         pass
     # Keep intermediate files
-    settings.keepall = False  # args.keepall
+    settings.keep_all = False  # args.keep_all
     if settings.process_reads:
         reads = args.input
     if settings.parse_genbank_file:
@@ -432,9 +434,9 @@ def main(args):
 
     # if not samples:
     #    Settings.summaryDict['total reads'] = 0
-    #    for sample in Settings.samplesDict:
-    #        print(Settings.samplesDict[sample])
-    #        Settings.summaryDict['total reads'] += Settings.samplesDict[sample]['reads_with_bc']
+    #    for sample in Settings.samples_dict:
+    #        print(Settings.samples_dict[sample])
+    #        Settings.summaryDict['total reads'] += Settings.samples_dict[sample]['reads_with_bc']
 
     # --- SUMMARY OF RESULTS --- #
     if settings.command in ["pyinseq"]:
