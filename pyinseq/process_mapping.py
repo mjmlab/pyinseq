@@ -111,6 +111,7 @@ def map_genes(sample, settings):
                 )
                 # contig from insertion; locus from lookup table
                 if contig == locus:
+                    # TODO: simplify nucleotide location match with gene
                     if nucleotide >= start:
                         if nucleotide <= end:
                             # 0.0 = 5'end ; 1.0 = 3'end
