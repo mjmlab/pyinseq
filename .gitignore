@@ -102,14 +102,10 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequestssite/
 
+# Visual Studio IDE 
 \.idea/misc\.xml
-
 \.idea/pyinseq\.iml
-
 \.idea/codeStyles/codeStyleConfig\.xml
-
 \.idea/codeStyles/Project\.xml
-
 \.vscode/settings\.json
 
-pyinseq/third-party/bowtie-1\.1\.1-mac/bowtie-buildc
