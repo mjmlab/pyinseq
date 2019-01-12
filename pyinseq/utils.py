@@ -50,6 +50,8 @@ def create_experiment_directories(settings):
         if settings.parse_genbank_file:
             os.makedirs(f"results/{experiment}/genome_lookup/")
             logger.info(f"Make directory: results/{experiment}/genome_lookup/")
+
+    # TODO: Make analysis directory using path attributes from Settings
     except OSError:
         print(error_directory_exists)
         exit(1)
