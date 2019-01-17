@@ -16,8 +16,10 @@ def read_summary_table(settings: "runner.Settings") -> pd.DataFrame:
 
 
 # TODO: Change to using samples_dict instead of one sample
-def n_fifty(sample: str, settings: "runner.Settings") -> pd.DataFrame:
-    """N50: number of insertions that account for >=50% of counts"""
+def t_fifty(sample: str, settings: "runner.Settings") -> pd.DataFrame:
+    """T50: The minimum number of transposon insertion sites in the sample that 
+            account for at least 50% of the samples's reads.
+    """
     # calculate sum of counts in df
     df = read_sites_file(sample, settings)
     return np.sum(df.total_counts.sort_values().cumsum() > (df.total_counts.sum() / 2))

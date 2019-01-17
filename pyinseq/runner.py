@@ -8,7 +8,7 @@ import logging
 import os
 import yaml
 
-from .analyze import n_fifty, spearman_correlation
+from .analyze import t_fifty, spearman_correlation
 from .demultiplex import demultiplex_fastq
 from .gbk_convert import gbk2fna, gbk2ftt
 from .map_reads import bowtie_build, bowtie_map, parse_bowtie
@@ -316,8 +316,8 @@ def pipeline_mapping(settings, samples_dict):
         #    # Delete trimmed fastq file, bowtie mapping file after writing mapping results
         #    os.remove(s["trimmedPath"])
         #    os.remove("results/{Settings.experiment}/{bowtieOutputFile}"
-        n_fifty_result = n_fifty(sample, settings)
-        logger.info(f"N50 result for {sample}: {n_fifty_result}")
+        t_fifty_result = t_fifty(sample, settings)
+        logger.info(f"T50 result for {sample}: {t_fifty_result}")
     logger.info("Aggregate gene mapping from all samples into the summary_data_table")
     build_gene_table(
         settings.organism, samples_dict, gene_mappings, settings.experiment
@@ -347,12 +347,12 @@ def pipeline_summarize(samples_dict, settings, typed_command_after_pyinseq):
 def pipeline_analysis(samples_dict: dict, settings: Settings) -> None:
     """Analysis of output."""
     # TODO: add looping over samples and function calls from analyze script
-    # N50 calculation
-    N50_dict = dict()
+    # T50 calculation
+    T50_dict = dict()
     for sample in samples_dict:
-        res_N50 = n_fifty(sample, settings)
-        logger.info(f"N50 {sample}: {res_N50}")
-        N50_dict[sample] = res_N50
+        res_T50 = t_fifty(sample, settings)
+        logger.info(f"T50 {sample}: {res_T50}")
+        T50_dict[sample] = res_T50
         # plot_insertions(sample, settings)
     # TODO: function calls from analyze that require ALL samples
     return
