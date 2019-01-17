@@ -184,8 +184,6 @@ pyinseq genomeprep -g <genbank file> -e <experiment name>
 
 ## Notes on output
 
-<dl>
-  <dt><strong>T50</strong></dt>
-  <dd>The minimum number of transposon insertion sites in the sample that account for at least 50% of the samples's reads. Used as a crude measure to detect bottlenecks, when comparing output T50 to the library input T50 or biological replicates.</dd>
-</dl>
+**T50**
+* The minimum number of transposon insertion sites in the sample that account for at least 50% of the samples's reads. Used as a crude measure to detect bottlenecks, when comparing output T50 to the library input T50 or biological replicates.
 
