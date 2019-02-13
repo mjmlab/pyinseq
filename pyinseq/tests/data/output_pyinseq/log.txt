@@ -12,7 +12,7 @@ Reported 252 alignments to 1 output stream(s)
 
 2018-11-25 19:24 - INFO - runner - Sample E001_01: summarize the site data from the bowtie results
 2018-11-25 19:24 - INFO - runner - Sample E001_01: map site data to genes
-2018-11-25 19:24 - INFO - runner - N50 result for E001_01: 3
+2018-11-25 19:24 - INFO - runner - T50 result for E001_01: 3
 2018-11-25 19:24 - INFO - runner - Sample E001_02: map reads with bowtie
 2018-11-25 19:24 - INFO - runner - # reads processed: 274
 # reads with at least one reported alignment: 274 (100.00%)
@@ -21,7 +21,7 @@ Reported 274 alignments to 1 output stream(s)
 
 2018-11-25 19:24 - INFO - runner - Sample E001_02: summarize the site data from the bowtie results
 2018-11-25 19:24 - INFO - runner - Sample E001_02: map site data to genes
-2018-11-25 19:24 - INFO - runner - N50 result for E001_02: 3
+2018-11-25 19:24 - INFO - runner - T50 result for E001_02: 3
 2018-11-25 19:24 - INFO - runner - Aggregate gene mapping from all samples into the summary_data_table
 2018-11-25 19:24 - INFO - runner - Print samples info: results/output_pyinseq/samples.yml
 2018-11-25 19:24 - INFO - runner - Print summary log: results/output_pyinseq/log.txt

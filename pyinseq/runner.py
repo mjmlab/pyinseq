@@ -7,7 +7,8 @@ import glob
 import logging
 import os
 import yaml
-from .analyze import n_fifty
+
+from .analyze import t_fifty, spearman_correlation
 from .demultiplex import demultiplex_fastq
 from .gbk_convert import gbk2fna, gbk2ftt
 from .map_reads import bowtie_build, bowtie_map, parse_bowtie
@@ -147,17 +148,20 @@ class Settings:
         self.experiment = convert_to_filename(experiment_name)
         self.path = f"results/{self.experiment}/"
         self.parse_genbank_file = True
-        self.genome_path = self.path + "genome_lookup/"
+        self.genome_path = f"{self.path}genome_lookup/"
         # organism reference files called 'genome.fna' etc
         self.organism = "genome"
-        self.raw_path = self.path + "raw_data/"
+        self.raw_path = f"{self.path}raw_data/"
+        # self.figures_path = f"{self.path}figures/"  # TEST
+        # self.analysis_path = f"{self.path}analysis/" # Test
         self.generate_bowtie_index = True
         self.process_reads = True
         self.process_sample_list = True
         self.map_to_genome = True
-        self.samples_yaml = self.path + "samples.yml"
-        self.summary_log = self.path + "log.txt"
+        self.samples_yaml = f"{self.path}samples.yml"
+        self.summary_log = f"{self.path}log.txt"
         self.write_trimmed_reads = True
+        self.summary_table = f"{self.path}summary_gene_table.txt"
         self.min_counts = 3  # counts at one transposon site for it to qualify
         self.max_ratio = 10  # max ratio of left/right sites for it to qualify
         # may be modified
@@ -169,7 +173,7 @@ class Settings:
         # Print each variable on a separate line
         return "\n".join("%s: %s" % item for item in vars(self).items())
 
-    def set_command_specific_settings(self, cmd):
+    def _set_command_specific_settings(self, cmd):
         if cmd == "demultiplex":
             self.command = "demultiplex"
             self.parse_genbank_file = False
@@ -182,7 +186,7 @@ class Settings:
             self.map_to_genome = False
 
 
-def set_paths(experiment_name):
+def _set_paths(experiment_name):
     """Set up relative paths for subdirectories."""
     experiment = convert_to_filename(experiment_name)
     samples_yaml = f"results/{experiment}/samples.yml"
@@ -195,7 +199,7 @@ def set_paths(experiment_name):
     return path
 
 
-def set_disruption(d, setting):
+def _set_disruption(d, setting):
     """Check that gene disruption is 0.0 to 1.0; otherwise set to 1.0."""
     if d < 0.0 or d > 1.0:
         logger.error(
@@ -207,7 +211,7 @@ def set_disruption(d, setting):
     return
 
 
-def set_gene_parameters(min_count, max_ratio, setting):
+def _set_gene_parameters(min_count, max_ratio, setting):
     """Check that min_count and max_ratio are positive, otherwise set default."""
     if min_count < 0:
         logger.error(
@@ -312,8 +316,8 @@ def pipeline_mapping(settings, samples_dict):
         #    # Delete trimmed fastq file, bowtie mapping file after writing mapping results
         #    os.remove(s["trimmedPath"])
         #    os.remove("results/{Settings.experiment}/{bowtieOutputFile}"
-        n_fifty_result = n_fifty(sample, settings)
-        logger.info(f"N50 result for {sample}: {n_fifty_result}")
+        t_fifty_result = t_fifty(sample, settings)
+        logger.info(f"T50 result for {sample}: {t_fifty_result}")
     logger.info("Aggregate gene mapping from all samples into the summary_data_table")
     build_gene_table(
         settings.organism, samples_dict, gene_mappings, settings.experiment
@@ -322,11 +326,12 @@ def pipeline_mapping(settings, samples_dict):
 
 def pipeline_summarize(samples_dict, settings, typed_command_after_pyinseq):
     """Summary of INSeq run."""
+    # Yaml dump
     logger.info(f"Print samples info: {settings.samples_yaml}")
     with open(settings.samples_yaml, "w") as fo:
         fo.write(yaml.dump(samples_dict, default_flow_style=False))
 
-    # write summary log with more data
+    # Write summary log with more data
     logger.info(f"Print summary log: {settings.summary_log}")
     logger.info(
         "Print command entered" + "\npyinseq " + " ".join(typed_command_after_pyinseq)
@@ -339,11 +344,18 @@ def pipeline_summarize(samples_dict, settings, typed_command_after_pyinseq):
     )
 
 
-# def pipeline_analysis(samples_dict, settings):
-#    """Analysis of output."""
-#    for sample in samples_dict:
-#        print('N50', sample, nfifty(sample, settings))
-#        # plot_insertions(sample, settings)
+def pipeline_analysis(samples_dict: dict, settings: Settings) -> None:
+    """Analysis of output."""
+    # TODO: add looping over samples and function calls from analyze script
+    # T50 calculation
+    T50_dict = dict()
+    for sample in samples_dict:
+        res_T50 = t_fifty(sample, settings)
+        logger.info(f"T50 {sample}: {res_T50}")
+        T50_dict[sample] = res_T50
+        # plot_insertions(sample, settings)
+    # TODO: function calls from analyze that require ALL samples
+    return
 
 
 def main(args):
@@ -367,7 +379,7 @@ def main(args):
         args = parse_args(args)
     # Initialize the settings object
     settings = Settings(args.experiment)
-    settings.set_command_specific_settings(command)
+    settings._set_command_specific_settings(command)
     try:
         # for `pyinseq demultiplex` only
         settings.write_trimmed_reads = not args.notrim
@@ -387,8 +399,8 @@ def main(args):
     if settings.parse_genbank_file:
         gbk_file = args.genome
         if settings.process_reads:
-            set_disruption(float(args.disruption), settings)
-            set_gene_parameters(int(args.min_count), int(args.max_ratio), settings)
+            _set_disruption(float(args.disruption), settings)
+            _set_gene_parameters(int(args.min_count), int(args.max_ratio), settings)
     # sample names and paths
     if settings.process_sample_list:
         samples = args.samples
@@ -437,6 +449,10 @@ def main(args):
     #    for sample in Settings.samples_dict:
     #        print(Settings.samples_dict[sample])
     #        Settings.summaryDict['total reads'] += Settings.samples_dict[sample]['reads_with_bc']
+
+    # --- ANALYSIS OF RESULTS --- #
+    if settings.command in ["pyinseq"]:
+        pipeline_analysis(samples_dict, settings)
 
     # --- SUMMARY OF RESULTS --- #
     if settings.command in ["pyinseq"]:
