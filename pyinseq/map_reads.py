@@ -37,7 +37,7 @@ def parse_bowtie(bowtie_message):
     bowtie_msg_dict = {}
     for line in bowtie_message.split("\n"):
         # extract counts from bowtie printing
-        m = re.search("^(\#.+:) (\d+)", line)
+        m = re.search(r"^(\#.+:) (\d+)", line)
         try:
             message, count = m.group(1), int(m.group(2))
             bowtie_msg_dict[message] = count
