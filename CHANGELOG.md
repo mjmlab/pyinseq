@@ -3,8 +3,12 @@
 ## [Unreleased]
 ### Fixed
 - `pyinseq` alone brings up the help documentation
+- Small fix to the `three_primeness` calculation.
+### Changed
+- Only Python 3.6+ supported
 ### Added
 - `pyinseq genomeprep` command
+- Add T50 calculation
 
 ## [0.2.0] - 2017-07-16
 ### Added
