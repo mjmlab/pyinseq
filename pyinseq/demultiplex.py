@@ -6,7 +6,7 @@ Output path includes the experiment and sample name:
 (pysinseq)/results/{experiment}/{sample}.fastq
 
 """
-#from .utils import get_n_reads
+# from .utils import get_n_reads
 from tqdm import tqdm
 import logging
 import re
@@ -16,6 +16,7 @@ import os
 from .utils import fastq_generator
 
 logger = logging.getLogger("pyinseq")
+
 
 def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     """Demultiplex a fastq input file by 5' barcode into separate files.
@@ -54,7 +55,12 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     reads_iterable = results["Reads_Generator"]
 
     # Initiate progress bar
-    pbar = tqdm(total = results["Total Reads"], leave=False,  desc=f"Demultiplexing Reads", position=0)
+    pbar = tqdm(
+        total=results["Total Reads"],
+        leave=False,
+        desc=f"Demultiplexing Reads",
+        position=0,
+    )
     for read in reads_iterable:
         pbar.update()
         m = re.search(pattern, read.sequence)
@@ -80,7 +86,6 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
             # Clear the dictionary after writing to file
             for sample_name in demultiplex_dict:
                 demultiplex_dict[sample_name] = []
-        
 
     write_reads(demultiplex_dict, samples_dict, settings)
     # Write trimmed reads only when needed
@@ -107,13 +112,13 @@ def write_reads(demultiplex_dict, samples_dict, settings):
                     demultiplex_dict[barcode],
                     total=len(demultiplex_dict[barcode]),
                     leave=False,
-                    desc=f"Writing {barcode_dict[barcode]} reads", 
-                    position=0
+                    desc=f"Writing {barcode_dict[barcode]} reads",
+                    position=0,
                 )
                 for read in demultiplex_dict[barcode]:
                     pbar.update()
                     fo.write(f"@{read.name}\n{read.sequence}\n+\n{read.quality}\n")
-    # Leave not trace of progress bar        
+    # Leave not trace of progress bar
     pbar.close()
     return
 
@@ -132,8 +137,9 @@ def write_trimmed_reads(demultiplex_dict, samples_dict, settings):
                 pbar = tqdm(
                     demultiplex_dict[barcode],
                     total=len(demultiplex_dict[barcode]),
-                    leave=False, 
-                    desc=f"Writing {barcode_dict[barcode]} trimmed reads: ", position=0
+                    leave=False,
+                    desc=f"Writing {barcode_dict[barcode]} trimmed reads: ",
+                    position=0,
                 )
                 for read in demultiplex_dict[barcode]:
                     fo.write(

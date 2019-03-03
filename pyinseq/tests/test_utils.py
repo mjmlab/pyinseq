@@ -148,4 +148,3 @@ def runscript(
         assert False
 
     return status, out, err
-

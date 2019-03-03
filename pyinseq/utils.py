@@ -72,6 +72,7 @@ def convert_to_filename(sample_name):
     """
     return re.sub(r"(?u)[^-\w]", "", sample_name.strip().replace(" ", "_"))
 
+
 def fastq_generator(filename):
     """ 
     Returns number of reads in given fastq file.
@@ -94,9 +95,14 @@ def fastq_generator(filename):
     for i in screed.fastq.fastq_iter(mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)):
         reads += 1
 
-    return {"Total Reads":reads, "Reads_Generator": screed.fastq.fastq_iter(fastq_mmap)}
+    return {
+        "Total Reads": reads,
+        "Reads_Generator": screed.fastq.fastq_iter(fastq_mmap),
+    }
+
 
 # ===== Start here ===== #
+
 
 def main():
     pass

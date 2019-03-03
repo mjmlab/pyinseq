@@ -151,8 +151,8 @@ class Settings:
         # organism reference files called 'genome.fna' etc
         self.organism = "genome"
         self.raw_path = f"{self.path}raw_data/"
-        # self.figures_path = f"{self.path}figures/"  
-        # self.analysis_path = f"{self.path}analysis/" 
+        # self.figures_path = f"{self.path}figures/"
+        # self.analysis_path = f"{self.path}analysis/"
         self.generate_bowtie_index = True
         self.process_reads = True
         self.process_sample_list = True
