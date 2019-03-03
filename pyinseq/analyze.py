@@ -5,6 +5,7 @@ Analyzes resulting output
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sn
 
 
 def read_sites_file(sample: str, settings: "runner.Settings") -> pd.DataFrame:
@@ -14,8 +15,6 @@ def read_sites_file(sample: str, settings: "runner.Settings") -> pd.DataFrame:
 def read_summary_table(settings: "runner.Settings") -> pd.DataFrame:
     return pd.read_csv(settings.summary_table, sep="\t")
 
-
-# TODO: Change to using samples_dict instead of one sample
 def t_fifty(sample: str, settings: "runner.Settings") -> pd.DataFrame:
     """T50: The minimum number of transposon insertion sites in the sample that 
             account for at least 50% of the samples's reads.
@@ -30,6 +29,7 @@ def spearman_correlation(samples: dict, settings: "runner.Settings") -> pd.DataF
     df = read_summary_table(settings)
     corr_df = df[list(samples.keys())].corr("spearman")
     corr_df.to_csv(f"{settings.analysis_path}correlation.csv", sep="\t")
+    plot_heatmap(corr_df)
     return
 
 

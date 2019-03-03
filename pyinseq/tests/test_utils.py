@@ -5,6 +5,7 @@ from pkg_resources import Requirement, resource_filename, ResolutionError
 import shutil
 import sys
 import traceback
+import timeit, time  # Test
 
 try:
     from StringIO import StringIO
@@ -36,7 +37,14 @@ def datadir(tmpdir_factory, request):
             return str(filepath)
         return filepath
 
-    return getter
+    yield getter
+
+    def remove_pycache():
+        print(os.getcwd())
+
+    request.addfinalizer(remove_pycache())
+
+    return
 
 
 def scriptpath(scriptname="pyinseq"):
@@ -140,3 +148,4 @@ def runscript(
         assert False
 
     return status, out, err
+

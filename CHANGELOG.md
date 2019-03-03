@@ -4,6 +4,9 @@
 ### Fixed
 - `pyinseq` alone brings up the help documentation
 - Small fix to the `three_primeness` calculation.
+- Added progress bar for `demultiplex` function
+- Added a fastq file generator with mmap
+
 ### Changed
 - Only Python 3.6+ supported
 ### Added

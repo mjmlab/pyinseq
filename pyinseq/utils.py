@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
+from tqdm import tqdm
 import os
 import logging
 import re
+import io
+import screed.fastq
+import mmap
+
 
 # This controls the stdout logging.
 logging.basicConfig(
@@ -10,6 +15,7 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(module)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M",
 )
+
 logger = logging.getLogger("pyinseq")
 
 
@@ -66,9 +72,31 @@ def convert_to_filename(sample_name):
     """
     return re.sub(r"(?u)[^-\w]", "", sample_name.strip().replace(" ", "_"))
 
+def fastq_generator(filename):
+    """ 
+    Returns number of reads in given fastq file.
+
+    Also returns a generator that yields Screed Records which can
+    be looped through.
+
+    """
+    # Count reads
+    reads = 0
+
+    # Open file and map to mmap
+    f = open(filename, "r")
+    fastq_mmap = mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)
+
+    # Get iterable for counting reads
+    record_iterable = screed.fastq.fastq_iter(fastq_mmap)
+
+    # Count number of Screed Records
+    for i in screed.fastq.fastq_iter(mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)):
+        reads += 1
+
+    return {"Total Reads":reads, "Reads_Generator": screed.fastq.fastq_iter(fastq_mmap)}
 
 # ===== Start here ===== #
-
 
 def main():
     pass
