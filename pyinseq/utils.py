@@ -1,12 +1,24 @@
 #!/usr/bin/env python3
 
-from tqdm import tqdm
-import os
 import logging
+import mmap
+import os
 import re
+import sys
 import io
 import screed.fastq
-import mmap
+import tqdm
+
+
+class TqdmStream(io.StringIO):
+    """Custom stream for logging compatibility with tqdm progress bars."""
+
+    def __init__(self):
+        io.StringIO.__init__(self)
+
+    def write(self, s):
+        # Redirect through tqdm.write and output to stderr
+        tqdm.tqdm.write(s, file=sys.stderr, end="")
 
 
 # This controls the stdout logging.
@@ -14,6 +26,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(module)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M",
+    stream=TqdmStream(),
 )
 
 logger = logging.getLogger("pyinseq")
@@ -81,23 +94,18 @@ def fastq_generator(filename):
     be looped through.
 
     """
-    # Count reads
-    reads = 0
-
     # Open file and map to mmap
     f = open(filename, "r")
     fastq_mmap = mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)
-
     # Get iterable for counting reads
     record_iterable = screed.fastq.fastq_iter(fastq_mmap)
-
     # Count number of Screed Records
+    reads = 0
     for i in screed.fastq.fastq_iter(mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)):
         reads += 1
-
     return {
-        "Total Reads": reads,
-        "Reads_Generator": screed.fastq.fastq_iter(fastq_mmap),
+        "total_reads": reads,
+        "reads_generator": screed.fastq.fastq_iter(fastq_mmap),
     }
 
 

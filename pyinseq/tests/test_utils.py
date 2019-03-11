@@ -36,14 +36,7 @@ def datadir(tmpdir_factory, request):
             return str(filepath)
         return filepath
 
-    yield getter
-
-    def remove_pycache():
-        print(os.getcwd())
-
-    request.addfinalizer(remove_pycache())
-
-    return
+    return getter
 
 
 def scriptpath(scriptname="pyinseq"):
