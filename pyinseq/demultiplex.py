@@ -12,7 +12,7 @@ import re
 import screed
 import sys
 import os
-from .utils import fastq_generator
+from .utils import count_sequences
 
 logger = logging.getLogger("pyinseq")
 
@@ -49,18 +49,17 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
         re.VERBOSE,
     )
 
-    # Open reads and align to memory with mmap.
-    results = fastq_generator(reads)
-    reads_iterable = results["reads_generator"]
-
     # Initiate progress bar
+    logger.info("Counting sequences in input for progress bar")
+
     p_bar = tqdm.tqdm(
-        total=results["total_reads"],
+        total=count_sequences(reads),
         desc=f"Demultiplexing Reads",
         unit="reads",
         leave=True,
     )
-    for read in reads_iterable:
+    # logger.info("Start Demultiplexing")
+    for read in screed.open(reads):
         p_bar.update()
         m = re.search(pattern, read.sequence)
         try:

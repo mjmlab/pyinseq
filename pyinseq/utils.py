@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 
 import logging
-import mmap
 import os
 import re
 import sys
 import io
-import screed.fastq
+import subprocess
 import tqdm
+import gzip
 
 
 class TqdmStream(io.StringIO):
-    """Custom stream for logging compatibility with tqdm progress bars."""
+    """Custom stream with logging compatibility for tqdm progress bars."""
 
     def __init__(self):
+        # Call parent constructor for instance variables
         io.StringIO.__init__(self)
 
     def write(self, s):
@@ -86,27 +87,32 @@ def convert_to_filename(sample_name):
     return re.sub(r"(?u)[^-\w]", "", sample_name.strip().replace(" ", "_"))
 
 
-def fastq_generator(filename):
-    """ 
-    Returns number of reads in given fastq file.
-
-    Also returns a generator that yields Screed Records which can
-    be looped through.
-
+def count_sequences(filename):
     """
-    # Open file and map to mmap
-    f = open(filename, "r")
-    fastq_mmap = mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)
-    # Get iterable for counting reads
-    record_iterable = screed.fastq.fastq_iter(fastq_mmap)
-    # Count number of Screed Records
-    reads = 0
-    for i in screed.fastq.fastq_iter(mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)):
-        reads += 1
-    return {
-        "total_reads": reads,
-        "reads_generator": screed.fastq.fastq_iter(fastq_mmap),
-    }
+    Returns number of sequences in given file for progress bar.
+
+    Uses subprocess calls for efficiency
+    """
+    try:
+        # Check if gz compressed
+        if filename.split(".")[-1] in ["gz"]:
+            # Build pipe for uncompressed file
+            pipe = subprocess.Popen(("gzcat", "-d", filename), stdout=subprocess.PIPE)
+            output = int(subprocess.check_output(["wc", "-l"], stdin=pipe.stdout))
+        # If fastq format
+        elif filename.split(".")[-1] in ["fastq"]:
+            output = int(
+                subprocess.check_output(
+                    ["wc", "-l", filename], stderr=subprocess.DEVNULL
+                )
+                .split()[0]
+                .decode("UTF-8")
+            )
+        return int(output / 4)
+    except subprocess.CalledProcessError as e:
+        # Catching error returns arbitrary value
+        logger.warning(f"{str(e)}: using arbitrary limit for progress bar")
+        return 10e10
 
 
 # ===== Start here ===== #
