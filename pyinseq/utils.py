@@ -111,7 +111,7 @@ def count_sequences(filename):
         return int(output / 4)
     except subprocess.CalledProcessError as e:
         # Catching error returns arbitrary value
-        logger.warning(f"{str(e)}: using arbitrary limit for progress bar")
+        logger.debug(f"{str(e)}: using arbitrary limit for progress bar")
         return 10e10
 
 
