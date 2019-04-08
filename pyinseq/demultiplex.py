@@ -72,7 +72,7 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
             demultiplex_dict["other"].append(read)
         # Every 10^6 sequences write and clear the dictionary
         n_reads += 1
-        if n_reads % 5e5 == 0:
+        if n_reads % 5e6 == 0:
             # Disable Progress Bar
             p_bar.close()
             logger.info(
