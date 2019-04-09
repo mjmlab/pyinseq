@@ -20,7 +20,6 @@ from .utils import (
 
 # Note: stdout logging is set in utils.py
 logger = logging.getLogger("pyinseq")
-logger.setLevel(logging.INFO)
 
 
 def parse_args(args):
@@ -152,8 +151,8 @@ class Settings:
         # organism reference files called 'genome.fna' etc
         self.organism = "genome"
         self.raw_path = f"{self.path}raw_data/"
-        # self.figures_path = f"{self.path}figures/"  # TEST
-        # self.analysis_path = f"{self.path}analysis/" # Test
+        # self.figures_path = f"{self.path}figures/"
+        # self.analysis_path = f"{self.path}analysis/"
         self.generate_bowtie_index = True
         self.process_reads = True
         self.process_sample_list = True
@@ -354,7 +353,6 @@ def pipeline_analysis(samples_dict: dict, settings: Settings) -> None:
         logger.info(f"T50 {sample}: {res_T50}")
         T50_dict[sample] = res_T50
         # plot_insertions(sample, settings)
-    # TODO: function calls from analyze that require ALL samples
     return
 
 
@@ -371,9 +369,11 @@ def main(args):
     if args[0] == "demultiplex":
         command = "demultiplex"
         args = demultiplex_parse_args(args[1:])
+    # pyinseq genomeprep
     elif args[0] == "genomeprep":
         command = "genomeprep"
         args = genomeprep_parse_args(args[1:])
+    # pyinseq
     else:
         command = "pyinseq"
         args = parse_args(args)
