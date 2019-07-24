@@ -165,3 +165,36 @@ def test_pyinseq_genomeprep_script(datadir, tmpdir):
         assert not subdcmp.diff_files
         assert not subdcmp.funny_files
         assert not subdcmp.left_only and not subdcmp.right_only
+
+
+def test_pyinseq_genomeprep_gff_script(datadir, tmpdir):
+    output_name = "example_genomeprep_gff"
+    expected_output = datadir("output_genomeprep_gff")
+    output_dir = tmpdir.join("results/example_genomeprep_gff")
+    gb_fn = datadir("input/ES114v2.gb")
+
+    args = ["genomeprep", "-e", output_name, "-g", gb_fn, "-gff"]
+    status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
+
+    assert not status
+
+    dcmp = filecmp.dircmp(
+        expected_output, str(output_dir), ignore=[".DS_Store", "log.txt"]
+    )
+
+    # check that log file is created from pyinseq
+    assert "log.txt" in os.listdir(output_dir)
+
+    # checks that files are same in both directories
+    assert not dcmp.left_only and not dcmp.right_only
+
+    # check files to see if content differs
+    assert not dcmp.diff_files
+    assert not dcmp.funny_files  # Check for files that cannot be compared
+
+    # because subdirs is a dict keyed by subdir name
+    # with dircmp objects as values
+    for subdcmp in dcmp.subdirs.values():
+        assert not subdcmp.diff_files
+        assert not subdcmp.funny_files
+        assert not subdcmp.left_only and not subdcmp.right_only
