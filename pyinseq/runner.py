@@ -10,7 +10,7 @@ import yaml
 
 from .analyze import t_fifty, spearman_correlation
 from .demultiplex import demultiplex_fastq
-from .gbk_convert import gbk2fna, gbk2ftt
+from .gbk_convert import gbk2table
 from .map_reads import bowtie_build, bowtie_map, parse_bowtie
 from .process_mapping import map_sites, map_genes, build_gene_table
 from .utils import (
@@ -121,6 +121,9 @@ def genomeprep_parse_args(args):
         action="store_true",
         required=False,
     )
+    parser.add_argument(
+        "-gff", "--gff", help="generate GFF3 file", action="store_true", required=False
+    )
     return parser.parse_args(args)
 
 
@@ -147,6 +150,7 @@ class Settings:
         self.experiment = convert_to_filename(experiment_name)
         self.path = f"results/{self.experiment}/"
         self.parse_genbank_file = True
+        self.gff = False
         self.genome_path = f"{self.path}genome_lookup/"
         # organism reference files called 'genome.fna' etc
         self.organism = "genome"
@@ -270,10 +274,9 @@ def list_files(folder, ext="gz"):
         return [f for f in glob.glob(f"*.{ext}")]
 
 
-def build_fna_and_ftt_files(gbk_file, settings):
+def build_fna_and_table_files(gbk_file, settings):
     """Convert GenBank file to a fasta nucleotide and feature table files."""
-    gbk2fna(gbk_file, settings.organism, settings.genome_path)
-    gbk2ftt(gbk_file, settings.organism, settings.genome_path)
+    gbk2table(gbk_file, settings.organism, settings.genome_path, settings.gff)
 
 
 def build_bowtie_index(settings):
@@ -363,8 +366,6 @@ def main(args):
     # pyinseq with nothing typed after it
     if args == []:
         args = ["-h"]
-        # command = 'pyinseq'
-        # args = parseArgs(args)
     # pyinseq demultiplex
     if args[0] == "demultiplex":
         command = "demultiplex"
@@ -388,8 +389,7 @@ def main(args):
     try:
         # for `pyinseq genomeprep` only
         settings.generate_bowtie_index = not args.noindex
-        print("args.noindex", args.noindex)
-        print("settings.generate_bowtie_index", settings.generate_bowtie_index)
+        settings.gff = args.gff
     except:
         pass
     # Keep intermediate files
@@ -435,8 +435,16 @@ def main(args):
 
     # --- MAPPING TO SITES AND GENES --- #
     if settings.parse_genbank_file:
-        logger.info("Prepare genome features (.ftt) and fasta nucleotide (.fna) files")
-        build_fna_and_ftt_files(gbk_file, settings)
+        if not settings.gff:
+            logger.info(
+                "Prepare genome features (.ftt) and fasta nucleotide (.fna) files"
+            )
+            build_fna_and_table_files(gbk_file, settings)
+        else:
+            logger.info(
+                "Prepare genome features (.ftt), fasta nucleotide (.fna), and GFF3 (.gff) files"
+            )
+            build_fna_and_table_files(gbk_file, settings)
     if settings.generate_bowtie_index:
         logger.info("Prepare bowtie index")
         build_bowtie_index(settings)

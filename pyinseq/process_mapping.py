@@ -35,7 +35,7 @@ def map_sites(sample, samples_dict, settings):
     # write tab-delimited of contig/nucleotide/left_counts/right_counts/total_counts/cpm
     # use the total_counts as the denominator for cpm calculation
     with open(sites_file, "a") as fo:
-        writer = csv.writer(fo, delimiter="\t", dialect="excel")
+        writer = csv.writer(fo, delimiter="\t", dialect="excel", lineterminator="\n")
         header_entry = (
             "contig",
             "nucleotide",
@@ -150,7 +150,7 @@ def map_genes(sample, settings):
             "three_primeness",
             "locus_tag",
         )
-        mapped_gene_writer = csv.writer(csvfileW, delimiter="\t")
+        mapped_gene_writer = csv.writer(csvfileW, delimiter="\t", lineterminator="\n")
         mapped_gene_writer.writerow(headers)
         for hit in mapped_hit_list:
             mapped_gene_writer.writerow(hit)
@@ -209,7 +209,9 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
                 if hit_locus_tag == ftt_locus_tag:
                     gene_table[i][current_column] += mapped_genes[gene][0]
         with open(f"results/{experiment}/summary_gene_table.txt", "w") as fo:
-            writer = csv.writer(fo, delimiter="\t", dialect="excel")
+            writer = csv.writer(
+                fo, delimiter="\t", dialect="excel", lineterminator="\n"
+            )
             writer.writerows(gene_table)
 
 

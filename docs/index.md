@@ -177,6 +177,7 @@ pyinseq reanalyze -e <new_experiment_name> -original <original_experiment-name> 
 - Prepare the fasta nucleotide (.fna) and feature table (.ftt) files from a GenBank file.
 - Is a good quick test to run on new GenBank files.
 - Generates bowtie indexes unless the `--noindex` flag is added.
+- Optionally create GFF3 file with the `-gff` flag (for use in other programs).
 
 ```txt
 pyinseq genomeprep -g <genbank file> -e <experiment name>
@@ -185,5 +186,5 @@ pyinseq genomeprep -g <genbank file> -e <experiment name>
 ## Notes on output
 
 **T50**
-* The minimum number of transposon insertion sites in the sample that account for at least 50% of the samples's reads. Used as a crude measure to detect bottlenecks, when comparing output T50 to the library input T50 or biological replicates.
+* The minimum number of transposon insertion sites in the sample that account for at least 50% of the samples's reads. Used as a crude measure to detect bottlenecks, when comparing output T50 to the library input T50, or when comparing biological or technical replicates.
 
