@@ -5,3 +5,6 @@ install:
 
 test:
 	py.test --cov=./pyinseq/tests
+
+test_snake:
+	snakemake -s ../../workflows/PyinseqBatch/Snakefile --cores 2

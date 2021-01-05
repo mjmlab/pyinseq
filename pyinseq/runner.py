@@ -10,7 +10,7 @@ import yaml
 
 from .analyze import t_fifty, spearman_correlation
 from .demultiplex import demultiplex_fastq
-from .gbk_convert import gbk2table
+from .gbk_convert import gbk2fna, gbk2table
 from .map_reads import bowtie_build, bowtie_map, parse_bowtie
 from .process_mapping import map_sites, map_genes, build_gene_table
 from .utils import (
@@ -182,24 +182,12 @@ class Settings:
             self.parse_genbank_file = False
             self.generate_bowtie_index = False
             self.map_to_genome = False
+            self.write_trimmed_reads = False
         if cmd == "genomeprep":
             self.command = "genomeprep"
             self.process_reads = False
             self.process_sample_list = False
             self.map_to_genome = False
-
-
-def _set_paths(experiment_name):
-    """Set up relative paths for subdirectories."""
-    experiment = convert_to_filename(experiment_name)
-    samples_yaml = f"results/{experiment}/samples.yml"
-    summary_log = f"results/{experiment}/log.txt"
-    path = {
-        "experiment": experiment,
-        "samples_yaml": samples_yaml,
-        "summary_log": summary_log,
-    }
-    return path
 
 
 def _set_disruption(d, setting):
@@ -275,7 +263,8 @@ def list_files(folder, ext="gz"):
 
 
 def build_fna_and_table_files(gbk_file, settings):
-    """Convert GenBank file to a fasta nucleotide and feature table files."""
+    """Convert GenBank file to a fasta nucleotide (.fna) and feature table (.ftt) files."""
+    gbk2fna(gbk_file, settings.organism, settings.genome_path)
     gbk2table(gbk_file, settings.organism, settings.genome_path, settings.gff)
 
 
