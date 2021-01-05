@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-import csv
+
+import os
+import filecmp
 from collections import OrderedDict
+
+# Module imports
 from pyinseq.runner import Settings, tab_delimited_samples_to_dict
 from pyinseq import utils
-import numpy as np
-import pandas as pd
-
-# pyinseq.utils
+from .test_utils import datadir
 
 
 def test_filename_replace_spaces():
@@ -52,3 +53,16 @@ def test_tab_delimited_samples_to_dict_no_trailing_newline():
     assert tab_delimited_samples_to_dict(s) == OrderedDict(
         [("sample_1", {"barcode": "AAAA"}), ("sample_2", {"barcode": "TTTT"})]
     )
+
+
+def test_create_experiment_directories(datadir, tmpdir):
+    """ Test for function that creates the directory structure of pyinseq"""
+    settings = Settings('output_pyinseq')
+    expected_output = datadir('output_pyinseq')
+    test_output = str(tmpdir) + f'/results/{settings.experiment}'
+    # In the context of pytest directory
+    os.chdir(str(tmpdir))
+    utils.create_experiment_directories(settings)
+    # Check /results/experiment exist
+    assert os.path.exists(test_output)
+    assert filecmp.dircmp(expected_output, test_output).common_dirs == ['genome_lookup', 'raw_data']

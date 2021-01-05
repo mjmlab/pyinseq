@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-import logging
-import os
+import io
 import re
 import sys
-import io
-import subprocess
 import tqdm
-import gzip
+import logging
+import subprocess
+from pathlib import Path
 
 
 class TqdmStream(io.StringIO):
@@ -49,32 +48,34 @@ def create_experiment_directories(settings):
 
     If /experiment directory already exists exit and return error message and
     the full path of the present directory to the user"""
-
     # Check that experiment name has no special characters or spaces
-    experiment = convert_to_filename(settings.experiment)
 
+    experiment = convert_to_filename(settings.experiment)
+    output_path = Path(f"results/{experiment}")
+    
     # ERROR MESSAGES
     error_directory_exists = (
-        "PyINSeq Error: The directory already exists for experiment {0}\n"
+        f"PyINSeq Error: The directory already exists for experiment {experiment}\n"
         f"Delete or rename the {experiment} directory, or provide a new experiment\n"
         "name for the current analysis"
     )
-
-    # Create path or exit with error if it exists.
+    
     try:
-        if settings.process_reads:
-            os.makedirs(f"results/{experiment}/raw_data/")
-            logger.info(f"Make directory: results/{experiment}")
-            logger.info(f"Make directory: results/{experiment}/raw_data/")
-        # Only make the genome lookup directory if needed
-        if settings.parse_genbank_file:
-            os.makedirs(f"results/{experiment}/genome_lookup/")
-            logger.info(f"Make directory: results/{experiment}/genome_lookup/")
+        output_path.mkdir(parents=True, exist_ok=False)
+        logger.info(f"Make directory: results/{experiment}")
 
-    # TODO: Make analysis directory using path attributes from Settings
-    except OSError:
+        if settings.process_reads:
+            # Raw data dir
+            output_path.joinpath('raw_data').mkdir()
+            logger.info(f"Make directory: results/{experiment}/raw_data/fdefrefer")
+        if settings.parse_genbank_file:
+            # Genome dir
+            output_path.joinpath('genome_lookup').mkdir()
+            logger.info(f"Make directory: results/{experiment}/genome_lookup/")
+    except FileExistsError:
         print(error_directory_exists)
         exit(1)
+    return
 
 
 def convert_to_filename(sample_name):
@@ -116,8 +117,6 @@ def count_sequences(filename):
 
 
 # ===== Start here ===== #
-
-
 def main():
     pass
 
