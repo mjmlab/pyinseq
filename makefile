@@ -7,4 +7,10 @@ test:
 	py.test --cov=./pyinseq/tests
 
 test_snake:
-	snakemake -s ../../workflows/PyinseqBatch/Snakefile --cores 2
+	snakemake -s ../../workflows/PyinseqSnakemake/Snakefile --cores 2
+
+clean_dump:
+	rm -rf pyinseq/tests/dump/*
+
+get_dag:
+	snakemake --dag -s ../../workflows/PyinseqSnakemake/Snakefile --cores 2 --configfile test_pyinseq-snakemake_args_pyinseq-snake_config.yaml | dot -Tpng > pyinseq-snakemake_dag.png

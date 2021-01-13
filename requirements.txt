@@ -9,4 +9,5 @@ pytest-cov>=2.4.0
 codecov>=2.0.5
 PyYAML>=3.11
 screed>=0.9
+snakemake>=5.31.1
 tqdm>=4.31.1

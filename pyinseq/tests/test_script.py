@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-from .test_utils import runscript, datadir
 import filecmp
 import os
+
+from .test_utils import runscript, datadir
 
 
 def test_pyinseq_script_no_args(datadir, tmpdir):
@@ -198,3 +199,28 @@ def test_pyinseq_genomeprep_gff_script(datadir, tmpdir):
         assert not subdcmp.diff_files
         assert not subdcmp.funny_files
         assert not subdcmp.left_only and not subdcmp.right_only
+
+
+def test_pyinseq_snakemake_script(datadir, tmpdir):
+    input_fn = datadir("input/example01.fastq")
+    sample_fn = datadir("input/example01.txt")
+    gb_fn = datadir("input/ES114v2.gb")
+    output_name = "example_pyinseq_snakemake"
+    output_dir = tmpdir.join("results/example_pyinseq_snakemake")
+
+    expected_output = datadir("output_pyinseq")
+
+    args = [
+        "-i",
+        input_fn,
+        "-s",
+        sample_fn,
+        "-g",
+        gb_fn,
+        "-e",
+        output_name,
+    ]
+    status, out, err = runscript("pyinseq-snakemake", args, directory=str(tmpdir))
+    print(out)
+
+    assert status

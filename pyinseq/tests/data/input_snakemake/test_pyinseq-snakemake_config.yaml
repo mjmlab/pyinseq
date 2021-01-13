@@ -1,0 +1,5 @@
+experiment: test_pyinseq-snakemake_args
+genome: ../data/input/ES114v2.gb
+input: ../data/input/example01.fastq
+samples: ../data/input/example01.txt
+threads: 2
