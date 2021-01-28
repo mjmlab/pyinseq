@@ -6,24 +6,20 @@ Output path includes the experiment and sample name:
 (pyinseq)/results/{experiment}/{sample}.fastq
 
 """
-import tqdm
-import logging
 import re
 import screed
-import sys
-import os
-from .utils import count_sequences
 
-logger = logging.getLogger("pyinseq")
+from pyinseq.logger import TqdmBarLogger, logger
+from pyinseq.utils import count_sequences
 
 
 def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     """Demultiplex a fastq input file by 5' barcode into separate files.
 
-       Use regex to identify the chromosome slice and save this in the read
-       record as 'trim', e.g., read['trim'] = (4, 21)
-       Save raw reads into '{experiment}/raw_data/{sample_name}.fastq'
-       Save trimmed reads into '{experiment}/{sample_name}_trimmed.fastq'
+    Use regex to identify the chromosome slice and save this in the read
+    record as 'trim', e.g., read['trim'] = (4, 21)
+    Save raw reads into '{experiment}/raw_data/{sample_name}.fastq'
+    Save trimmed reads into '{experiment}/{sample_name}_trimmed.fastq'
     """
     # Dictionary of lists to hold FASTQ reads until they are written to files
     # Keys are barcodes
@@ -52,14 +48,9 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     # Initiate progress bar
     logger.info("Preparing to demultiplex reads")
 
-    p_bar = tqdm.tqdm(
-        total=count_sequences(reads),
-        desc=f"Demultiplexing Reads",
-        unit="reads",
-        leave=False,
-    )
+    tqdm_logger = TqdmBarLogger(logger, count_sequences(reads), "Demultiplexing reads")
     for read in screed.open(reads):
-        p_bar.update()
+        tqdm_logger.update()
         m = re.search(pattern, read.sequence)
         try:
             barcode, chrom_seq = m.group(1), m.group(2)
@@ -72,15 +63,11 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
             demultiplex_dict["other"].append(read)
         # Every 10^6 sequences write and clear the dictionary
         n_reads += 1
+        # Buffer dumping reads into barcode file
         if n_reads % 5e6 == 0:
-            # Disable Progress Bar
-            p_bar.close()
-            logger.info(
+            tqdm_logger.info(
                 "Demultiplexed {:,} samples and writing trimmed reads".format(n_reads)
             )
-            # Enable Progress Bar
-            p_bar.disable = False
-            p_bar.refresh()
             write_reads(demultiplex_dict, samples_dict, settings)
             # Write trimmed reads only when needed
             if settings.write_trimmed_reads:
@@ -88,12 +75,12 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
             # Clear the dictionary after writing to file
             for sample_name in demultiplex_dict:
                 demultiplex_dict[sample_name] = []
-    # Remove any traces of Progress Bar
-    p_bar.close()
     write_reads(demultiplex_dict, samples_dict, settings)
     # Write trimmed reads only when needed
     if settings.write_trimmed_reads:
         write_trimmed_reads(demultiplex_dict, samples_dict, settings)
+    # Remove any traces of Progress Bar
+    tqdm_logger.p_bar.close()
     logger.info(f"Total records demultiplexed: {n_reads:,}")
     return n_reads
 
@@ -111,19 +98,17 @@ def write_reads(demultiplex_dict, samples_dict, settings):
             ) as fo:
                 logger.debug(f"Writing reads to {barcode_dict[barcode]}.fastq")
                 # Initialize Progress Bar
-                p_bar = tqdm.tqdm(
-                    demultiplex_dict[barcode],
-                    total=len(demultiplex_dict[barcode]),
-                    desc=f"Writing {barcode_dict[barcode]} reads",
-                    unit="reads",
-                    leave=False,
-                    position=1,
+                tqdm_logger = TqdmBarLogger(
+                    logger,
+                    len(demultiplex_dict[barcode]),
+                    f"Writing {barcode_dict[barcode]} reads",
                 )
+
                 for read in demultiplex_dict[barcode]:
-                    p_bar.update()
+                    tqdm_logger.update()
                     fo.write(f"@{read.name}\n{read.sequence}\n+\n{read.quality}\n")
                 # Remove any traces of Progress Bar
-                p_bar.close()
+                tqdm_logger.p_bar.close()
     return
 
 
@@ -140,21 +125,18 @@ def write_trimmed_reads(demultiplex_dict, samples_dict, settings):
             ) as fo:
                 logger.debug(f"Writing trimmed reads to {barcode_dict[barcode]}.fastq")
                 # Initialize Progress Bar
-                p_bar = tqdm.tqdm(
-                    demultiplex_dict[barcode],
-                    total=len(demultiplex_dict[barcode]),
-                    desc=f"Writing {barcode_dict[barcode]} trimmed reads",
-                    unit="reads",
-                    leave=False,
-                    position=1,
+                tqdm_logger = TqdmBarLogger(
+                    logger,
+                    len(demultiplex_dict[barcode]),
+                    f"Writing trimmed {barcode_dict[barcode]} reads",
                 )
                 for read in demultiplex_dict[barcode]:
-                    p_bar.update()
+                    tqdm_logger.update()
                     fo.write(
                         f"@{read.name}\n{read.sequence[slice(read.trim[0], read.trim[1])]}\n+\n{read.quality[slice(read.trim[0], read.trim[1])]}\n"
                     )
                 # Remove any traces of Progress Bar
-                p_bar.close()
+                tqdm_logger.p_bar.close()
     return
 
 
