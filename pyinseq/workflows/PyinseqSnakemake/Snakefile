@@ -2,28 +2,21 @@
 
 """
 
-Snakefile for running pyinseq pipeline
+Snakefile for pyinseq pipeline
 
 """
-
-
-import logging
+from pathlib import Path
 
 # Pyinseq imports
+import pyinseq
 from pyinseq.utils import read_gene_file
-from pyinseq.process_mapping import map_sites, map_genes, build_gene_table
-from pyinseq.map_reads import bowtie_map, parse_bowtie
 from pyinseq.demultiplex import demultiplex_fastq
-from pyinseq.config import bowtie, bowtieBuild
-from pyinseq.runner import Settings, build_fna_and_table_files, tab_delimited_samples_to_dict, pipeline_mapping
+from pyinseq.process_mapping import map_sites, map_genes, build_gene_table
+from pyinseq.runner import Settings, build_fna_and_table_files, tab_delimited_samples_to_dict, pipeline_summarize
 
-
-# FOR NOW: SETUP SETTINGS AND SAMPLES_DICT
-from snakemake.logging import logger, format_resources, format_resource_names
-import snakemake
+ENVS = Path(pyinseq.__file__).parent.joinpath("envs")
 
 ### Grab from config
-print(config)
 reads = config['input']
 samples = config['samples']
 experiment = config['experiment']
@@ -42,7 +35,8 @@ rule all:
         expand(output_dir + "/{sample}_trimmed.fastq", sample=samples_dict.keys()),
         expand(output_dir + "/{sample}_bowtie.txt", sample=samples_dict.keys()),
         expand(output_dir + "/{sample}_sites.txt", sample=samples_dict.keys()),
-        expand(output_dir + "/{sample}_genes.txt", sample=samples_dict.keys())
+        expand(output_dir + "/{sample}_genes.txt", sample=samples_dict.keys()),
+        f"{output_dir}/samples.yml"
 
 
 rule genome_prep:
@@ -63,8 +57,10 @@ rule bowtie_index:
     output:
         "{output_dir}/genome_lookup/genome.1.ebwt",
     threads: config['threads']
+    conda:
+        str(ENVS.joinpath("bowtie.yaml"))
     shell:
-        "{bowtieBuild} -q {input.fna_file} {output_dir}/genome_lookup/genome"
+        "bowtie-build -q {input.fna_file} {output_dir}/genome_lookup/genome"
 
 
 rule demultiplex:
@@ -86,12 +82,14 @@ rule bowtie_mapping:
     output:
         output_dir + "/{sample}_bowtie.txt"
     threads: config['threads']
+    conda:
+        str(ENVS.joinpath("bowtie.yaml"))
     shell:
-        "bowtie -m 1 --best --strata -a --fullref -n 1 -l 17 " +
+        "echo Mapping {wildcards.sample} reads to genome using bowtie && bowtie -m 1 --best --strata -a --fullref -n 1 -l 17 " +
          f"{output_dir}/genome_lookup/genome " + "-q {input} {output} -p 2"
 
 
-rule process_bowtie_mapping:
+rule map_sites:
     input:
         output_dir + "/{sample}_bowtie.txt"
     output:
@@ -110,7 +108,7 @@ rule map_genes:
     threads: config['threads']
     run:
         # Map genes
-        print(map_genes(wildcards.sample, settings))
+        map_genes(wildcards.sample, settings)
 
 
 rule build_gene_table:
@@ -128,3 +126,15 @@ rule build_gene_table:
             gene_mappings[sample] = read_gene_file(sample_gene_table)
         # Map sites
         build_gene_table(settings.organism, samples_dict, gene_mappings, settings.experiment)
+
+rule summarize:
+    input:
+        output_dir + "/summary_gene_table.txt"
+    output:
+        "{output_dir}/samples.yml"
+    threads: config['threads']
+    run:
+        pipeline_summarize(samples_dict, settings, 'snakemake')
+
+
+
