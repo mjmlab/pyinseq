@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-from distutils import dir_util
 import os
-from pkg_resources import Requirement, resource_filename, ResolutionError
-import shutil
 import sys
 import traceback
+from distutils import dir_util
 
 try:
     from StringIO import StringIO
@@ -81,7 +79,7 @@ def _runscript(scriptname):
 
 
 def runscript(
-    scriptname: str, args: list, directory=None, fail_ok=False, sandbox=False
+        scriptname: str, args: list, directory=None, fail_ok=False, sandbox=False
 ) -> [str, str, str]:
     """Run a Python script using exec().
     Run the given Python script, with the given args, in the given directory,

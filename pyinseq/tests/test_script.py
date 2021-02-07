@@ -211,6 +211,7 @@ def test_pyinseq_snakemake_script(datadir, tmpdir):
     expected_output = datadir("output_pyinseq")
 
     args = [
+        "snakemake",
         "-i",
         input_fn,
         "-s",
@@ -219,8 +220,9 @@ def test_pyinseq_snakemake_script(datadir, tmpdir):
         gb_fn,
         "-e",
         output_name,
+        "--additional-params",
+        "--use-conda"
     ]
-    status, out, err = runscript("pyinseq-snakemake", args, directory=str(tmpdir))
-    print(out)
+    status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
 
-    assert status
+    assert not status
