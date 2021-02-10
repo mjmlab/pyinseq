@@ -92,7 +92,6 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                 "Code",
                 "COG",
                 "Product",
-                "peptide_sequence"
             )
         ]
 
@@ -121,9 +120,11 @@ def gbk2table(infile, organism, output_directory="", gff=False):
         code = "-"
         cog = "-"
         product = "-"
-        peptide_sequence = '-'
+
         product_append = False  # append the current line to product
-        peptide_append = False  # append the current line to peptide
+        """peptide_append = False         
+           peptide_sequence = '-'  # append the current line to peptide
+        """
 
         for i, line in enumerate(fi):
 
@@ -159,7 +160,6 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                                         code,
                                         cog,
                                         product,
-                                        peptide_sequence
 
                                     )
                                 )
@@ -194,7 +194,6 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                         code = "-"
                         cog = "-"
                         product = "-"
-                        peptide_sequence = "-"
 
                         # NOTES ABOUT FEATURES
                         # 1. At ends of contigs greater than/less than signs
@@ -247,16 +246,16 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                         if product.count('"') == 2:
                             product = product.strip('"')
 
-                    if peptide_append:
+                    """if peptide_append:
                         peptide_sequence += line.strip()
                     if peptide_sequence.count('"') == 2:
                             peptide_sequence = peptide_sequence.strip('"')
                             peptide_append = False
-                    # TODO: Add this as an option for including amino acid sequences
+                    # TODO: Add this as an option for including amino acid sequences, leave as comment
                     if "/translation=" in parts[0]:
                         peptide_sequence = parts[0].replace('/translation=', '').strip()
                         if parts[0].count('"') != 2:
-                            peptide_append = True
+                            peptide_append = True"""
 
                 if parts[0] == "ORIGIN":
                     features = False  # Not in FEATURES any more

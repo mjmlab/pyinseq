@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
+"""
 
-import logging
+Functions for using bowtie
+
+"""
 import re
 import subprocess
+# Module imports
 import pyinseq.config as config
-
-logger = logging.getLogger("pyinseq")
+from pyinseq.logger import logger
 
 
 def bowtie_build(organism):
