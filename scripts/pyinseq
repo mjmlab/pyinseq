@@ -1,7 +1,27 @@
 #!/usr/bin/env python3
+"""
+
+Main entry-point for pyinseq
+
+"""
+
+# Module imports
 from pyinseq import runner
-import sys
+from pyinseq.parsers import get_args
+from pyinseq.utils import write_config_file
+from pyinseq.workflows.PyinseqSnakemake import workflow
+from pyinseq.logger import logger
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    runner.main(args)
+    logger.info("Process command line arguments")
+    args = get_args()
+    if args.command == 'snakemake':
+        # Check for config file
+        if args.config:
+            config_file = args.config
+        else:
+            config_file = write_config_file(args, format=args.config_format, default=args.get_default_config)
+        w = workflow.PyinseqWorkflow(config_file, args.additional_params)
+        w.run()
+    else:
+        runner.main(args)
