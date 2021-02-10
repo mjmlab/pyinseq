@@ -4,9 +4,8 @@ Analyzes resulting output
 """
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sn
-
+import matplotlib.pyplot as plt
 
 def read_sites_file(sample: str, settings: "runner.Settings") -> pd.DataFrame:
     return pd.read_csv(f"{settings.path}{sample}_sites.txt", sep="\t")
@@ -17,8 +16,8 @@ def read_summary_table(settings: "runner.Settings") -> pd.DataFrame:
 
 
 def t_fifty(sample: str, settings: "runner.Settings") -> pd.DataFrame:
-    """T50: The minimum number of transposon insertion sites in the sample that 
-            account for at least 50% of the samples's reads.
+    """T50: The minimum number of transposon insertion sites in the sample that
+    account for at least 50% of the samples's reads.
     """
     # calculate sum of counts in df
     df = read_sites_file(sample, settings)
