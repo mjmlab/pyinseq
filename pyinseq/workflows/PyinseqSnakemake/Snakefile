@@ -6,13 +6,15 @@ Snakefile for pyinseq pipeline
 
 """
 from pathlib import Path
-
-# Pyinseq imports
+# Module imports
 import pyinseq
-from pyinseq.utils import read_gene_file
+from pyinseq.utils import read_gene_file, create_experiment_directories
 from pyinseq.demultiplex import demultiplex_fastq
 from pyinseq.process_mapping import map_sites, map_genes, build_gene_table
 from pyinseq.runner import Settings, build_fna_and_table_files, tab_delimited_samples_to_dict, pipeline_summarize
+from pyinseq.logger import FORMATTER, setup_filehandler
+from pyinseq.logger import logger as _logger
+
 
 ENVS = Path(pyinseq.__file__).parent.joinpath("envs")
 
@@ -27,6 +29,10 @@ output_dir = f"results/{experiment}"
 settings = Settings(experiment)
 samples_dict = tab_delimited_samples_to_dict(samples)
 
+# Setup pyinseq logger and add file handler to snakemake
+setup_filehandler(_logger, settings.summary_log)
+setup_filehandler(logger.logger, f'{output_dir}/snakemake_log.txt')
+
 
 rule all:
     input:
@@ -36,7 +42,7 @@ rule all:
         expand(output_dir + "/{sample}_bowtie.txt", sample=samples_dict.keys()),
         expand(output_dir + "/{sample}_sites.txt", sample=samples_dict.keys()),
         expand(output_dir + "/{sample}_genes.txt", sample=samples_dict.keys()),
-        f"{output_dir}/samples.yml"
+        f"{output_dir}/samples.yml",
 
 
 rule genome_prep:
