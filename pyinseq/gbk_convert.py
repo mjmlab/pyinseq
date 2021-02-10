@@ -13,29 +13,15 @@ Locus headers are the fasta headers
 Maintains original newlines (typically leaving up to 60 nucleotides per line)
 
 # gbk2table()
-Convert GenBank to feature table
-Format similar to .ptt and .rnt files except:
-- full tabular (locus as a field)
-- start and end positions as separate fields
-- includes the following features:
-    CDS
-    rRNA
-    tRNA
-    misc_RNA
-- Multilocus GenBank converts to multi-.ftt file
-'Unlike .ptt files that show the number of amino acids as 'length'
-
-Optional convert to GFF3 format also.
+C
 
 """
-
-import csv
-import logging
 import re
+import csv
 import sys
-
-logger = logging.getLogger("pyinseq")
-
+import logging
+# Module imports
+from pyinseq.logger import logger as logger
 
 def write_to_file(outfile, row_data):
     with open(outfile, "w") as fo:
@@ -79,7 +65,19 @@ def gbk2fna(infile, organism, output_directory=""):
 
 
 def gbk2table(infile, organism, output_directory="", gff=False):
-    """Convert genbank format to feature table format (.ftt, and optionally .gff)."""
+    """ Convert GenBank to feature table
+        Format similar to .ptt and .rnt files except:
+        - full tabular (locus as a field)
+        - start and end positions as separate fields
+        - includes the following features:
+            CDS
+            rRNA
+            tRNA
+            misc_RNA
+        - Multilocus GenBank converts to multi-.ftt file
+        'Unlike .ptt files that show the number of amino acids as 'length'
+        Optional convert to GFF3 format also..
+    """
     with open(infile, "r") as fi:
         ftt_rows = [
             (
@@ -94,6 +92,7 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                 "Code",
                 "COG",
                 "Product",
+                "peptide_sequence"
             )
         ]
 
@@ -122,7 +121,9 @@ def gbk2table(infile, organism, output_directory="", gff=False):
         code = "-"
         cog = "-"
         product = "-"
+        peptide_sequence = '-'
         product_append = False  # append the current line to product
+        peptide_append = False  # append the current line to peptide
 
         for i, line in enumerate(fi):
 
@@ -158,6 +159,8 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                                         code,
                                         cog,
                                         product,
+                                        peptide_sequence
+
                                     )
                                 )
                                 if gff:
@@ -191,6 +194,7 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                         code = "-"
                         cog = "-"
                         product = "-"
+                        peptide_sequence = "-"
 
                         # NOTES ABOUT FEATURES
                         # 1. At ends of contigs greater than/less than signs
@@ -198,6 +202,11 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                         # 2. Complicated features use only the outer bounds
                         #    join(481257..481331,481333..482355) uses 481257..482355
                         location = re.search(r"(\d+)\.+.*\.(\d+)", parts[1])
+                        if not location:
+                            print(location)
+                            print(line)
+                            continue
+
                         first = location.group(1)
                         last = location.group(2)
                         try:
@@ -220,6 +229,7 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                     if "/locus_tag=" in parts[0]:
                         locus_tag = parts[0][12:-1]
 
+
                     # Multi-line product description
                     if product_append:
                         product = product + " " + line.strip()
@@ -236,6 +246,17 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                             product_append = True
                         if product.count('"') == 2:
                             product = product.strip('"')
+
+                    if peptide_append:
+                        peptide_sequence += line.strip()
+                    if peptide_sequence.count('"') == 2:
+                            peptide_sequence = peptide_sequence.strip('"')
+                            peptide_append = False
+                    # TODO: Add this as an option for including amino acid sequences
+                    if "/translation=" in parts[0]:
+                        peptide_sequence = parts[0].replace('/translation=', '').strip()
+                        if parts[0].count('"') != 2:
+                            peptide_append = True
 
                 if parts[0] == "ORIGIN":
                     features = False  # Not in FEATURES any more

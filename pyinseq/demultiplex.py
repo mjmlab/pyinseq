@@ -8,9 +8,9 @@ Output path includes the experiment and sample name:
 """
 import re
 import screed
-
-from pyinseq.logger import TqdmBarLogger, logger
-from pyinseq.utils import count_sequences
+# Module imports
+from pyinseq.utils import count_lines
+from pyinseq.logger import logger, tqdm_logger
 
 
 def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
@@ -48,7 +48,7 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     # Initiate progress bar
     logger.info("Preparing to demultiplex reads")
 
-    tqdm_logger = TqdmBarLogger(logger, count_sequences(reads), "Demultiplexing reads")
+    tqdm_logger.set_progress_bar(count_lines(reads), desc="Demultiplexing reads", unit='reads')
     for read in screed.open(reads):
         tqdm_logger.update()
         m = re.search(pattern, read.sequence)
@@ -98,12 +98,10 @@ def write_reads(demultiplex_dict, samples_dict, settings):
             ) as fo:
                 logger.debug(f"Writing reads to {barcode_dict[barcode]}.fastq")
                 # Initialize Progress Bar
-                tqdm_logger = TqdmBarLogger(
-                    logger,
-                    len(demultiplex_dict[barcode]),
-                    f"Writing {barcode_dict[barcode]} reads",
-                )
-
+                tqdm_logger.set_progress_bar(
+                    num_iterations=len(demultiplex_dict[barcode]),
+                    desc=f"Writing {barcode_dict[barcode]} reads",
+                    unit="read")
                 for read in demultiplex_dict[barcode]:
                     tqdm_logger.update()
                     fo.write(f"@{read.name}\n{read.sequence}\n+\n{read.quality}\n")
@@ -125,10 +123,10 @@ def write_trimmed_reads(demultiplex_dict, samples_dict, settings):
             ) as fo:
                 logger.debug(f"Writing trimmed reads to {barcode_dict[barcode]}.fastq")
                 # Initialize Progress Bar
-                tqdm_logger = TqdmBarLogger(
-                    logger,
-                    len(demultiplex_dict[barcode]),
-                    f"Writing trimmed {barcode_dict[barcode]} reads",
+                tqdm_logger.set_progress_bar(
+                    num_iterations=len(demultiplex_dict[barcode]),
+                    desc=f"Writing trimmed {barcode_dict[barcode]} reads",
+                    unit="reads"
                 )
                 for read in demultiplex_dict[barcode]:
                     tqdm_logger.update()

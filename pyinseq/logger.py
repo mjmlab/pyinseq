@@ -1,23 +1,32 @@
 #!/usr/bin/env python3
 """
-Holds classes for pyinseq logging.
+
+Custom logger for pyinseq
 
 """
+import sys
 import tqdm
 import logging
 
-
-# This controls the stdout logging.
-formatter = logging.Formatter(
+# Custom formatter
+FORMATTER = logging.Formatter(
     fmt="%(asctime)s - %(levelname)s - %(module)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M",
 )
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(module)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M",
-)
 
+def setup_filehandler(logger, logfile):
+    fh = logging.FileHandler(logfile, 'a')
+    fh.setFormatter(FORMATTER)
+    logger.addHandler(fh)
+    return
+
+## ONLY LOGGER IN PYINSEQ ##
+logger = logging.getLogger("pyinseq")
+logger.setLevel(logging.INFO)
+stream_handler = logging.StreamHandler(stream=sys.stdout)
+stream_handler.setFormatter(FORMATTER)
+stream_handler.setLevel(logging.INFO)
+logger.addHandler(stream_handler)
 
 class TqdmBarLogger:
     """
@@ -25,14 +34,8 @@ class TqdmBarLogger:
     Custom progress bar that works with Logger
 
     """
-
-    def __init__(
-        self, logger: logging.Logger, num_reads: int, description: str, pos: int = 0
-    ):
+    def __init__(self, logger: logging.Logger):
         self.logger = logger
-        self.p_bar = tqdm.tqdm(
-            total=num_reads, desc=description, unit="reads", leave=False, position=pos
-        )
 
     def info(self, msg):
         """ Removes logger from display and logs message"""
@@ -43,10 +46,22 @@ class TqdmBarLogger:
         self.p_bar.refresh()
 
     def update(self):
-        """ Calls update on progress bar """
         self.p_bar.update()
-        return
+
+    def set_progress_bar(self, num_iterations: int, desc: str, unit: str):
+        self.p_bar = tqdm.tqdm(total=num_iterations, desc=desc, unit=unit, leave=False, position=0)
+
+    def clear_progress_bar(self):
+        self.p_bar = None
+
+# Only tqdm_logger
+tqdm_logger = TqdmBarLogger(logger)
 
 
-# Create logger just once and use in 'pyinseq' module
-logger = logging.getLogger("pyinseq")
+
+
+
+
+
+
+
