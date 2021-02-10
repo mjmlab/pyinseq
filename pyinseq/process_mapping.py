@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """
+
 Count and process the bowtie hits at each position in each sample
 
 """
-
 import csv
+# Module Imports
+from pyinseq.logger import logger, tqdm_logger
+from pyinseq.utils import count_lines
 
 
-def map_sites(sample, samples_dict, settings):
+def map_sites(sample, settings):
     """Map insertions to nucleotide sites."""
+    logger.info(f"Sample {sample}: summarize the site data from the bowtie results into sites file.")
     # Placeholder for dictionary of mapped reads in format:
     # {(contig, position) : [left_counts, right_counts]}
     map_dict = {}
@@ -16,7 +20,12 @@ def map_sites(sample, samples_dict, settings):
     overall_total = 0
     bowtie_file = settings.path + sample + "_bowtie.txt"
     sites_file = settings.path + sample + "_sites.txt"
+
     with open(bowtie_file, "r") as fi:
+        tqdm_logger.set_progress_bar(
+            num_iterations=count_lines(bowtie_file),
+            desc=f"Alignments in {bowtie_file}",
+            unit="Sites")
         for line in fi:
             bowtie_data = line.rstrip().split("\t")
             # Calculate transposon insertion point = insertion_NT
@@ -32,6 +41,8 @@ def map_sites(sample, samples_dict, settings):
                 insertion_NT = insertion_NT + 1
                 map_dict.setdefault((contig, insertion_NT), [0, 0])[1] += 1  # right
             overall_total += 1
+        # Close progress bar
+        tqdm_logger.p_bar.close()
     # write tab-delimited of contig/nucleotide/left_counts/right_counts/total_counts/cpm
     # use the total_counts as the denominator for cpm calculation
     with open(sites_file, "a") as fo:
@@ -65,19 +76,19 @@ def map_sites(sample, samples_dict, settings):
 def map_genes(sample, settings):
     """Maps insertions to genes
 
-       1. Writes a csv file listing the gene for each insertion with the tabs:
-       contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm, threePrimeness, locus_tag
-       2. Returns a dictionary of aggregate counts per gene (for any gene with at
-       least one hit)
+    1. Writes a csv file listing the gene for each insertion with the tabs:
+    contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm, threePrimeness, locus_tag
+    2. Returns a dictionary of aggregate counts per gene (for any gene with at
+    least one hit)
 
-       Insertions that map to multiple genes result in multiple lines in the CSV file
-       and are counted for both genes in the returned dictionary.
+    Insertions that map to multiple genes result in multiple lines in the CSV file
+    and are counted for both genes in the returned dictionary.
 
-       ThreePrimeness = insertion location in gene (5' end = 0.0, 3' end = 1.0)
-       All insertions are written to the file but only ones <= disruption threshold
-       are counted in the dictionary.
+    ThreePrimeness = insertion location in gene (5' end = 0.0, 3' end = 1.0)
+    All insertions are written to the file but only ones <= disruption threshold
+    are counted in the dictionary.
     """
-
+    logger.info(f"Sample {sample}: map site data to genes")
     # List of tuples of genome features
     genome = ftt_lookup(settings.organism, settings.experiment)
     # list of tuples of each mapped insertion to be immediately written per insertion
@@ -92,14 +103,32 @@ def map_genes(sample, settings):
     with open(sites_file, "r", newline="") as csvfileR:
         sites_reader = csv.reader(csvfileR, delimiter="\t")
         next(sites_reader, None)  # skip the headers
+        tqdm_logger.set_progress_bar(
+            num_iterations=count_lines(sites_file),
+            desc=f'Processing gene insertions in {sites_file}',
+            unit='insertions'
+        )
         for line in sites_reader:
+            tqdm_logger.update()
             contig, nucleotide, left_counts, right_counts, total_counts, cpm = line[0:6]
             nucleotide = int(nucleotide)
             cpm = float(cpm)
             # Used to save previous feature for intergenic calling
             previous_feature = ""
             for gene in genome:
-                locus, start, end, strand, length, pid, gene, locus_tag, code, cog, product = (
+                (
+                    locus,
+                    start,
+                    end,
+                    strand,
+                    length,
+                    pid,
+                    gene,
+                    locus_tag,
+                    code,
+                    cog,
+                    product,
+                ) = (
                     gene[0],
                     int(gene[1]),
                     int(gene[2]),
@@ -138,6 +167,8 @@ def map_genes(sample, settings):
                                 # that it is subscriptable to add cpm counts
                                 gene_dict.setdefault(locus_tag, [0])[0] += cpm
                 previous_feature = locus_tag
+    # Clear progress bar
+    tqdm_logger.p_bar.close()
     # Write individual insertions to *_genes.txt
     with open(genes_file, "w", newline="") as csvfileW:
         headers = (
@@ -160,9 +191,10 @@ def map_genes(sample, settings):
 
 def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
     """
-       For each entry in a feature table (.ftt) list the summary of hits
-       for each sample in the experiment
+    For each entry in a feature table (.ftt) list the summary of hits
+    for each sample in the experiment
     """
+    logger.info("Aggregate gene mapping from all samples into the summary_data_table")
 
     gene_table = ftt_lookup(organism, experiment)
 
@@ -217,9 +249,9 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
 
 def ftt_lookup(organism, experiment=""):
     """Import the ftt file and process as a dictionary of lookup values
-       indexed on Synonym (i.e., Locus Tag)
-       {'VF_0001': {'locus': 'CP000020', 'start': ...},
-           'VF_0002': {'locus': 'CP000020', 'start': ...}}
+    indexed on Synonym (i.e., Locus Tag)
+    {'VF_0001': {'locus': 'CP000020', 'start': ...},
+        'VF_0002': {'locus': 'CP000020', 'start': ...}}
     """
     ftt_list = []
     with open(
