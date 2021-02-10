@@ -1,130 +1,24 @@
 #!/usr/bin/env python3
+"""
 
-"""Main script for running the pyinseq package."""
-import argparse
+Main script for running the pyinseq package
+
+"""
+import os
 import csv
 import glob
-import logging
-import os
 import yaml
-
-from .analyze import t_fifty, spearman_correlation
-from .demultiplex import demultiplex_fastq
-from .gbk_convert import gbk2fna, gbk2table
-from .map_reads import bowtie_build, bowtie_map, parse_bowtie
-from .process_mapping import map_sites, map_genes, build_gene_table
-from .utils import (
+# Module imports
+from pyinseq.analyze import t_fifty
+from pyinseq.demultiplex import demultiplex_fastq
+from pyinseq.gbk_convert import gbk2fna, gbk2table
+from pyinseq.logger import logger, setup_filehandler
+from pyinseq.map_reads import bowtie_build, bowtie_map, parse_bowtie
+from pyinseq.process_mapping import map_sites, map_genes, build_gene_table
+from pyinseq.utils import (
     convert_to_filename,
     create_experiment_directories,
-)  # has logging config
-
-# Note: stdout logging is set in utils.py
-logger = logging.getLogger("pyinseq")
-
-
-def parse_args(args):
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-i", "--input", help="input Illumina reads file or folder", required=True
-    )
-    parser.add_argument(
-        "-s", "--samples", help="sample list with barcodes", required=True
-    )
-    parser.add_argument(
-        "-e",
-        "--experiment",
-        help="experiment name (no spaces or special characters)",
-        required=True,
-    )
-    parser.add_argument(
-        "-g",
-        "--genome",
-        help="genome in GenBank format (one concatenated file for multiple contigs/chromosomes)",
-        required=True,
-    )
-    parser.add_argument(
-        "-d", "--disruption", help="fraction of gene disrupted (0.0 - 1.0)", default=1.0
-    )
-    parser.add_argument(
-        "--min_count", help="Minimum number of reads per insertion site", default=3
-    )
-    parser.add_argument(
-        "--max_ratio",
-        help="Maximum ratio of left:right or right:left reads per insertion site",
-        default=10,
-    )
-    """Inactive arguments in current version
-    parser.add_argument('-s', '--samples',
-                        help='sample list with barcodes. \
-                        If not provided then entire folder provided for --input is analyzed',
-                        required=False)
-    parser.add_argument('--nobarcodes',
-                        help='barcodes have already been removed from the samples; \
-                        -i should list the directory with filenames (.fastq.gz) \
-                        corresponding to the sample names',
-                        action='store_true',
-                        default=False)
-    parser.add_argument('--compress',
-                        help='compress (gzip) demultiplexed samples',
-                        action='store_true',
-                        default=False)
-    parser.add_argument('--keep_all',
-                        help='keep all intermediate files generated',
-                        action='store_true',
-                        default=False)"""
-    return parser.parse_args(args)
-
-
-def demultiplex_parse_args(args):
-    """Parse command line arguments for `pyinseq demultiplex`."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-i", "--input", help="input Illumina reads file or folder", required=True
-    )
-    parser.add_argument(
-        "-s", "--samples", help="sample list with barcodes", required=True
-    )
-    parser.add_argument(
-        "-e",
-        "--experiment",
-        help="experiment name (no spaces or special characters)",
-        required=True,
-    )
-    parser.add_argument(
-        "--notrim",
-        help="do not write trimmed reads (i.e. write raw reads only)",
-        action="store_true",
-        required=False,
-    )
-    return parser.parse_args(args)
-
-
-def genomeprep_parse_args(args):
-    """Parse command line arguments for `pyinseq genomeprep`."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-e",
-        "--experiment",
-        help="experiment name (no spaces or special characters)",
-        required=True,
-    )
-    parser.add_argument(
-        "-g",
-        "--genome",
-        help="genome in GenBank format (one concatenated file for multiple contigs/chromosomes)",
-        required=True,
-    )
-    parser.add_argument(
-        "--noindex",
-        help="do not generate bowtie indexes",
-        action="store_true",
-        required=False,
-    )
-    parser.add_argument(
-        "-gff", "--gff", help="generate GFF3 file", action="store_true", required=False
-    )
-    return parser.parse_args(args)
+)
 
 
 class cd:
@@ -183,11 +77,14 @@ class Settings:
             self.generate_bowtie_index = False
             self.map_to_genome = False
             self.write_trimmed_reads = False
-        if cmd == "genomeprep":
+        elif cmd == "genomeprep":
             self.command = "genomeprep"
             self.process_reads = False
             self.process_sample_list = False
             self.map_to_genome = False
+        else:
+            return
+
 
 
 def _set_disruption(d, setting):
@@ -264,6 +161,7 @@ def list_files(folder, ext="gz"):
 
 def build_fna_and_table_files(gbk_file, settings):
     """Convert GenBank file to a fasta nucleotide (.fna) and feature table (.ftt) files."""
+    logger.info(f"Converting genebank {gbk_file} to fasta nucleotide (.fna) and feature table (.ftt).")
     gbk2fna(gbk_file, settings.organism, settings.genome_path)
     gbk2table(gbk_file, settings.organism, settings.genome_path, settings.gff)
 
@@ -296,12 +194,10 @@ def pipeline_mapping(settings, samples_dict):
             mapping_data[sample] = {"bowtie_results": [], "insertion_sites": []}
             mapping_data[sample]["bowtie_results"] = parse_bowtie(bowtie_msg_out)
         # Map each bowtie result to the chromosome
-        logger.info(f"Sample {sample}: summarize the site data from the bowtie results")
-        insertions = len(map_sites(sample, samples_dict, settings))
+        insertions = len(map_sites(sample, settings))
         mapping_data[sample]["insertion_sites"] = insertions
         # Add gene-level results for the sample to geneMappings
         # Filtered on gene fraction disrupted as specified by -d flag
-        logger.info(f"Sample {sample}: map site data to genes")
         gene_mappings[sample] = map_genes(sample, settings)
         # if not settings.keep_all:
         #    # Delete trimmed fastq file, bowtie mapping file after writing mapping results
@@ -309,35 +205,26 @@ def pipeline_mapping(settings, samples_dict):
         #    os.remove("results/{Settings.experiment}/{bowtieOutputFile}"
         t_fifty_result = t_fifty(sample, settings)
         logger.info(f"T50 result for {sample}: {t_fifty_result}")
-    logger.info("Aggregate gene mapping from all samples into the summary_data_table")
     build_gene_table(
         settings.organism, samples_dict, gene_mappings, settings.experiment
     )
 
 
-def pipeline_summarize(samples_dict, settings, typed_command_after_pyinseq):
+def pipeline_summarize(samples_dict, settings, command):
     """Summary of INSeq run."""
     # Yaml dump
     logger.info(f"Print samples info: {settings.samples_yaml}")
     with open(settings.samples_yaml, "w") as fo:
         fo.write(yaml.dump(samples_dict, default_flow_style=False))
-
     # Write summary log with more data
     logger.info(f"Print summary log: {settings.summary_log}")
-    logger.info(
-        "Print command entered" + "\npyinseq " + " ".join(typed_command_after_pyinseq)
-    )
+    logger.info("Print command entered" + "\npyinseq " + command)
     logger.info("Print settings" + "\n" + str(settings))
-    logger.info(
-        "Print samples detail"
-        + "\n"
-        + yaml.dump(samples_dict, default_flow_style=False)
-    )
+    logger.info("Print samples detail" + "\n" + yaml.dump(samples_dict, default_flow_style=False))
 
 
 def pipeline_analysis(samples_dict: dict, settings: Settings) -> None:
     """Analysis of output."""
-    # TODO: add looping over samples and function calls from analyze script
     # T50 calculation
     T50_dict = dict()
     for sample in samples_dict:
@@ -350,24 +237,8 @@ def pipeline_analysis(samples_dict: dict, settings: Settings) -> None:
 
 def main(args):
     """Start here."""
-    logger.info("Process command line arguments")
-    typed_command_after_pyinseq = args
-    # pyinseq with nothing typed after it
-    if args == []:
-        args = ["-h"]
-    # pyinseq demultiplex
-    if args[0] == "demultiplex":
-        command = "demultiplex"
-        args = demultiplex_parse_args(args[1:])
-    # pyinseq genomeprep
-    elif args[0] == "genomeprep":
-        command = "genomeprep"
-        args = genomeprep_parse_args(args[1:])
-    # pyinseq
-    else:
-        command = "pyinseq"
-        args = parse_args(args)
     # Initialize the settings object
+    command = args.command if args.command else ''
     settings = Settings(args.experiment)
     settings._set_command_specific_settings(command)
     try:
@@ -406,16 +277,8 @@ def main(args):
 
     # --- SET UP DIRECTORIES --- #
     create_experiment_directories(settings)
-
-    # --- SET UP LOG FILE --- #
-    fh = logging.FileHandler(settings.summary_log)
-    fh.setFormatter(
-        logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(module)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M",
-        )
-    )  # also set in utils
-    logger.addHandler(fh)
+    # --- SET UP LOGFILE
+    setup_filehandler(logger, settings.summary_log)
 
     # --- WRITE DEMULTIPLEXED AND TRIMMED FASTQ FILES --- #
     if settings.process_reads:
@@ -453,7 +316,7 @@ def main(args):
 
     # --- SUMMARY OF RESULTS --- #
     if settings.command in ["pyinseq"]:
-        pipeline_summarize(samples_dict, settings, typed_command_after_pyinseq)
+        pipeline_summarize(samples_dict, settings, command)
 
     # --- CONFIRM COMPLETION --- #
     logger.info(f"***** {settings.command} complete! *****")
