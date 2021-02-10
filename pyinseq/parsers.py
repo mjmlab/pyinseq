@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 
 Contains functions for parsing arguments from command line
@@ -11,7 +10,7 @@ import argparse
 from pyinseq.utils import get_version
 
 
-def get_args() -> argparse.Namespace:
+def get_parser() -> argparse.Namespace:
     """Parse command line arguments for main pyinseq."""
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--version', action='version', version=f"pyinseq: {get_version()}",
@@ -156,5 +155,5 @@ def get_args() -> argparse.Namespace:
         help="Maximum ratio of left:right or right:left reads per insertion site",
         default=10,
     )
-    return parser.parse_args()
+    return parser
 

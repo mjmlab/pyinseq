@@ -16,6 +16,10 @@ if __name__ == "__main__":
     logger.info("Process command line arguments")
     parser = get_parser()
     args = parser.parse_args()
+    if args.command == None and args.experiment == None:
+        parser.print_help()
+        exit(0)
+
     if args.command == 'snakemake':
         # Check for config file
         if args.config:
