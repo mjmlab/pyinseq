@@ -5,33 +5,51 @@
 Snakefile for pyinseq pipeline
 
 """
+import time
 from pathlib import Path
+# Setup logger before importing modules
+from pyinseq.logger import pyinseq_logger, add_fileHandler, add_streamHandler
+pyinseq_logger.setup_logger()
 # Module imports
 import pyinseq
-from pyinseq.utils import read_gene_file, create_experiment_directories
+from pyinseq.utils import read_gene_file, tab_delimited_samples_to_dict
 from pyinseq.demultiplex import demultiplex_fastq
+from pyinseq.gbk_convert import build_fna_and_table_files
 from pyinseq.process_mapping import map_sites, map_genes, build_gene_table
-from pyinseq.runner import Settings, build_fna_and_table_files, tab_delimited_samples_to_dict, pipeline_summarize
-from pyinseq.logger import FORMATTER, setup_filehandler
-from pyinseq.logger import logger as _logger
+from pyinseq.settings import Settings
+from pyinseq.pipeline import pipeline_summarize
+from pyinseq.map_reads import summarize_mapping
 
-
+# Path to environment folder
 ENVS = Path(pyinseq.__file__).parent.joinpath("envs")
-
 ### Grab from config
+command = config['command']
 reads = config['input']
 samples = config['samples']
 experiment = config['experiment']
 reference_genome = config['genome']
 output_dir = f"results/{experiment}"
 
-# Settings object
+report: f"{output_dir}/workflow.rst"
+
+# Set attributes from config
 settings = Settings(experiment)
+settings.write_trimmed_reads = False if config['notrim'] else True
+settings.set_disruption(config['disruption'])
+settings.set_gene_parameters(config['min_count'], config['max_ratio'])
 samples_dict = tab_delimited_samples_to_dict(samples)
 
 # Setup pyinseq logger and add file handler to snakemake
-setup_filehandler(_logger, settings.summary_log)
-setup_filehandler(logger.logger, f'{output_dir}/snakemake_log.txt')
+snake_logger = logger
+# Set a NULLHANDLER TO QUIET SNAKEMAKE BUT STILL WRITE TO IO
+print(snake_logger.logger.handlers)
+# snake_logger.logger.disabled = False
+snake_logger.quiet = True
+pyinseq_logger.add_logfile_paths(settings)
+add_fileHandler(pyinseq_logger.logger, settings.log, formatter=True)
+add_fileHandler(logger.logger, settings.log)
+# Add snake_io as handler to snakemake logger
+add_streamHandler(snake_logger.logger, pyinseq_logger.snake_io)
 
 
 rule all:
@@ -42,7 +60,7 @@ rule all:
         expand(output_dir + "/{sample}_bowtie.txt", sample=samples_dict.keys()),
         expand(output_dir + "/{sample}_sites.txt", sample=samples_dict.keys()),
         expand(output_dir + "/{sample}_genes.txt", sample=samples_dict.keys()),
-        f"{output_dir}/samples.yml",
+        f"{output_dir}/samples.txt",
 
 
 rule genome_prep:
@@ -59,7 +77,7 @@ rule genome_prep:
 
 rule bowtie_index:
     input:
-        fna_file=f"{output_dir}/genome_lookup/genome.fna",
+        fna_file=f"{output_dir}/genome_lookup/genome.fna"
     output:
         "{output_dir}/genome_lookup/genome.1.ebwt",
     threads: config['threads']
@@ -71,28 +89,33 @@ rule bowtie_index:
 
 rule demultiplex:
     input:
-        fastq=f"{reads}",
-        genome=f"{output_dir}/genome_lookup/genome.1.ebwt"
+        fastq=f"{reads}"
     output:
         expand(output_dir + "/raw_data/{sample}.fastq", sample=samples_dict.keys()),
         expand(output_dir + "/{sample}_trimmed.fastq", sample=samples_dict.keys())
-    threads: config['threads']
+    threads: 1
     run:
         # Run demultiplex
         demultiplex_fastq(input.fastq, samples_dict, settings)
+        pyinseq_logger.summarize_step()
 
 
 rule bowtie_mapping:
     input:
-        output_dir + "/{sample}_trimmed.fastq"
+        output_dir + "/{sample}_trimmed.fastq",
+        f"{output_dir}/genome_lookup/genome.1.ebwt"
     output:
         output_dir + "/{sample}_bowtie.txt"
-    threads: config['threads']
+    threads: 2
     conda:
         str(ENVS.joinpath("bowtie.yaml"))
-    shell:
-        "echo Mapping {wildcards.sample} reads to genome using bowtie && bowtie -m 1 --best --strata -a --fullref -n 1 -l 17 " +
-         f"{output_dir}/genome_lookup/genome " + "-q {input} {output} -p 2"
+    params:
+        genome=f"{output_dir}/genome_lookup/genome",
+        log=settings.log,
+        summary_log=settings.summary_log
+    script:
+        f"../../map_reads.py"
+
 
 
 rule map_sites:
@@ -100,10 +123,11 @@ rule map_sites:
         output_dir + "/{sample}_bowtie.txt"
     output:
         output_dir + "/{sample}_sites.txt",
-    threads: config['threads']
+    threads: 1
     run:
         # Map sites
         map_sites(wildcards.sample, settings)
+        pyinseq_logger.summarize_step()
 
 
 rule map_genes:
@@ -111,10 +135,11 @@ rule map_genes:
         output_dir + "/{sample}_sites.txt",
     output:
         output_dir + "/{sample}_genes.txt"
-    threads: config['threads']
+    threads: 1
     run:
         # Map genes
         map_genes(wildcards.sample, settings)
+        pyinseq_logger.summarize_step()
 
 
 rule build_gene_table:
@@ -122,7 +147,7 @@ rule build_gene_table:
         expand(output_dir + "/{sample}_genes.txt", sample=samples_dict.keys()),
     output:
         "{output_dir}/summary_gene_table.txt"
-    threads: config['threads']
+    threads: 1
     run:
         # Get gene_mappings dictionary
         gene_mappings = dict()
@@ -133,14 +158,15 @@ rule build_gene_table:
         # Map sites
         build_gene_table(settings.organism, samples_dict, gene_mappings, settings.experiment)
 
+
 rule summarize:
     input:
         output_dir + "/summary_gene_table.txt"
     output:
-        "{output_dir}/samples.yml"
-    threads: config['threads']
+        "{output_dir}/samples.txt"
+    threads: 1
     run:
-        pipeline_summarize(samples_dict, settings, 'snakemake')
-
+        pipeline_summarize(samples_dict, settings)
+        pyinseq_logger.summarize_step()
 
 

@@ -1,0 +1,68 @@
+#!/usr/bin/python
+
+"""
+
+Snakefile for pyinseq pipeline
+
+"""
+from pathlib import Path
+# Module imports
+import pyinseq
+from pyinseq.utils import read_gene_file, tab_delimited_samples_to_dict
+from pyinseq.demultiplex import demultiplex_fastq
+from pyinseq.gbk_convert import build_fna_and_table_files
+from pyinseq.process_mapping import map_sites, map_genes, build_gene_table
+from pyinseq.settings import Settings
+from pyinseq.pipeline import pipeline_summarize
+from pyinseq.logger import FORMATTER, add_fileHandler
+from pyinseq.logger import logger as _logger
+
+# Path to environment folder
+ENVS = Path(pyinseq.__file__).parent.joinpath("envs")
+
+### Grab from config
+command = config['command']
+reads = config['input']
+samples = config['samples']
+experiment = config['experiment']
+output_dir = f"results/{experiment}"
+notrim = config['notrim']
+
+# Settings object
+settings = Settings(experiment)
+settings.write_trimmed_reads = not notrim
+samples_dict = tab_delimited_samples_to_dict(samples)
+
+
+# Setup pyinseq logger and add file handler to snakemake
+snake_logger = logger.logger
+add_fileHandler(_logger, settings.log)
+add_fileHandler(snake_logger, settings.log)
+
+
+rule all:
+    input:
+        expand(output_dir + "/raw_data/{sample}.fastq", sample=samples_dict.keys()),
+        f"{output_dir}/samples.txt",
+
+
+rule demultiplex:
+    input:
+        fastq=f"{reads}"
+    output:
+        expand(output_dir + "/raw_data/{sample}.fastq", sample=samples_dict.keys())
+    threads: config['threads']
+    run:
+        # Run demultiplex
+        demultiplex_fastq(input.fastq, samples_dict, settings)
+
+
+rule summarize:
+    input:
+        expand(output_dir + "/raw_data/{sample}.fastq", sample=samples_dict.keys())
+    output:
+        "{output_dir}/samples.txt"
+    threads: config['threads']
+    run:
+        pipeline_summarize(samples_dict, settings)
+
