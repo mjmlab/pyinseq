@@ -55,8 +55,8 @@ def create_experiment_directories(settings):
 
     # ERROR MESSAGES
     error_directory_exists = (
-        "PyINSeq Error: The directory already exists for experiment {0}\n"
-        f"Delete or rename the {experiment} directory, or provide a new experiment\n"
+        f"PyINSeq Error: The directory already exists for experiment {experiment}\n"
+        f"Delete or rename the {experiment} directory, or provide a new experiment "
         "name for the current analysis"
     )
 
