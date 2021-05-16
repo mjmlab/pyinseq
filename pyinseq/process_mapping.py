@@ -65,19 +65,19 @@ def map_sites(sample, samples_dict, settings):
 def map_genes(sample, settings):
     """Maps insertions to genes
 
-       1. Writes a csv file listing the gene for each insertion with the tabs:
-       contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm, threePrimeness, locus_tag
-       2. Returns a dictionary of aggregate counts per gene (for any gene with at
-       least one hit)
+    1. Writes a csv file listing the gene for each insertion with the tabs:
+    contig, nucleotide, Lcounts, Rcounts, totalCounts, cpm, threePrimeness, locus_tag
+    2. Returns a dictionary of aggregate counts per gene (for any gene with at
+    least one hit)
 
-       Insertions that map to multiple genes result in multiple lines in the CSV file
-       and are counted for both genes in the returned dictionary.
+    Insertions that map to multiple genes result in multiple lines in the CSV file
+    and are counted for both genes in the returned dictionary.
 
-       ThreePrimeness = insertion location in gene (5' end = 0.0, 3' end = 1.0)
-       All insertions are written to the file but only ones <= disruption threshold
-       are counted in the dictionary.
+    ThreePrimeness = insertion location in gene (5' end = 0.0, 3' end = 1.0)
+    All insertions are written to the file but only ones <= disruption threshold
+    are counted in the dictionary.
     """
-
+    print(sample)
     # List of tuples of genome features
     genome = ftt_lookup(settings.organism, settings.experiment)
     # list of tuples of each mapped insertion to be immediately written per insertion
@@ -99,7 +99,19 @@ def map_genes(sample, settings):
             # Used to save previous feature for intergenic calling
             previous_feature = ""
             for gene in genome:
-                locus, start, end, strand, length, pid, gene, locus_tag, code, cog, product = (
+                (
+                    locus,
+                    start,
+                    end,
+                    strand,
+                    length,
+                    pid,
+                    gene,
+                    locus_tag,
+                    code,
+                    cog,
+                    product,
+                ) = (
                     gene[0],
                     int(gene[1]),
                     int(gene[2]),
@@ -136,7 +148,11 @@ def map_genes(sample, settings):
                                 # Add to the total for that gene --
                                 # Single-element list (rather than integer) so
                                 # that it is subscriptable to add cpm counts
-                                gene_dict.setdefault(locus_tag, [0])[0] += cpm
+                                if locus_tag not in gene_dict.keys():
+                                    gene_dict[locus_tag] = [0]
+                                print(locus_tag)
+                                gene_dict[locus_tag][0] += cpm
+                                print(gene_dict[locus_tag][0])
                 previous_feature = locus_tag
     # Write individual insertions to *_genes.txt
     with open(genes_file, "w", newline="") as csvfileW:
@@ -160,8 +176,8 @@ def map_genes(sample, settings):
 
 def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
     """
-       For each entry in a feature table (.ftt) list the summary of hits
-       for each sample in the experiment
+    For each entry in a feature table (.ftt) list the summary of hits
+    for each sample in the experiment
     """
 
     gene_table = ftt_lookup(organism, experiment)
@@ -208,6 +224,8 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
                 # matches based on locus_tag.
                 if hit_locus_tag == ftt_locus_tag:
                     gene_table[i][current_column] += mapped_genes[gene][0]
+        print(sample)
+        print(mapped_genes)
         with open(f"results/{experiment}/summary_gene_table.txt", "w") as fo:
             writer = csv.writer(
                 fo, delimiter="\t", dialect="excel", lineterminator="\n"
@@ -217,9 +235,9 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
 
 def ftt_lookup(organism, experiment=""):
     """Import the ftt file and process as a dictionary of lookup values
-       indexed on Synonym (i.e., Locus Tag)
-       {'VF_0001': {'locus': 'CP000020', 'start': ...},
-           'VF_0002': {'locus': 'CP000020', 'start': ...}}
+    indexed on Synonym (i.e., Locus Tag)
+    {'VF_0001': {'locus': 'CP000020', 'start': ...},
+        'VF_0002': {'locus': 'CP000020', 'start': ...}}
     """
     ftt_list = []
     with open(
