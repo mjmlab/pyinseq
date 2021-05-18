@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-import sys, os
+import os
+import sys
+from pathlib import Path
 
 try:
     from setuptools import *
@@ -24,6 +26,17 @@ SCRIPTS = glob("scripts/*")
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open("requirements.txt", "r") as fh:
+    requirements = fh.readlines()
+
+# Collect paths to Snakefile's and ENVS
+snake_data = [
+            "workflows/PyinseqWorkflow/Snakefile",
+            "workflows/DemultiplexWorkflow/Snakefile",
+            "workflows/GenomeprepWorkflow/Snakefile",
+            "envs/bowtie.yaml",
+]
+
 
 def main():
     setup(
@@ -37,22 +50,13 @@ def main():
         author_email="mandel01@gmail.com",
         license="BSD",
         packages=find_packages(),
+        include_package_data=True,
+        package_dir={'pyinseq': 'pyinseq'},
+        package_data={'pyinseq': snake_data},
         scripts=SCRIPTS,
         setup_requires=["pytest-runner"],
         tests_require=["pytest"],
-        install_requires=[
-            "black>=18.9b0",
-            "matplotlib>=1.5.0",
-            "seaborn>=0.6.0",
-            "numpy>=1.10.0",
-            "pandas>=0.18.1",
-            "pre-commit>=1.12.0",
-            "pytest>=2.8.1",
-            "pytest-cov>=2.4.0",
-            "codecov>=2.0.5",
-            "PyYAML>=3.11",
-            "screed>=0.9",
-        ],
+        install_requires=requirements,
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Science/Research",
@@ -63,7 +67,7 @@ def main():
             "Topic :: Scientific/Engineering :: Bio-Informatics",
         ],
         zip_safe=False,
-        include_package_data=True,
+
     )
 
 
