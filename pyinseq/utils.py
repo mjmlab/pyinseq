@@ -1,21 +1,39 @@
 #!/usr/bin/env python3
+
 """
 
  Functions that have no home...
 
 """
+
 import re
 import os
 import csv
 import yaml
+import glob
 import json
-import subprocess
+import shutil
+import subprocess as sub
 from pathlib import Path
 # Module imports
-from pyinseq.logger import logger as logger
+from pyinseq.logger import pyinseq_logger
+
+logger = pyinseq_logger.logger
+
+class cd:
+    """Context manager to change to the specified directory then back."""
+    def __init__(self, new_path):
+        self.new_path = os.path.expanduser(new_path)
+
+    def __enter__(self):
+        self.savedPath = os.getcwd()
+        os.chdir(self.new_path)
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.savedPath)
 
 
-def create_experiment_directories(settings, snakemake=False):
+def create_experiment_directories(experiment, process_reads, parse_genebank):
     """
     Create the project directory and subdirectories
 
@@ -32,37 +50,30 @@ def create_experiment_directories(settings, snakemake=False):
     If /experiment directory already exists exit and return error message and
     the full path of the present directory to the user"""
     # Check that experiment name has no special characters or spaces
-
-    experiment = convert_to_filename(settings.experiment)
+    experiment = convert_to_filename(experiment)
     output_path = Path(f"results/{experiment}")
 
     # ERROR MESSAGES
     error_directory_exists = (
-        f"PyINSeq Error: The directory already exists for experiment {experiment}\n"
-        f"Delete or rename the {experiment} directory, or provide a new experiment\n"
-        "name for the current analysis"
+        f"Directory {experiment} already exists. "
+        f"Snakemake will create files that are missing."
     )
 
     try:
         output_path.mkdir(parents=True, exist_ok=False)
         logger.info(f"Make directory: results/{experiment}")
 
-        if settings.process_reads:
+        if process_reads:
             # Raw data dir
             output_path.joinpath("raw_data").mkdir()
             logger.info(f"Make directory: results/{experiment}/raw_data/")
-        if settings.parse_genbank_file:
+        if parse_genebank:
             # Genome dir
             output_path.joinpath("genome_lookup").mkdir()
             logger.info(f"Make directory: results/{experiment}/genome_lookup/")
     except FileExistsError:
-        if snakemake:
-            logger.info(
-                f"Directory {experiment} already exists. Since you decided to use snakemake, we will skip this...")
-            return
-        print(error_directory_exists)
-        exit(1)
-    return
+        logger.info(error_directory_exists)
+        return
 
 
 def convert_to_filename(sample_name):
@@ -84,13 +95,13 @@ def count_lines(filename: str, fastq=False):
         # Check if gz compressed
         if filename.split(".")[-1] in ["gz"]:
             # Build pipe for uncompressed file
-            pipe = subprocess.Popen(("gzcat", "-d", filename), stdout=subprocess.PIPE)
-            output = int(subprocess.check_output(["wc", "-l"], stdin=pipe.stdout))
+            pipe = sub.Popen(("gzcat", "-cd", filename), stdout=sub.PIPE)
+            output = int(sub.check_output(["wc", "-l"], stdin=pipe.stdout))
         # Other files...
         else:
             output = int(
-                subprocess.check_output(
-                    ["wc", "-l", filename], stderr=subprocess.DEVNULL
+                sub.check_output(
+                    ["wc", "-l", filename], stderr=sub.DEVNULL
                 )
                 .split()[0]
                 .decode("UTF-8")
@@ -99,7 +110,7 @@ def count_lines(filename: str, fastq=False):
             return int(output / 4)
         else:
             return int(output)
-    except subprocess.CalledProcessError as e:
+    except sub.CalledProcessError as e:
         # Catching error returns arbitrary value
         logger.debug(f"{str(e)}: using arbitrary limit for progress bar")
         return 10e10
@@ -138,29 +149,106 @@ def get_config_dict(config_file):
         return yaml.load(f, Loader=yaml.FullLoader)
 
 
-TEMPLATE = {
-    'input': None,
-    'samples': None,
-    'genome': None,
-    'experiment': None,
-    'threads': None,
-}
-
-def write_config_file(args, format='yaml', default=False) -> Path:
+def write_config_file(args=None, format='yaml', default=False) -> Path:
     """
 
     Given pyinseq arguments, creates a config file that can be given to snakemake
 
     :param args: Namespace object with pyinseq args
     :param format: file extension for configfile (json or yaml)
-    :return:
+    :param default: boolean to write default config file
+    :return: path to config_file
     """
+    args_dict = vars(args)
     dumper = {'yaml': yaml.dump, 'json': json.dump}[format]
-    configfile = Path(f'{args.experiment}_pyinseq-snake_config.{format}')
     if default:
-        configfile = Path(f"pyinseq-snake_default-config.{format}")
-    with open(configfile, 'w') as f:
-        config_dict = {key: vars(args)[key] for key in TEMPLATE}
-        dumper(config_dict, f)
-    return configfile
+        logger.info("Writing DEFAULT configuration file as template for pyinseq")
+        with open(f'default-config-pyinseq.{format}', 'w') as f:
+            config_dict = {key: args_dict[key] for key in args_dict}
+            dumper(config_dict, f)
+        logger.info("Exiting gracefully...")
+        exit(0)
+    else:
+        logger.info("Writing configuration file from provided arguments")
+        config_file = Path(f'{args.experiment}-config.{format}')
+        with open(config_file, 'w') as f:
+            config_dict = {key: args_dict[key] for key in args_dict}
+            dumper(config_dict, f)
+        return config_file
+
+
+def tab_delimited_samples_to_dict(sample_file):
+    """Read sample names, barcodes from tab-delimited into an OrderedDict."""
+    samples_dict = {}
+    with open(sample_file, "r", newline="") as csv_file:
+        for line in csv.reader(csv_file, delimiter="\t"):
+            # ignore comment lines in original file
+            if not line[0].startswith("#"):
+                # sample > filename-acceptable string
+                # barcode > uppercase
+                sample = convert_to_filename(line[0])
+                barcode = line[1].upper()
+                if sample not in samples_dict and barcode not in samples_dict.values():
+                    samples_dict[sample] = {"barcode": barcode}
+                else:
+                    raise IOError(f"Error: duplicate sample {sample} barcode {barcode}")
+    return samples_dict
+
+
+def yaml_samples_to_dict(sample_file):
+    """Read sample names, barcodes from yaml."""
+    with open(sample_file, "r") as f:
+        samples_dict = yaml.load(sample_file)
+    return samples_dict
+
+
+def directory_of_samples_to_dict(directory):
+    """Read sample names from a directory of .gz files."""
+    samples_dict = {}
+    for gz_file in list_files(directory):
+        # TODO(convert internal periods to underscore? use regex?)
+        # extract file name before any periods
+        f = os.path.splitext(os.path.basename(gz_file))[0].split(".")[0]
+        samples_dict[f] = {}
+    return samples_dict
+
+
+def list_files(folder, ext="gz"):
+    """Return list of .gz files from the specified folder."""
+    with cd(folder):
+        return [f for f in glob.glob(f"*.{ext}")]
+
+
+def dump_sample_dict_to_yml(updated_dict, yml_output):
+    """ Updates sample_info.yml file with attributes for sample """
+    # Load current state of sample_dict
+    with open(yml_output, 'r') as f:
+        current_dict = yaml.load(f, Loader=yaml.FullLoader)
+    with open(yml_output, "w") as fo:
+        dump_dict = current_dict.copy()
+        for sample, sub_d in updated_dict.items():
+            for k in sub_d:
+                if k not in current_dict[sample].keys():
+                    dump_dict[sample][k] = updated_dict[sample][k]
+        yaml.dump(dump_dict, fo)
+
+
+def copy_file(src, dest):
+    """ Literally does what it says... """
+    shutil.copy(src, dest)
+
+
+def execute(cmd) -> None:
+    """ Execute snakemake workflow using subprocess module """
+    # Call bash command, suppress pyinseq output
+    if not isinstance(cmd, list):
+        cmd = cmd.split(' ')
+    process = sub.Popen(cmd)
+    try:
+        process.wait()
+    except KeyboardInterrupt:
+        # Kill if CTRL+C event occurs
+        process.kill()
+    finally:
+        process.terminate()
 
