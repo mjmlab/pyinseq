@@ -13,6 +13,7 @@ import yaml
 import glob
 import json
 import shutil
+import pickle
 import subprocess as sub
 from pathlib import Path
 # Module imports
@@ -20,20 +21,9 @@ from pyinseq.logger import pyinseq_logger
 
 logger = pyinseq_logger.logger
 
-class cd:
-    """Context manager to change to the specified directory then back."""
-    def __init__(self, new_path):
-        self.new_path = os.path.expanduser(new_path)
-
-    def __enter__(self):
-        self.savedPath = os.getcwd()
-        os.chdir(self.new_path)
-
-    def __exit__(self, etype, value, traceback):
-        os.chdir(self.savedPath)
 
 
-def create_experiment_directories(experiment, process_reads, parse_genebank):
+def create_experiment_directories(settings):
     """
     Create the project directory and subdirectories
 
@@ -50,8 +40,8 @@ def create_experiment_directories(experiment, process_reads, parse_genebank):
     If /experiment directory already exists exit and return error message and
     the full path of the present directory to the user"""
     # Check that experiment name has no special characters or spaces
-    experiment = convert_to_filename(experiment)
-    output_path = Path(f"results/{experiment}")
+    experiment = convert_to_filename(settings.experiment)
+    output_path = settings.output_dir
 
     # ERROR MESSAGES
     error_directory_exists = (
@@ -63,11 +53,11 @@ def create_experiment_directories(experiment, process_reads, parse_genebank):
         output_path.mkdir(parents=True, exist_ok=False)
         logger.info(f"Make directory: results/{experiment}")
 
-        if process_reads:
+        if settings.process_reads:
             # Raw data dir
             output_path.joinpath("raw_data").mkdir()
             logger.info(f"Make directory: results/{experiment}/raw_data/")
-        if parse_genebank:
+        if settings.parse_genebank:
             # Genome dir
             output_path.joinpath("genome_lookup").mkdir()
             logger.info(f"Make directory: results/{experiment}/genome_lookup/")
@@ -113,7 +103,7 @@ def count_lines(filename: str, fastq=False):
     except sub.CalledProcessError as e:
         # Catching error returns arbitrary value
         logger.debug(f"{str(e)}: using arbitrary limit for progress bar")
-        return 10e10
+        return None
 
 
 def read_gene_file(gene_file):
@@ -219,19 +209,11 @@ def list_files(folder, ext="gz"):
         return [f for f in glob.glob(f"*.{ext}")]
 
 
-def dump_sample_dict_to_yml(updated_dict, yml_output):
-    """ Updates sample_info.yml file with attributes for sample """
-    # Load current state of sample_dict
-    with open(yml_output, 'r') as f:
-        current_dict = yaml.load(f, Loader=yaml.FullLoader)
-    with open(yml_output, "w") as fo:
-        dump_dict = current_dict.copy()
-        for sample, sub_d in updated_dict.items():
-            for k in sub_d:
-                if k not in current_dict[sample].keys():
-                    dump_dict[sample][k] = updated_dict[sample][k]
-        yaml.dump(dump_dict, fo)
+"""
 
+Functions that handle terminal operations
+
+"""
 
 def copy_file(src, dest):
     """ Literally does what it says... """
@@ -251,4 +233,16 @@ def execute(cmd) -> None:
         process.kill()
     finally:
         process.terminate()
+
+
+def pickle_object(object, pickle_output):
+    """ Serializes objects that can be picked up by other processes """
+    with open(pickle_output, 'wb') as f:
+        pickle.dump(object, f)
+
+
+def load_pickle(byte_file):
+    """ Loads a pickled object """
+    with open(byte_file, 'rb') as f:
+        return pickle.load(f)
 

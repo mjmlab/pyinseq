@@ -4,29 +4,53 @@
 Main entry-point for pyinseq
 
 """
+# Setup up universal logger
+from pyinseq.logger import pyinseq_logger
+pyinseq_logger.setup_logger()
+
+import sys
+import traceback
 # Module imports
-from pyinseq import runner
-from pyinseq.logger import logger
-from pyinseq.parsers import get_parser
-from pyinseq.utils import write_config_file
-from pyinseq.workflows.PyinseqSnakemake import workflow
+from pyinseq.parsers import get_args
+from pyinseq.utils import write_config_file, execute, create_experiment_directories, pickle_object
+from pyinseq.settings import Settings
+
+
+logger = pyinseq_logger.logger
 
 
 if __name__ == "__main__":
+    ### START HERE ###
     logger.info("Process command line arguments")
-    parser = get_parser()
-    args = parser.parse_args()
-    if args.command == None and args.experiment == None:
+    parser, args = get_args()
+    # Print help if no args given
+    if not sys.argv[1:]:
         parser.print_help()
         exit(0)
-
-    if args.command == 'snakemake':
-        # Check for config file
-        if args.config:
-            config_file = args.config
-        else:
-            config_file = write_config_file(args, format=args.config_format, default=args.get_default_config)
-        w = workflow.PyinseqWorkflow(config_file, args.additional_params)
-        w.run()
+    if args.config:
+        logger.info(f"Config file provided as: {args.config}")
+        config_file = args.config
     else:
-        runner.main(args)
+        config_file = write_config_file(args, format=args.config_format, default=args.get_default_config)
+    # Get workflow object
+    settings = Settings(args.command, config_file, args.additional_params)
+    create_experiment_directories(settings)
+
+    # TODO: Weird fix
+    if settings.command != 'genomeprep':
+        settings.dump_sample_dict_to_yml()
+
+    # Pickle settings
+    pickle_object(settings, settings.settings_pickle)
+    logger.info(f"Workflow selected: {settings.command}")
+    logger.info(f"***** BEGIN {settings.command.upper()} WORKFLOW *****")
+
+    try:
+        execute(settings.snakemake_cmd)
+    except Exception as e:
+        exc_type, exc_value, exc_tb = sys.exc_info()
+        traceback.print_tb(exc_tb)
+        traceback.print_exc()
+    # Cleanup settings
+    settings.clean_up()
+    logger.info(f"***** {settings.command.upper()} WORKFLOW FINISHED *****")
