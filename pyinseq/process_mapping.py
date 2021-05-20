@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
+
 """
 
 Count and process the bowtie hits at each position in each sample
 
 """
+
 import csv
 # Module Imports
-from pyinseq.logger import logger, tqdm_logger
-from pyinseq.utils import count_lines
+from pyinseq.logger import pyinseq_logger
 
+logger = pyinseq_logger.logger
 
 def map_sites(sample, settings):
     """Map insertions to nucleotide sites."""
@@ -20,12 +22,7 @@ def map_sites(sample, settings):
     overall_total = 0
     bowtie_file = settings.path + sample + "_bowtie.txt"
     sites_file = settings.path + sample + "_sites.txt"
-
     with open(bowtie_file, "r") as fi:
-        tqdm_logger.set_progress_bar(
-            num_iterations=count_lines(bowtie_file),
-            desc=f"Alignments in {bowtie_file}",
-            unit="Sites")
         for line in fi:
             bowtie_data = line.rstrip().split("\t")
             # Calculate transposon insertion point = insertion_NT
@@ -41,8 +38,6 @@ def map_sites(sample, settings):
                 insertion_NT = insertion_NT + 1
                 map_dict.setdefault((contig, insertion_NT), [0, 0])[1] += 1  # right
             overall_total += 1
-        # Close progress bar
-        tqdm_logger.p_bar.close()
     # write tab-delimited of contig/nucleotide/left_counts/right_counts/total_counts/cpm
     # use the total_counts as the denominator for cpm calculation
     with open(sites_file, "a") as fo:
@@ -56,6 +51,7 @@ def map_sites(sample, settings):
             "cpm",
         )
         writer.writerow(header_entry)
+        sample_dict = {sample: {'site hits': 0}}
         for insertion in sorted(map_dict):
             left_counts = map_dict[insertion][0]
             right_counts = map_dict[insertion][1]
@@ -70,7 +66,11 @@ def map_sites(sample, settings):
                 cpm,
             )
             writer.writerow(row_entry)
-    return map_dict
+            sample_dict[sample]['site hits'] += total_counts
+    # Summarize site data into io
+    pyinseq_logger.logger_io.write(f"- {sample}: {overall_total} aligned reads mapped to sites\n")
+    # Return a dict where {sample: {sites: 100} }
+    return sample_dict
 
 
 def map_genes(sample, settings):
@@ -103,13 +103,8 @@ def map_genes(sample, settings):
     with open(sites_file, "r", newline="") as csvfileR:
         sites_reader = csv.reader(csvfileR, delimiter="\t")
         next(sites_reader, None)  # skip the headers
-        tqdm_logger.set_progress_bar(
-            num_iterations=count_lines(sites_file),
-            desc=f'Processing gene insertions in {sites_file}',
-            unit='insertions'
-        )
+        sites_in_genes = 0
         for line in sites_reader:
-            tqdm_logger.update()
             contig, nucleotide, left_counts, right_counts, total_counts, cpm = line[0:6]
             nucleotide = int(nucleotide)
             cpm = float(cpm)
@@ -139,6 +134,7 @@ def map_genes(sample, settings):
                 # contig from insertion; locus from lookup table
                 if contig == locus:
                     if start <= nucleotide <= end:
+                        sites_in_genes += int(total_counts)
                         # 0.0 = 5'end ; 1.0 = 3'end
                         if strand == "+":
                             three_primeness = (1 + nucleotide - start) / length
@@ -167,9 +163,8 @@ def map_genes(sample, settings):
                                 # that it is subscriptable to add cpm counts
                                 gene_dict.setdefault(locus_tag, [0])[0] += cpm
                 previous_feature = locus_tag
-    # Clear progress bar
-    tqdm_logger.p_bar.close()
     # Write individual insertions to *_genes.txt
+    sample_dict = {sample: {'gene hits': 0}}
     with open(genes_file, "w", newline="") as csvfileW:
         headers = (
             "contig",
@@ -185,8 +180,11 @@ def map_genes(sample, settings):
         mapped_gene_writer.writerow(headers)
         for hit in mapped_hit_list:
             mapped_gene_writer.writerow(hit)
+            sample_dict[sample]['gene hits'] += int(hit[4])
+    # Summarize site data into io
+    pyinseq_logger.logger_io.write(f"- {sample}: {sites_in_genes} of mapped reads fall in genes\n")
     # Return aggregated insertions by gene (filtered on 5'-3' threshold)
-    return gene_dict
+    return sample_dict
 
 
 def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
@@ -245,6 +243,11 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
                 fo, delimiter="\t", dialect="excel", lineterminator="\n"
             )
             writer.writerows(gene_table)
+
+    # Summarize build gene table step
+    pyinseq_logger.logger_io.write(f"Gene table contains {len(sample_dict)} samples (columns) "
+                                   f"for {len(gene_table) - 1} genes (rows) \n")
+    return
 
 
 def ftt_lookup(organism, experiment=""):
