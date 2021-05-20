@@ -1,25 +1,71 @@
 #!/usr/bin/env python3
+
 """
 
 Contains functions for parsing arguments from command line
 
 """
+
 import os
 import argparse
 # Module imports
 from pyinseq.utils import get_version
 
 
-def get_parser() -> argparse.Namespace:
-    """Parse command line arguments for main pyinseq."""
+def get_args():
+    """Parse command line arguments for main pyinseq. Returns both parser and Namespace object"""
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--version', action='version', version=f"pyinseq: {get_version()}",
+    subparsers = parser.add_subparsers(dest="command", help='sub-command help')
+    SNAKE_ARGS = parser.add_argument_group('SNAKEMAKE')
+    SNAKE_ARGS.add_argument(
+        '--get_default_config',
+        action='store_true',
+        help="Writes a default configuration file for pyinseq run that can be modified"
+    )
+    SNAKE_ARGS.add_argument(
+        '--config_format',
+        default='yaml',
+        help="Format for the configuration file. Options are: 'json' or 'yaml'"
+    )
+    SNAKE_ARGS.add_argument(
+        '-c',
+        '--config',
+        help="Provide config file (in json or yaml format) instead of pyinseq arguments to run pipeline",
+        default=False
+    )
+    SNAKE_ARGS.add_argument(
+        '-t',
+        '--threads',
+        default=os.cpu_count(),
+        help="Number of threads that snakemake can use to run pyinseq, the more the better for parallel processing",
+        type=int
+    )
+    SNAKE_ARGS.add_argument(
+        '--additional_params',
+       help="Additional params passed to SNAKEMAKE. Make sure they are correct cause "
+            "I will not be checking....",
+       nargs='...',
+       default=[],
+       type=str,
+    )
+
+    parser.add_argument(
+        '-v',
+        '--version',
+        action='version',
+        version=f"pyinseq: {get_version()}",
     )
     parser.add_argument(
-        "-i", "--input", help="input Illumina reads file or folder", required=False
+        "-i",
+        "--input",
+        help="input Illumina reads file or folder",
+        required=False
     )
     parser.add_argument(
-        "-s", "--samples", help="sample list with barcodes", required=False
+        "-s",
+        "--samples",
+        help="sample list with barcodes",
+        required=False
     )
     parser.add_argument(
         "-e",
@@ -34,21 +80,43 @@ def get_parser() -> argparse.Namespace:
         required=False,
     )
     parser.add_argument(
-        "-d", "--disruption", help="fraction of gene disrupted (0.0 - 1.0)", default=1.0
+        "--gff3",
+        help="generate GFF3 file",
+        action="store_true",
+        required=False,
+        default=False
     )
     parser.add_argument(
-        "--min_count", help="Minimum number of reads per insertion site", default=3
+        "-d",
+        "--disruption",
+        help="fraction of gene disrupted (0.0 - 1.0). Default: 0.9",
+        default=0.9,
+        type=float
+    )
+    parser.add_argument(
+        "--min_count",
+        help="Minimum number of reads per insertion site",
+        default=3,
+        type=int
     )
     parser.add_argument(
         "--max_ratio",
         help="Maximum ratio of left:right or right:left reads per insertion site",
         default=10,
+        type=int
+    )
+    parser.add_argument(
+        "--barcode_length",
+        help="Length of the barcode which is used to demultiplex samples",
+        type=int,
+        default=4,
+    )
+    parser.add_argument(
+        "--transposon_seq",
+        help="Sequence for the transposon that flanks reads",
+        default="ACAGGTTG",
     )
     """Inactive arguments in current version
-    parser.add_argument('-s', '--samples',
-                        help='sample list with barcodes. \
-                        If not provided then entire folder provided for --input is analyzed',
-                        required=False)
     parser.add_argument('--nobarcodes',
                         help='barcodes have already been removed from the samples; \
                         -i should list the directory with filenames (.fastq.gz) \
@@ -65,14 +133,18 @@ def get_parser() -> argparse.Namespace:
                         default=False)"""
 
     # demultiplex
-    subparsers = parser.add_subparsers(dest="command", help='sub-command help')
-    # Demultiplex
     sub_parser_demultiplex = subparsers.add_parser('demultiplex', help="Demultiplex reads into barcode samples")
     sub_parser_demultiplex.add_argument(
-        "-i", "--input", help="input Illumina reads file or folder", required=False
+        "-i",
+        "--input",
+        help="input Illumina reads file or folder",
+        required=False
     )
     sub_parser_demultiplex.add_argument(
-        "-s", "--samples", help="sample list with barcodes", required=False
+        "-s",
+        "--samples",
+        help="sample list with barcodes",
+        required=False
     )
     sub_parser_demultiplex.add_argument(
         "-e",
@@ -85,6 +157,7 @@ def get_parser() -> argparse.Namespace:
         help="do not write trimmed reads (i.e. write raw reads only)",
         action="store_true",
         required=False,
+        default=False,
     )
 
     # Genomeprep
@@ -106,54 +179,14 @@ def get_parser() -> argparse.Namespace:
         help="do not generate bowtie indexes",
         action="store_true",
         required=False,
+        default=False
     )
     sub_parser_genome_prep.add_argument(
-        "-gff", "--gff", help="generate GFF3 file", action="store_true", required=False
-    )
-
-    # Snakemake
-    sub_parser_snakemake = subparsers.add_parser('snakemake', help="Run pyinseq using snakemake workflow")
-
-    sub_parser_snakemake.add_argument('--get-default-config', action='store_true', help="")
-    sub_parser_snakemake.add_argument('--config-format', default='yaml',
-                       help="Format for the configuration file. Options are: 'json' or 'yaml'")
-    sub_parser_snakemake.add_argument('-c', '--config', default=False)
-    sub_parser_snakemake.add_argument('-T', '--threads', default=os.cpu_count(), type=int, help="Number of threads for running pyinseq")
-    sub_parser_snakemake.add_argument('--additional-params',
-                       help="Additional params passed to SNAKEMAKE. Make sure they are correct cause "
-                            "I will not be checking....",
-                       nargs='...',
-                       default=[],
-                       type=str,
-                       )
-    sub_parser_snakemake.add_argument(
-        "-i", "--input", help="input Illumina reads file or folder", required=False
-    )
-    sub_parser_snakemake.add_argument(
-        "-s", "--samples", help="sample list with barcodes", required=False
-    )
-    sub_parser_snakemake.add_argument(
-        "-e",
-        "--experiment",
-        help="experiment name (no spaces or special characters)",
-        required=False
-    )
-    sub_parser_snakemake.add_argument(
-        "-g",
-        "--genome",
-        help="genome in GenBank format (one concatenated file for multiple contigs/chromosomes)",
+        "--gff3",
+        help="generate GFF3 file",
+        action="store_true",
         required=False,
+        default=False
     )
-    sub_parser_snakemake.add_argument(
-        "-d", "--disruption", help="fraction of gene disrupted (0.0 - 1.0)", default=1.0
-    )
-    sub_parser_snakemake.add_argument(
-        "--min_count", help="Minimum number of reads per insertion site", default=3
-    )
-    sub_parser_snakemake.add_argument(
-        "--max_ratio",
-        help="Maximum ratio of left:right or right:left reads per insertion site",
-        default=10,
-    )
-    return parser
+    return parser, parser.parse_args()
 
