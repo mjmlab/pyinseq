@@ -2,42 +2,38 @@
 
 """
 
-Snakefile for pyinseq pipeline
+Snakefile for pyinseq demultiplex pipeline
 
 """
+
 from pathlib import Path
+# Setup logger before importing modules
+from pyinseq.logger import pyinseq_logger, add_fileHandler, add_streamHandler
+pyinseq_logger.setup_logger()
 # Module imports
 import pyinseq
-from pyinseq.utils import read_gene_file, tab_delimited_samples_to_dict
-from pyinseq.demultiplex import demultiplex_fastq
-from pyinseq.gbk_convert import build_fna_and_table_files
-from pyinseq.process_mapping import map_sites, map_genes, build_gene_table
-from pyinseq.settings import Settings
 from pyinseq.pipeline import pipeline_summarize
-from pyinseq.logger import FORMATTER, add_fileHandler
-from pyinseq.logger import logger as _logger
+from pyinseq.demultiplex import demultiplex_fastq
+from pyinseq.utils import load_pickle
 
 # Path to environment folder
 ENVS = Path(pyinseq.__file__).parent.joinpath("envs")
 
-### Grab from config
-command = config['command']
-reads = config['input']
-samples = config['samples']
-experiment = config['experiment']
-output_dir = f"results/{experiment}"
-notrim = config['notrim']
-
-# Settings object
-settings = Settings(experiment)
-settings.write_trimmed_reads = not notrim
-samples_dict = tab_delimited_samples_to_dict(samples)
-
+# Load pickled settings
+settings = load_pickle(f"results/{config['experiment']}/settings.pickle")
+samples_dict = settings.samples_dict
+output_dir = str(settings.output_dir)
 
 # Setup pyinseq logger and add file handler to snakemake
-snake_logger = logger.logger
-add_fileHandler(_logger, settings.log)
-add_fileHandler(snake_logger, settings.log)
+logger.quiet = True
+pyinseq_logger.add_logfile_paths(settings)
+add_fileHandler(pyinseq_logger.logger, settings.log, formatter=True)
+add_fileHandler(logger.logger, settings.log)
+# Add io stream to snakemake for saving info
+add_streamHandler(logger.logger, pyinseq_logger.snake_io)
+
+## SNAKE MESSAGE TO LOGGER
+logger.logger.info("(SNAKEMAKE INFO)")
 
 
 rule all:
@@ -48,21 +44,23 @@ rule all:
 
 rule demultiplex:
     input:
-        fastq=f"{reads}"
+        fastq=f"{settings.reads}"
     output:
-        expand(output_dir + "/raw_data/{sample}.fastq", sample=samples_dict.keys())
-    threads: config['threads']
+        expand(output_dir + "/raw_data/{sample}.fastq", sample=samples_dict.keys()),
+    threads: 1
     run:
         # Run demultiplex
-        demultiplex_fastq(input.fastq, samples_dict, settings)
+        barcode_read_count = demultiplex_fastq(input.fastq, samples_dict, settings)
+        settings.dump_sample_dict_to_yml(barcode_read_count)
+        pyinseq_logger.summarize_step()
 
 
 rule summarize:
     input:
-        expand(output_dir + "/raw_data/{sample}.fastq", sample=samples_dict.keys())
+        expand(output_dir + "/raw_data/{sample}.fastq",sample=samples_dict.keys()),
     output:
         "{output_dir}/samples.txt"
-    threads: config['threads']
+    threads: 1
     run:
         pipeline_summarize(samples_dict, settings)
-
+        pyinseq_logger.summarize_step()
