@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """
 
 GenBank conversion utilities for the pyinseq pipeline.
@@ -13,21 +14,32 @@ Locus headers are the fasta headers
 Maintains original newlines (typically leaving up to 60 nucleotides per line)
 
 # gbk2table()
-C
+
 
 """
+
 import re
 import csv
-import sys
-import logging
 # Module imports
-from pyinseq.logger import logger as logger
+from pyinseq.logger import pyinseq_logger
 
+pyinseq_logger = pyinseq_logger.logger
+
+
+def build_fna_and_table_files(gbk_file, settings):
+    """Convert GenBank file to a fasta nucleotide (.fna) and feature table (.ftt) files."""
+    pyinseq_logger.info(f"Converting genebank {gbk_file} to fasta nucleotide (.fna) and feature table (.ftt).")
+    fasta = gbk2fna(gbk_file, settings.organism, settings.genome_path)
+    gbk2table(gbk_file, fasta, settings.organism, settings.genome_path, settings.gff)
+
+    
 def write_to_file(outfile, row_data):
+    """ Writes table into outfile """
     with open(outfile, "w") as fo:
         writer = csv.writer(fo, delimiter="\t", lineterminator="\n")
         for row in row_data:
             writer.writerow(row)
+    return
 
 
 def gbk2fna(infile, organism, output_directory=""):
@@ -61,10 +73,11 @@ def gbk2fna(infile, organism, output_directory=""):
         outfile = f"{output_directory}{organism}.fna"
         write_to_file(outfile, fna_rows)
 
-        return {"fasta": fna_rows, "nucleotides": n_nt}
+    pyinseq_logger.info(f"Nucleotides stored in {outfile}")
+    return {"fasta": fna_rows, "nucleotides": n_nt}
 
 
-def gbk2table(infile, organism, output_directory="", gff=False):
+def gbk2table(infile, fasta, organism, output_directory="", gff=False):
     """ Convert GenBank to feature table
         Format similar to .ptt and .rnt files except:
         - full tabular (locus as a field)
@@ -96,7 +109,6 @@ def gbk2table(infile, organism, output_directory="", gff=False):
         ]
 
         # Collect/write fasta sequence and collect contig lengths
-        fasta = gbk2fna(infile, organism, output_directory)
         fna_rows = fasta["fasta"]
         fna_nucleotides = fasta["nucleotides"]
 
@@ -111,7 +123,7 @@ def gbk2table(infile, organism, output_directory="", gff=False):
         features = False  # in the FEATURES section of the GenBank file
         new_feature = False  # collecting data for a new feature
         parse_types = ["CDS", "tRNA", "rRNA", "misc_RNA"]
-        type = "CDS"
+        feature_type = "CDS"
         strand = "+"
         length = 0
         protein_id = "-"
@@ -173,7 +185,7 @@ def gbk2table(infile, organism, output_directory="", gff=False):
                                         (
                                             locus,
                                             ".",
-                                            type,  # need to extract the type of feature
+                                            feature_type,  # need to extract the type of feature
                                             first,
                                             last,
                                             ".",
@@ -187,7 +199,7 @@ def gbk2table(infile, organism, output_directory="", gff=False):
 
                     if line[5:21].rstrip() in parse_types:
                         new_feature = True  # Feature that should be written
-                        type = line[5:21].rstrip()
+                        feature_type = line[5:21].rstrip()
                         protein_id = "-"
                         gene = "-"
                         locus_tag = "-"
@@ -269,15 +281,10 @@ def gbk2table(infile, organism, output_directory="", gff=False):
         gff_rows = gff_rows + fna_rows
         outfile = f"{output_directory}{organism}.gff"
         write_to_file(outfile, gff_rows)
+    pyinseq_logger.info(f"Features table stored in {outfile}")
+    return
 
-
-def main():
-    """Start here."""
-    input_file = sys.argv[1]
-    organism = sys.argv[2]
-    # gbk2fna(input_file, organism)
-    gbk2table(input_file, organism, gff=True)
 
 
 if __name__ == "__main__":
-    main()
+    pass
