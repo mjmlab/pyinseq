@@ -84,6 +84,7 @@ class Settings:
             str(self.snakefile),
             "--cores",
             str(self.threads - 1),
+            '--use-conda'
         ]
         # Add additional parameters, if any...
         self.snakemake_cmd.extend(add_params)
