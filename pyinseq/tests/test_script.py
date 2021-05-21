@@ -151,9 +151,9 @@ def test_pyinseq_genomeprep_script(datadir, tmpdir):
 
 
 def test_pyinseq_genomeprep_gff_script(datadir, tmpdir):
-    output_name = "example_genomeprep_gff"
+    output_name = "test_genomeprep_gff"
     expected_output = datadir("output_genomeprep_gff")
-    output_dir = tmpdir.join("results/example_genomeprep_gff")
+    output_dir = tmpdir.join(f"results/{output_name}")
     gb_fn = datadir("input/ES114v2.gb")
 
     args = [
