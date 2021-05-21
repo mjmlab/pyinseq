@@ -22,7 +22,6 @@ from pyinseq.logger import pyinseq_logger
 logger = pyinseq_logger.logger
 
 
-
 def create_experiment_directories(settings):
     """
     Create the project directory and subdirectories
