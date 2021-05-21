@@ -8,6 +8,7 @@ python:
   - "3.7"
 install:
   - sudo apt-get update
+  - sudo apt-get install libtbb2
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
@@ -27,9 +28,7 @@ install:
   - conda install -n base -c conda-forge mamba
   - conda install -n test-environment tbb=2020.2 # Needed for bowtie2 install
   - source activate test-environment
-  - pip install -r requirements.txt
   - pip install ./
-  - conda list
 script:
   - make test
   - black --check pyinseq/ scripts/pyinseq
