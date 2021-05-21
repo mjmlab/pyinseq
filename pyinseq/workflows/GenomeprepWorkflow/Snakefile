@@ -25,11 +25,9 @@ output_dir = str(settings.output_dir)
 # Setup pyinseq logger and add file handler to snakemake
 logger.quiet = True
 pyinseq_logger.add_logfile_paths(settings)
-add_fileHandler(pyinseq_logger.logger, settings.log, formatter=True)
-add_fileHandler(logger.logger, settings.log)
+add_fileHandler(pyinseq_logger.logger, settings.log)
 # Add io stream to snakemake for saving info
 add_streamHandler(logger.logger, pyinseq_logger.snake_io)
-
 ## SNAKE MESSAGE TO LOGGER
 logger.logger.info("(SNAKEMAKE INFO)")
 
