@@ -12,9 +12,8 @@ import sys
 import traceback
 # Module imports
 from pyinseq.parsers import get_args
-from pyinseq.utils import write_config_file, execute, create_experiment_directories, pickle_object
 from pyinseq.settings import Settings
-
+from pyinseq.utils import write_config_file, execute, create_experiment_directories, pickle_object
 
 logger = pyinseq_logger.logger
 
@@ -36,7 +35,6 @@ if __name__ == "__main__":
     settings = Settings(args.command, config_file, args.additional_params)
     create_experiment_directories(settings)
 
-    # TODO: Weird fix
     if settings.command != 'genomeprep':
         settings.dump_sample_dict_to_yml()
 
@@ -48,9 +46,11 @@ if __name__ == "__main__":
     try:
         execute(settings.snakemake_cmd)
     except Exception as e:
+        logger.exception("Exception while executing snakemake subprocess")
         exc_type, exc_value, exc_tb = sys.exc_info()
         traceback.print_tb(exc_tb)
         traceback.print_exc()
+
     # Cleanup settings
     settings.clean_up()
     logger.info(f"***** {settings.command.upper()} WORKFLOW FINISHED *****")
