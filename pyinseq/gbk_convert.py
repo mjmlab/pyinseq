@@ -23,12 +23,12 @@ import csv
 # Module imports
 from pyinseq.logger import pyinseq_logger
 
-pyinseq_logger = pyinseq_logger.logger
+logger = pyinseq_logger.logger
 
 
 def build_fna_and_table_files(gbk_file, settings):
     """Convert GenBank file to a fasta nucleotide (.fna) and feature table (.ftt) files."""
-    pyinseq_logger.info(f"Converting genebank {gbk_file} to fasta nucleotide (.fna) and feature table (.ftt).")
+    logger.info(f"Converting genebank {gbk_file} to fasta nucleotide (.fna) and feature table (.ftt).")
     fasta = gbk2fna(gbk_file, settings.organism, settings.genome_path)
     gbk2table(gbk_file, fasta, settings.organism, settings.genome_path, settings.gff)
 
@@ -73,7 +73,7 @@ def gbk2fna(infile, organism, output_directory=""):
         outfile = f"{output_directory}{organism}.fna"
         write_to_file(outfile, fna_rows)
 
-    pyinseq_logger.info(f"Nucleotides stored in {outfile}")
+    logger.info(f"Nucleotides stored in {outfile}")
     return {"fasta": fna_rows, "nucleotides": n_nt}
 
 
@@ -281,7 +281,7 @@ def gbk2table(infile, fasta, organism, output_directory="", gff=False):
         gff_rows = gff_rows + fna_rows
         outfile = f"{output_directory}{organism}.gff"
         write_to_file(outfile, gff_rows)
-    pyinseq_logger.info(f"Features table stored in {outfile}")
+    logger.info(f"Features table stored in {outfile}")
     return
 
 
