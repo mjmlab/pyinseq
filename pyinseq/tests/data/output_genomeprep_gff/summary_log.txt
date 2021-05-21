@@ -3,4 +3,4 @@ Job counts:
 	count	jobs
 	1	genome_prep
 	1
-(Pyinseq info)
+(PYINSEQ INFO)

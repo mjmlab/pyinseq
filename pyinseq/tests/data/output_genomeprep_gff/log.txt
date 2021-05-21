@@ -1,4 +1,6 @@
-2019-07-24 10:18 - INFO - runner - Prepare genome features (.ftt), fasta nucleotide (.fna), and GFF3 (.gff) files
-2019-07-24 10:18 - INFO - runner - Prepare bowtie index
-2019-07-24 10:18 - INFO - runner - Building bowtie index files in results/TEST2/genome_lookup
-2019-07-24 10:18 - INFO - runner - ***** genomeprep complete! *****
+2021-05-21 11:31 - INFO - gbk_convert - Converting genebank ../data/input/ES114v2.gb to fasta nucleotide (.fna) and feature table (.ftt).
+2021-05-21 11:31 - INFO - gbk_convert - Nucleotides stored in results/test_genomeprep_gff/genome_lookup/genome.fna
+2021-05-21 11:31 - INFO - gbk_convert - Converting genebank ../data/input/ES114v2.gb to fasta nucleotide (.fna) and feature table (.ftt).
+2021-05-21 11:32 - INFO - gbk_convert - Nucleotides stored in results/test_genomeprep_gff/genome_lookup/genome.fna
+2021-05-21 11:32 - INFO - gbk_convert - Writing gff3 version of genome files
+2021-05-21 11:32 - INFO - gbk_convert - Features table stored in results/test_genomeprep_gff/genome_lookup/genome.gff

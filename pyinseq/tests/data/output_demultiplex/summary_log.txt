@@ -3,7 +3,7 @@ Job counts:
 	count	jobs
 	1	demultiplex
 	1
-(Pyinseq info)
+(PYINSEQ INFO)
 534 reads demultiplexed
 - E001_01 (GAAG): 252 reads
 - E001_02 (CTTT): 274 reads
@@ -12,7 +12,7 @@ Job counts:
 	count	jobs
 	1	summarize
 	1
-(Pyinseq info)
+(PYINSEQ INFO)
 Print log path: results/test_demultiplex/log.txt
 Print settings:
 command: demultiplex
@@ -43,6 +43,8 @@ write_trimmed_reads: True
 Print samples detail
 E001_01:
   barcode: GAAG
+  demultiplexed_reads: 252
 E001_02:
   barcode: CTTT
+  demultiplexed_reads: 274
 

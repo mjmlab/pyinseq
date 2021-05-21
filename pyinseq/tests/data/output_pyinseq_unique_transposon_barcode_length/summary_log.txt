@@ -69,7 +69,7 @@ Job counts:
 	1	build_gene_table
 	1
 (PYINSEQ INFO)
-Gene table contains 2 samples (columns) for 3987 genes (rows) 
+- Gene table contains 2 samples (columns) for 3987 genes (rows) 
 (SNAKEMAKE INFO)
 Job counts:
 	count	jobs
@@ -114,6 +114,12 @@ write_trimmed_reads: True
 Print samples detail
 E001_01:
   barcode: CTAGAGAAG
+  demultiplexed_reads: 252
+  gene hits: 182
+  site hits: 252
 E001_02:
   barcode: AAGTCCTTT
+  demultiplexed_reads: 274
+  gene hits: 204
+  site hits: 274
 

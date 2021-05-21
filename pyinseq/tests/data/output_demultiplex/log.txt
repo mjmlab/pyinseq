@@ -1,52 +1,39 @@
-(SNAKEMAKE INFO)
-Job counts:
-	count	jobs
-	1	all
-	1	demultiplex
-	1	summarize
-	3
-(SNAKEMAKE INFO)
-Job counts:
-	count	jobs
-	1	demultiplex
-	1
-2021-04-07 13:23 - INFO - demultiplex - Preparing to demultiplex reads
-2021-04-07 13:23 - INFO - demultiplex - Total reads demultiplexed: 534
-(SNAKEMAKE INFO)
-Job counts:
-	count	jobs
-	1	summarize
-	1
-2021-04-07 13:23 - INFO - pipeline - Print samples info: results/test_demultiplex/samples.txt
-2021-04-07 13:23 - INFO - pipeline - Print log path: results/test_demultiplex/log.txt
-2021-04-07 13:23 - INFO - pipeline - Print settings:
-command: pyinseq
+2021-05-21 11:24 - INFO - demultiplex - Preparing to demultiplex reads
+2021-05-21 11:24 - INFO - demultiplex - Total reads demultiplexed: 534
+2021-05-21 11:24 - INFO - pipeline - Print log path: results/test_demultiplex/log.txt
+2021-05-21 11:24 - INFO - pipeline - Print settings:
+command: demultiplex
+config_file: test_demultiplex-config.yaml
 experiment: test_demultiplex
+threads: 4
+output_dir: results/test_demultiplex
 path: results/test_demultiplex/
-samples_txt: results/test_demultiplex/samples.txt
 log: results/test_demultiplex/log.txt
 summary_log: results/test_demultiplex/summary_log.txt
-summary_table: results/test_demultiplex/summary_gene_table.txt
-genome_path: results/test_demultiplex/genome_lookup/
+reads: ../data/input/example01.fastq
+samples_txt: results/test_demultiplex/samples.txt
+samples: ../data/input/example01.txt
+samples_dict: {'E001_01': {'barcode': 'GAAG'}, 'E001_02': {'barcode': 'CTTT'}}
+samples_info_yml: results/test_demultiplex/samples_info.yml
 raw_path: results/test_demultiplex/raw_data/
-parse_genbank_file: False
-gff: False
+barcode_length: 4
+transposon_seq: ACAGGTTG
+settings_pickle: results/test_demultiplex/settings.pickle
 organism: genome
-generate_bowtie_index: True
+snakefile: /Users/emanuelburgos/Dropbox/Mandel_Lab/Projects/Project_Pyinseq/pyinseq/pyinseq/workflows/DemultiplexWorkflow/Snakefile
+snakemake_cmd: snakemake --config experiment=test_demultiplex -s /Users/emanuelburgos/Dropbox/Mandel_Lab/Projects/Project_Pyinseq/pyinseq/pyinseq/workflows/DemultiplexWorkflow/Snakefile --cores 3
 process_reads: True
 process_sample_list: True
-map_to_genome: True
+parse_genebank: False
+generate_bowtie_index: False
 write_trimmed_reads: True
-min_counts: 3
-max_ratio: 10
-keep_all: False
-barcode_length: 4
-disruption: 0.9
 
-2021-04-07 13:23 - INFO - pipeline - Print samples detail
+2021-05-21 11:24 - INFO - pipeline - Print samples detail
 E001_01:
   barcode: GAAG
+  demultiplexed_reads: 252
 E001_02:
   barcode: CTTT
+  demultiplexed_reads: 274
 
 
