@@ -12,6 +12,7 @@ from pyinseq.logger import pyinseq_logger
 
 logger = pyinseq_logger.logger
 
+
 def map_sites(sample, settings):
     """Map insertions to nucleotide sites."""
     logger.info(f"Sample {sample}: summarize the site data from the bowtie results into sites file.")
@@ -245,7 +246,7 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
             writer.writerows(gene_table)
 
     # Summarize build gene table step
-    pyinseq_logger.logger_io.write(f"Gene table contains {len(sample_dict)} samples (columns) "
+    pyinseq_logger.logger_io.write(f"- Gene table contains {len(sample_dict)} samples (columns) "
                                    f"for {len(gene_table) - 1} genes (rows) \n")
     return
 
