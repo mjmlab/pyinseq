@@ -23,11 +23,10 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-  - conda init
   # mamba is better for installing bowtie2
   - conda install -n base -c conda-forge mamba
-  - conda activate test-environment
-  - conda install tbb=2020.2 # Needed for bowtie2 install
+  - conda install -n test-environment tbb=2020.2 # Needed for bowtie2 install
+  - source activate test-environment
   - pip install -r requirements.txt
   - pip install ./
   - conda list
