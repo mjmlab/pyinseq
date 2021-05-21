@@ -64,7 +64,7 @@ def test_tab_delimited_samples_to_dict_no_trailing_newline():
 
 
 def test_create_experiment_directories(datadir, tmpdir, load_settings):
-    """ Test for function that creates the directory structure of pyinseq"""
+    """Test for function that creates the directory structure of pyinseq"""
     settings = load_settings
     expected_output = datadir("output_pyinseq")
     # In the context of pytest directory

@@ -5,6 +5,7 @@
 Tests for running pyinseq pipelines
 
 """
+import os
 
 from .test_utils import runscript, datadir, compare_directories
 
@@ -37,7 +38,7 @@ def test_pyinseq_script(datadir, tmpdir):
     ]
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
     assert not status
-
+    print(os.listdir(output_dir))
     # Compare directory outputs
     compare_directories(
         expected_output,

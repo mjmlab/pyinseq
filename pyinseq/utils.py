@@ -132,7 +132,7 @@ def get_version():
 
 
 def get_config_dict(config_file):
-    """ Loads data from config_file into dict"""
+    """Loads data from config_file into dict"""
     with open(config_file, "r") as f:
         return yaml.load(f, Loader=yaml.FullLoader)
 
@@ -215,12 +215,12 @@ Functions that handle terminal operations
 
 
 def copy_file(src, dest):
-    """ Literally does what it says... """
+    """Literally does what it says..."""
     shutil.copy(src, dest)
 
 
 def execute(cmd) -> None:
-    """ Execute snakemake workflow using subprocess module """
+    """Execute snakemake workflow using subprocess module"""
     # Call bash command, suppress pyinseq output
     if not isinstance(cmd, list):
         cmd = cmd.split(" ")
@@ -235,12 +235,12 @@ def execute(cmd) -> None:
 
 
 def pickle_object(object, pickle_output):
-    """ Serializes objects that can be picked up by other processes """
+    """Serializes objects that can be picked up by other processes"""
     with open(pickle_output, "wb") as f:
         pickle.dump(object, f)
 
 
 def load_pickle(byte_file):
-    """ Loads a pickled object """
+    """Loads a pickled object"""
     with open(byte_file, "rb") as f:
         return pickle.load(f)

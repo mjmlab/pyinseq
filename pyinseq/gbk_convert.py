@@ -37,7 +37,7 @@ def build_fna_and_table_files(gbk_file, settings):
 
 
 def write_to_file(outfile, row_data):
-    """ Writes table into outfile """
+    """Writes table into outfile"""
     with open(outfile, "w") as fo:
         writer = csv.writer(fo, delimiter="\t", lineterminator="\n")
         for row in row_data:
@@ -81,18 +81,18 @@ def gbk2fna(infile, organism, output_directory=""):
 
 
 def gbk2table(infile, fasta, organism, output_directory="", gff3=False):
-    """ Convert GenBank to feature table
-        Format similar to .ptt and .rnt files except:
-        - full tabular (locus as a field)
-        - start and end positions as separate fields
-        - includes the following features:
-            CDS
-            rRNA
-            tRNA
-            misc_RNA
-        - Multilocus GenBank converts to multi-.ftt file
-        'Unlike .ptt files that show the number of amino acids as 'length'
-        Optional convert to GFF3 format also..
+    """Convert GenBank to feature table
+    Format similar to .ptt and .rnt files except:
+    - full tabular (locus as a field)
+    - start and end positions as separate fields
+    - includes the following features:
+        CDS
+        rRNA
+        tRNA
+        misc_RNA
+    - Multilocus GenBank converts to multi-.ftt file
+    'Unlike .ptt files that show the number of amino acids as 'length'
+    Optional convert to GFF3 format also..
     """
     with open(infile, "r") as fi:
         ftt_rows = [

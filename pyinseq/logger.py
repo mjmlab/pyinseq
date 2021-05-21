@@ -30,7 +30,7 @@ class CustomLoggers:
         self.summary_log = settings.summary_log
 
     def summarize_step(self):
-        """ Dumps io buffer into a log summary file"""
+        """Dumps io buffer into a log summary file"""
         with open(self.summary_log, "a+") as f:
             snake_message = self.snake_io.getvalue()
             if not snake_message.startswith("(SNAKEMAKE INFO)"):
@@ -42,7 +42,7 @@ class CustomLoggers:
         self.logger_io.flush()
 
     def setup_logger(self, formatter=None):
-        """ Sets up logger with sys.stdout handler """
+        """Sets up logger with sys.stdout handler"""
         self.logger = logging.getLogger("pyinseq")
         self.logger.setLevel(logging.INFO)
         stream_handler = logging.StreamHandler(stream=sys.stdout)
@@ -80,7 +80,7 @@ class TqdmBarLogger:
         )
 
     def info(self, msg):
-        """ Removes logger from display and logs message"""
+        """Removes logger from display and logs message"""
         self.p_bar.close()
         self.logger.info(msg)
         # Set disable to False, brings bar back
@@ -94,7 +94,7 @@ class TqdmBarLogger:
 
 
 def add_fileHandler(logger, logfile, formatter=None):
-    """ Adds a filehandler to logger """
+    """Adds a filehandler to logger"""
     fh = logging.FileHandler(logfile, "a")
     if formatter:
         fh.setFormatter(formatter)
@@ -105,7 +105,7 @@ def add_fileHandler(logger, logfile, formatter=None):
 
 
 def add_streamHandler(logger, stream, formatter=False):
-    """ Adds a stream handler to logger """
+    """Adds a stream handler to logger"""
     stream_handler = logging.StreamHandler(stream=stream)
     if formatter:
         stream_handler.setFormatter(CustomLoggers.FORMATTER)

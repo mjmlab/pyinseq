@@ -71,7 +71,7 @@ def pipeline_summarize(samples_dict: dict, settings: Settings):
 
 
 def pipeline_analysis(samples_dict: dict, settings: Settings) -> None:
-    """ Pipeline for analyzing pyinseq results """
+    """Pipeline for analyzing pyinseq results"""
     # T50 calculation
     T50_dict = dict()
     for sample in samples_dict:

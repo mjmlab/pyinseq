@@ -164,7 +164,7 @@ def runscript(
 
 
 def compare_directories(expected_output, output_dir, ignore=[]):
-    """ Compare output from pyinseq runs to expected output"""
+    """Compare output from pyinseq runs to expected output"""
     dcmp = filecmp.dircmp(expected_output, output_dir, ignore=ignore)
     # check that log file is created from pyinseq
     assert "log.txt" in os.listdir(output_dir)

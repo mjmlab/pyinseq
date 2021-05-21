@@ -84,7 +84,7 @@ class Settings:
             str(self.snakefile),
             "--cores",
             str(self.threads - 1),
-            '--use-conda'
+            "--use-conda",
         ]
         # Add additional parameters, if any...
         self.snakemake_cmd.extend(add_params)
@@ -107,14 +107,14 @@ class Settings:
         return "\n".join("%s: %s" % item for item in vars(self).items())
 
     def clean_up(self):
-        """ Cleans up settings pickle file"""
+        """Cleans up settings pickle file"""
         try:
             os.remove(self.settings_pickle)
         except OSError:
             pass
 
     def dump_sample_dict_to_yml(self, updated_dict=None):
-        """ Updates sample_info.yml file with attributes for sample """
+        """Updates sample_info.yml file with attributes for sample"""
         if not updated_dict:
             # Dump yml file for info
             with open(self.samples_info_yml, "w") as f:
