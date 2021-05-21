@@ -42,7 +42,7 @@ class Settings:
             self.reference_genome = config_dict['genome']
             self.genome_path = f"{self.path}genome_lookup/"
             self.map_to_genome = True
-            self.gff = config_dict['gff3']
+            self.gff3 = config_dict['gff3']
             self.summary_table = f"{self.path}summary_gene_table.txt"
             # Pyinseq optional args
             self.disruption = set_disruption(config_dict['disruption'])
@@ -66,7 +66,7 @@ class Settings:
         elif self.command == 'genomeprep':
             self.reference_genome = config_dict['genome']
             self.genome_path = f"{self.path}genome_lookup/"
-            self.gff = config_dict['gff3']
+            self.gff3 = config_dict['gff3']
 
         self.settings_pickle = self.output_dir.joinpath('settings.pickle')
         # organism reference files called 'genome.fna' etc

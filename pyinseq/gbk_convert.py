@@ -30,7 +30,7 @@ def build_fna_and_table_files(gbk_file, settings):
     """Convert GenBank file to a fasta nucleotide (.fna) and feature table (.ftt) files."""
     logger.info(f"Converting genebank {gbk_file} to fasta nucleotide (.fna) and feature table (.ftt).")
     fasta = gbk2fna(gbk_file, settings.organism, settings.genome_path)
-    gbk2table(gbk_file, fasta, settings.organism, settings.genome_path, settings.gff)
+    gbk2table(gbk_file, fasta, settings.organism, settings.genome_path, settings.gff3)
 
     
 def write_to_file(outfile, row_data):
@@ -77,7 +77,7 @@ def gbk2fna(infile, organism, output_directory=""):
     return {"fasta": fna_rows, "nucleotides": n_nt}
 
 
-def gbk2table(infile, fasta, organism, output_directory="", gff=False):
+def gbk2table(infile, fasta, organism, output_directory="", gff3=False):
     """ Convert GenBank to feature table
         Format similar to .ptt and .rnt files except:
         - full tabular (locus as a field)
@@ -112,7 +112,8 @@ def gbk2table(infile, fasta, organism, output_directory="", gff=False):
         fna_rows = fasta["fasta"]
         fna_nucleotides = fasta["nucleotides"]
 
-        if gff:
+        if gff3:
+            logger.info('Writing gff3 version of genome files')
             gff_rows = [("##gff-version 3",)]
             for contig in fna_nucleotides:
                 gff_rows.append(
@@ -175,7 +176,7 @@ def gbk2table(infile, fasta, organism, output_directory="", gff=False):
 
                                     )
                                 )
-                                if gff:
+                                if gff3:
                                     gff_id = (
                                         f"ID:{locus_tag}"
                                         if gene == "-"
@@ -276,7 +277,7 @@ def gbk2table(infile, fasta, organism, output_directory="", gff=False):
 
     outfile = f"{output_directory}{organism}.ftt"
     write_to_file(outfile, ftt_rows)
-    if gff:
+    if gff3:
         gff_rows.append(("##FASTA",))
         gff_rows = gff_rows + fna_rows
         outfile = f"{output_directory}{organism}.gff"
