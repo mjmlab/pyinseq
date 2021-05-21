@@ -26,6 +26,7 @@ install:
   # mamba is better for installing bowtie2
   - conda install -n base -c conda-forge mamba
   - source activate test-environment
+  - conda install tbb=2020.2 # Needed for bowtie2 install
   - pip install -r requirements.txt
   - pip install ./
 script:

@@ -30,9 +30,10 @@ class cd:
 @pytest.fixture()
 def load_settings():
     config_file = "../data/input/config.yaml"
+    print(os.getcwd())
+    print(os.listdir(os.getcwd()))
     with cd("pyinseq/tests/dump"):
         from pyinseq.settings import Settings
-
         settings = Settings("pyinseq", config_file=config_file)
     return settings
 
