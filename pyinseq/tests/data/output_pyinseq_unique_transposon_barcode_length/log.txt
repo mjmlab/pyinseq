@@ -1,0 +1,112 @@
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	all
+	1	bowtie_index
+	2	bowtie_mapping
+	1	build_gene_table
+	1	demultiplex
+	1	genome_prep
+	2	map_genes
+	2	map_sites
+	1	summarize
+	12
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	genome_prep
+	1
+2021-05-21 10:41 - INFO - gbk_convert - Converting genebank ../data/input/ES114v2.gb to fasta nucleotide (.fna) and feature table (.ftt).
+2021-05-21 10:41 - INFO - gbk_convert - Nucleotides stored in results/example_pyinseq_unique_transposon_barcode/genome_lookup/genome.fna
+2021-05-21 10:41 - INFO - gbk_convert - Features table stored in results/example_pyinseq_unique_transposon_barcode/genome_lookup/genome.ftt
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	demultiplex
+	1
+2021-05-21 10:41 - INFO - demultiplex - Preparing to demultiplex reads
+2021-05-21 10:41 - INFO - demultiplex - Total reads demultiplexed: 534
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_sites
+	1
+2021-05-21 10:41 - INFO - process_mapping - Sample E001_02: summarize the site data from the bowtie results into sites file.
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_sites
+	1
+2021-05-21 10:42 - INFO - process_mapping - Sample E001_01: summarize the site data from the bowtie results into sites file.
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_genes
+	1
+2021-05-21 10:42 - INFO - process_mapping - Sample E001_02: map site data to genes
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_genes
+	1
+2021-05-21 10:42 - INFO - process_mapping - Sample E001_01: map site data to genes
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	build_gene_table
+	1
+2021-05-21 10:42 - INFO - process_mapping - Aggregate gene mapping from all samples into the summary_data_table
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	summarize
+	1
+2021-05-21 10:42 - INFO - pipeline - Print log path: results/example_pyinseq_unique_transposon_barcode/log.txt
+2021-05-21 10:42 - INFO - pipeline - Print settings:
+command: pyinseq
+config_file: example_pyinseq_unique_transposon_barcode-config.yaml
+experiment: example_pyinseq_unique_transposon_barcode
+threads: 4
+output_dir: results/example_pyinseq_unique_transposon_barcode
+path: results/example_pyinseq_unique_transposon_barcode/
+log: results/example_pyinseq_unique_transposon_barcode/log.txt
+summary_log: results/example_pyinseq_unique_transposon_barcode/summary_log.txt
+reads: ../data/input/example03.fastq
+samples: ../data/input/example03.txt
+samples_txt: results/example_pyinseq_unique_transposon_barcode/samples.txt
+samples_dict: {'E001_01': {'barcode': 'CTAGAGAAG'}, 'E001_02': {'barcode': 'AAGTCCTTT'}}
+samples_info_yml: results/example_pyinseq_unique_transposon_barcode/samples_info.yml
+raw_path: results/example_pyinseq_unique_transposon_barcode/raw_data/
+reference_genome: ../data/input/ES114v2.gb
+genome_path: results/example_pyinseq_unique_transposon_barcode/genome_lookup/
+map_to_genome: True
+gff: False
+summary_table: results/example_pyinseq_unique_transposon_barcode/summary_gene_table.txt
+disruption: 0.9
+barcode_length: 9
+transposon_seq: TCGCACGG
+min_counts: 3
+max_ratio: 10
+settings_pickle: results/example_pyinseq_unique_transposon_barcode/settings.pickle
+organism: genome
+snakefile: /Users/emanuelburgos/Dropbox/Mandel_Lab/Projects/Project_Pyinseq/pyinseq/pyinseq/workflows/PyinseqWorkflow/Snakefile
+snakemake_cmd: snakemake --config experiment=example_pyinseq_unique_transposon_barcode -s /Users/emanuelburgos/Dropbox/Mandel_Lab/Projects/Project_Pyinseq/pyinseq/pyinseq/workflows/PyinseqWorkflow/Snakefile --cores 3
+process_reads: False
+process_sample_list: False
+parse_genebank: False
+generate_bowtie_index: False
+write_trimmed_reads: True
+
+2021-05-21 10:42 - INFO - pipeline - Print samples detail
+E001_01:
+  barcode: CTAGAGAAG
+  demultiplexed_reads: 252
+  gene hits: 182
+  site hits: 252
+E001_02:
+  barcode: AAGTCCTTT
+  demultiplexed_reads: 274
+  gene hits: 204
+  site hits: 274
+
+
