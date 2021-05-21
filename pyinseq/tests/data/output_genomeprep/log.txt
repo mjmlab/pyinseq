@@ -1,4 +1,15 @@
-2018-10-21 17:11 - INFO - runner - Prepare genome features (.ftt) and fasta nucleotide (.fna) files
-2018-10-21 17:11 - INFO - runner - Prepare bowtie index
-2018-10-21 17:11 - INFO - runner - Building bowtie index files in results/output_genomeprep/genome_lookup
-2018-10-21 17:11 - INFO - runner - ***** genomeprep complete! *****
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	all
+	1	bowtie_index
+	1	genome_prep
+	3
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	genome_prep
+	1
+2021-05-20 13:56 - INFO - gbk_convert - Converting genebank ../data/input/ES114v2.gb to fasta nucleotide (.fna) and feature table (.ftt).
+2021-05-20 13:56 - INFO - gbk_convert - Nucleotides stored in results/test_genomeprep/genome_lookup/genome.fna
+2021-05-20 13:56 - INFO - gbk_convert - Features table stored in results/test_genomeprep/genome_lookup/genome.ftt

@@ -1,3 +1,52 @@
-2018-10-21 17:10 - INFO - runner - Demultiplex reads
-2018-10-21 17:10 - INFO - demultiplex - Total records demultiplexed: 534
-2018-10-21 17:10 - INFO - runner - ***** demultiplex complete! *****
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	all
+	1	demultiplex
+	1	summarize
+	3
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	demultiplex
+	1
+2021-04-07 13:24 - INFO - demultiplex - Preparing to demultiplex reads
+2021-04-07 13:24 - INFO - demultiplex - Total reads demultiplexed: 534
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	summarize
+	1
+2021-04-07 13:24 - INFO - pipeline - Print samples info: results/test_demultiplex/samples.txt
+2021-04-07 13:24 - INFO - pipeline - Print log path: results/test_demultiplex/log.txt
+2021-04-07 13:24 - INFO - pipeline - Print settings:
+command: pyinseq
+experiment: test_demultiplex
+path: results/test_demultiplex/
+samples_txt: results/test_demultiplex/samples.txt
+log: results/test_demultiplex/log.txt
+summary_log: results/test_demultiplex/summary_log.txt
+summary_table: results/test_demultiplex/summary_gene_table.txt
+genome_path: results/test_demultiplex/genome_lookup/
+raw_path: results/test_demultiplex/raw_data/
+parse_genbank_file: False
+gff: False
+organism: genome
+generate_bowtie_index: True
+process_reads: True
+process_sample_list: True
+map_to_genome: True
+write_trimmed_reads: False
+min_counts: 3
+max_ratio: 10
+keep_all: False
+barcode_length: 4
+disruption: 0.9
+
+2021-04-07 13:24 - INFO - pipeline - Print samples detail
+E001_01:
+  barcode: GAAG
+E001_02:
+  barcode: CTTT
+
+

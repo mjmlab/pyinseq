@@ -1,0 +1,106 @@
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	genome_prep
+	1
+(Pyinseq info)
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	demultiplex
+	1
+(Pyinseq info)
+534 reads demultiplexed
+- E001_01 (GAAG): 252 reads
+- E001_02 (CTTT): 274 reads
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	bowtie_mapping
+	1
+(Pyinseq info)
+- Mapped reads from E001_02 to genome
+# reads processed: 274
+# reads with at least one reported alignment: 274
+# reads that failed to align: 0
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	bowtie_mapping
+	1
+(Pyinseq info)
+- Mapped reads from E001_01 to genome
+# reads processed: 252
+# reads with at least one reported alignment: 252
+# reads that failed to align: 0
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_sites
+	1
+(Pyinseq info)
+- E001_02: 274 aligned reads mapped to sites
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_sites
+	1
+(Pyinseq info)
+- E001_01: 252 aligned reads mapped to sites
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_genes
+	1
+(Pyinseq info)
+- E001_02: 204 of mapped reads fall in genes
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_genes
+	1
+(Pyinseq info)
+- E001_01: 196 of mapped reads fall in genes
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	build_gene_table
+	1
+(Pyinseq info)
+Gene table contains 2 samples (columns) for 3987 genes (rows) 
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	summarize
+	1
+(Pyinseq info)
+Print log path: results/test_pyinseq/log.txt
+Print settings:
+command: pyinseq
+experiment: test_pyinseq
+path: results/test_pyinseq/
+samples_txt: results/test_pyinseq/samples.txt
+log: results/test_pyinseq/log.txt
+summary_log: results/test_pyinseq/summary_log.txt
+summary_table: results/test_pyinseq/summary_gene_table.txt
+genome_path: results/test_pyinseq/genome_lookup/
+raw_path: results/test_pyinseq/raw_data/
+parse_genbank_file: True
+gff: False
+organism: genome
+generate_bowtie_index: True
+process_reads: True
+process_sample_list: True
+map_to_genome: True
+write_trimmed_reads: True
+min_counts: 3
+max_ratio: 10
+keep_all: False
+barcode_length: 4
+disruption: 0.9
+Print samples detail
+E001_01:
+  barcode: GAAG
+E001_02:
+  barcode: CTTT
+

@@ -1,0 +1,48 @@
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	demultiplex
+	1
+(Pyinseq info)
+534 reads demultiplexed
+- E001_01 (GAAG): 252 reads
+- E001_02 (CTTT): 274 reads
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	summarize
+	1
+(Pyinseq info)
+Print log path: results/test_demultiplex/log.txt
+Print settings:
+command: demultiplex
+config_file: test_demultiplex-config.yaml
+experiment: test_demultiplex
+threads: 4
+output_dir: results/test_demultiplex
+path: results/test_demultiplex/
+log: results/test_demultiplex/log.txt
+summary_log: results/test_demultiplex/summary_log.txt
+reads: ../data/input/example01.fastq
+samples_txt: results/test_demultiplex/samples.txt
+samples: ../data/input/example01.txt
+samples_dict: {'E001_01': {'barcode': 'GAAG'}, 'E001_02': {'barcode': 'CTTT'}}
+samples_info_yml: results/test_demultiplex/samples_info.yml
+raw_path: results/test_demultiplex/raw_data/
+barcode_length: 4
+transposon_seq: ACAGGTTG
+settings_pickle: results/test_demultiplex/settings.pickle
+organism: genome
+snakefile: /Users/emanuelburgos/Dropbox/Mandel_Lab/Projects/Project_Pyinseq/pyinseq/pyinseq/workflows/DemultiplexWorkflow/Snakefile
+snakemake_cmd: snakemake --config experiment=test_demultiplex -s /Users/emanuelburgos/Dropbox/Mandel_Lab/Projects/Project_Pyinseq/pyinseq/pyinseq/workflows/DemultiplexWorkflow/Snakefile --cores 3
+process_reads: True
+process_sample_list: True
+parse_genebank: False
+generate_bowtie_index: False
+write_trimmed_reads: False
+Print samples detail
+E001_01:
+  barcode: GAAG
+E001_02:
+  barcode: CTTT
+
