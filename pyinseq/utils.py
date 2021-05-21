@@ -16,6 +16,7 @@ import shutil
 import pickle
 import subprocess as sub
 from pathlib import Path
+
 # Module imports
 from pyinseq.logger import pyinseq_logger
 
@@ -89,9 +90,7 @@ def count_lines(filename: str, fastq=False):
         # Other files...
         else:
             output = int(
-                sub.check_output(
-                    ["wc", "-l", filename], stderr=sub.DEVNULL
-                )
+                sub.check_output(["wc", "-l", filename], stderr=sub.DEVNULL)
                 .split()[0]
                 .decode("UTF-8")
             )
@@ -114,10 +113,10 @@ def read_gene_file(gene_file):
     :return:
     """
     gene_dict = dict()
-    with open(gene_file, 'r') as f:
-        reader = csv.DictReader(f, delimiter='\t')
+    with open(gene_file, "r") as f:
+        reader = csv.DictReader(f, delimiter="\t")
         for record in reader:
-            gene_dict[record['locus_tag']] = [float(record['cpm'])]
+            gene_dict[record["locus_tag"]] = [float(record["cpm"])]
 
     return gene_dict
 
@@ -128,17 +127,17 @@ def get_version():
     :return:
     """
     dir = os.path.dirname(__file__)
-    with open(os.path.join(dir, "VERSION"), 'r') as f:
+    with open(os.path.join(dir, "VERSION"), "r") as f:
         return f.read()
 
 
 def get_config_dict(config_file):
     """ Loads data from config_file into dict"""
-    with open(config_file, 'r') as f:
+    with open(config_file, "r") as f:
         return yaml.load(f, Loader=yaml.FullLoader)
 
 
-def write_config_file(args=None, format='yaml', default=False) -> Path:
+def write_config_file(args=None, format="yaml", default=False) -> Path:
     """
 
     Given pyinseq arguments, creates a config file that can be given to snakemake
@@ -149,18 +148,18 @@ def write_config_file(args=None, format='yaml', default=False) -> Path:
     :return: path to config_file
     """
     args_dict = vars(args)
-    dumper = {'yaml': yaml.dump, 'json': json.dump}[format]
+    dumper = {"yaml": yaml.dump, "json": json.dump}[format]
     if default:
         logger.info("Writing DEFAULT configuration file as template for pyinseq")
-        with open(f'default-config-pyinseq.{format}', 'w') as f:
+        with open(f"default-config-pyinseq.{format}", "w") as f:
             config_dict = {key: args_dict[key] for key in args_dict}
             dumper(config_dict, f)
         logger.info("Exiting gracefully...")
         exit(0)
     else:
         logger.info("Writing configuration file from provided arguments")
-        config_file = Path(f'{args.experiment}-config.{format}')
-        with open(config_file, 'w') as f:
+        config_file = Path(f"{args.experiment}-config.{format}")
+        with open(config_file, "w") as f:
             config_dict = {key: args_dict[key] for key in args_dict}
             dumper(config_dict, f)
         return config_file
@@ -214,6 +213,7 @@ Functions that handle terminal operations
 
 """
 
+
 def copy_file(src, dest):
     """ Literally does what it says... """
     shutil.copy(src, dest)
@@ -223,7 +223,7 @@ def execute(cmd) -> None:
     """ Execute snakemake workflow using subprocess module """
     # Call bash command, suppress pyinseq output
     if not isinstance(cmd, list):
-        cmd = cmd.split(' ')
+        cmd = cmd.split(" ")
     process = sub.Popen(cmd)
     try:
         process.wait()
@@ -236,12 +236,11 @@ def execute(cmd) -> None:
 
 def pickle_object(object, pickle_output):
     """ Serializes objects that can be picked up by other processes """
-    with open(pickle_output, 'wb') as f:
+    with open(pickle_output, "wb") as f:
         pickle.dump(object, f)
 
 
 def load_pickle(byte_file):
     """ Loads a pickled object """
-    with open(byte_file, 'rb') as f:
+    with open(byte_file, "rb") as f:
         return pickle.load(f)
-

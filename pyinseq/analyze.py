@@ -7,6 +7,7 @@ import pandas as pd
 import seaborn as sn
 import matplotlib.pyplot as plt
 
+
 def read_sites_file(sample: str, settings: "runner.Settings") -> pd.DataFrame:
     return pd.read_csv(f"{settings.path}{sample}_sites.txt", sep="\t")
 

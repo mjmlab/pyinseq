@@ -11,87 +11,95 @@ import yaml
 from pathlib import Path
 from pyinseq.logger import pyinseq_logger as logger
 from pyinseq.workflows import get_workflow_snakefile_path
-from pyinseq.utils import \
-    convert_to_filename, \
-    tab_delimited_samples_to_dict, \
-    get_config_dict
+from pyinseq.utils import (
+    convert_to_filename,
+    tab_delimited_samples_to_dict,
+    get_config_dict,
+)
 
 
 class Settings:
     """Instantiate to set up settings for the experiment."""
+
     def __init__(self, command, config_file, add_params=[]):
         # command options are: ['pyinseq', 'demultiplex']
-        self.command = command if command else 'pyinseq'
+        self.command = command if command else "pyinseq"
         # Attributes for all workflows
         self.config_file = config_file
         config_dict = get_config_dict(self.config_file)
-        self.experiment = convert_to_filename(config_dict['experiment'])
-        self.threads = config_dict['threads']
+        self.experiment = convert_to_filename(config_dict["experiment"])
+        self.threads = config_dict["threads"]
         self.output_dir = Path(f"results/{self.experiment}")
         self.path = f"results/{self.experiment}/"
         self.log = f"{self.path}log.txt"
         self.summary_log = f"{self.path}summary_log.txt"
 
-        if self.command == 'pyinseq':
-            self.reads = config_dict['input']
-            self.samples = config_dict['samples']
+        if self.command == "pyinseq":
+            self.reads = config_dict["input"]
+            self.samples = config_dict["samples"]
             self.samples_txt = f"{self.path}samples.txt"
             self.samples_dict = tab_delimited_samples_to_dict(self.samples)
             self.samples_info_yml = f"{self.path}samples_info.yml"
             self.raw_path = f"{self.path}raw_data/"
-            self.reference_genome = config_dict['genome']
+            self.reference_genome = config_dict["genome"]
             self.genome_path = f"{self.path}genome_lookup/"
             self.map_to_genome = True
-            self.gff3 = config_dict['gff3']
+            self.gff3 = config_dict["gff3"]
             self.summary_table = f"{self.path}summary_gene_table.txt"
             # Pyinseq optional args
-            self.disruption = set_disruption(config_dict['disruption'])
-            self.barcode_length = set_barcode_length(config_dict['barcode_length'])
-            self.transposon_seq = set_transposon_seq(config_dict['transposon_seq'])
+            self.disruption = set_disruption(config_dict["disruption"])
+            self.barcode_length = set_barcode_length(config_dict["barcode_length"])
+            self.transposon_seq = set_transposon_seq(config_dict["transposon_seq"])
             # counts at one transposon site for it to qualify
-            self.min_counts = set_min_count(config_dict['min_count'])
+            self.min_counts = set_min_count(config_dict["min_count"])
             # max ratio of left/right sites for it to qualify
-            self.max_ratio = set_max_ratio(config_dict['max_ratio'])
+            self.max_ratio = set_max_ratio(config_dict["max_ratio"])
 
-        elif self.command == 'demultiplex':
-            self.reads = config_dict['input']
+        elif self.command == "demultiplex":
+            self.reads = config_dict["input"]
             self.samples_txt = f"{self.path}samples.txt"
-            self.samples = config_dict['samples']
+            self.samples = config_dict["samples"]
             self.samples_dict = tab_delimited_samples_to_dict(self.samples)
             self.samples_info_yml = f"{self.path}samples_info.yml"
             self.raw_path = f"{self.path}raw_data/"
-            self.barcode_length = set_barcode_length(config_dict['barcode_length'])
-            self.transposon_seq = set_transposon_seq(config_dict['transposon_seq'])
+            self.barcode_length = set_barcode_length(config_dict["barcode_length"])
+            self.transposon_seq = set_transposon_seq(config_dict["transposon_seq"])
 
-        elif self.command == 'genomeprep':
-            self.reference_genome = config_dict['genome']
+        elif self.command == "genomeprep":
+            self.reference_genome = config_dict["genome"]
             self.genome_path = f"{self.path}genome_lookup/"
-            self.gff3 = config_dict['gff3']
+            self.gff3 = config_dict["gff3"]
 
-        self.settings_pickle = self.output_dir.joinpath('settings.pickle')
+        self.settings_pickle = self.output_dir.joinpath("settings.pickle")
         # organism reference files called 'genome.fna' etc
         self.organism = "genome"
 
         # Set shell command
         self.snakefile = get_workflow_snakefile_path(self.command)
         self.snakemake_cmd = [
-            'snakemake',
-            '--config',
-            f'experiment={self.experiment}',
-            '-s',
+            "snakemake",
+            "--config",
+            f"experiment={self.experiment}",
+            "-s",
             str(self.snakefile),
-            '--cores',
+            "--cores",
             str(self.threads - 1),
         ]
         # Add additional parameters, if any...
         self.snakemake_cmd.extend(add_params)
-        self.snakemake_cmd = ' '.join(self.snakemake_cmd)
+        self.snakemake_cmd = " ".join(self.snakemake_cmd)
         # Create experiment directories, solves logging issue
-        self.process_reads = True if command in ['pyinseq', 'demultiplex'] else False
-        self.process_sample_list = True if command in ['pyinseq', 'demultiplex'] else False
-        self.parse_genebank = True if command in ['pyinseq', 'genomeprep'] else False
-        self.generate_bowtie_index = True if command in ['pyinseq', 'genomeprep'] else False
-        self.write_trimmed_reads = not config_dict['notrim'] if command == 'demultiplex' else True
+        self.process_reads = True if command in ["pyinseq", "demultiplex"] else False
+        self.process_sample_list = (
+            True if command in ["pyinseq", "demultiplex"] else False
+        )
+        self.parse_genebank = True if command in ["pyinseq", "genomeprep"] else False
+        self.generate_bowtie_index = (
+            True if command in ["pyinseq", "genomeprep"] else False
+        )
+        self.write_trimmed_reads = (
+            not config_dict["notrim"] if command == "demultiplex" else True
+        )
 
     def __repr__(self):
         # Print each variable on a separate line
@@ -108,11 +116,11 @@ class Settings:
         """ Updates sample_info.yml file with attributes for sample """
         if not updated_dict:
             # Dump yml file for info
-            with open(self.samples_info_yml, 'w') as f:
+            with open(self.samples_info_yml, "w") as f:
                 yaml.dump(self.samples_dict, f)
             return
         # Load current state of sample_dict
-        with open(self.samples_info_yml, 'r+') as f:
+        with open(self.samples_info_yml, "r+") as f:
             current_dict = yaml.load(f, Loader=yaml.FullLoader)
         # Updated the old sample with new information
         with open(self.samples_info_yml, "w") as fo:
@@ -172,13 +180,12 @@ def set_barcode_length(barcode_length=4):
     return barcode_length
 
 
-def set_transposon_seq(transposon_seq='ACAGGTTG'):
+def set_transposon_seq(transposon_seq="ACAGGTTG"):
     """Check that min_count and max_ratio are positive, otherwise set default."""
     if not transposon_seq.isalpha():
         logger.error(
             f"Transposon sequence provided contains non-letter characters. "
             f"Setting default to ACAGGTTG"
         )
-        return 'ACAGGTTG'
+        return "ACAGGTTG"
     return transposon_seq
-

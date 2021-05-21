@@ -15,6 +15,7 @@ import pytest
 
 class cd:
     """Context manager to change to the specified directory then back."""
+
     def __init__(self, new_path):
         self.new_path = os.path.expanduser(new_path)
 
@@ -28,10 +29,11 @@ class cd:
 
 @pytest.fixture()
 def load_settings():
-    config_file = '../data/input/config.yaml'
-    with cd('pyinseq/tests/dump'):
+    config_file = "../data/input/config.yaml"
+    with cd("pyinseq/tests/dump"):
         from pyinseq.settings import Settings
-        settings = Settings('pyinseq', config_file=config_file)
+
+        settings = Settings("pyinseq", config_file=config_file)
     return settings
 
 
@@ -103,7 +105,7 @@ def _runscript(scriptname):
 
 
 def runscript(
-        scriptname: str, args: list, directory=None, fail_ok=False, sandbox=False
+    scriptname: str, args: list, directory=None, fail_ok=False, sandbox=False
 ) -> [str, str, str]:
     """Run a Python script using exec().
     Run the given Python script, with the given args, in the given directory,
@@ -163,11 +165,7 @@ def runscript(
 
 def compare_directories(expected_output, output_dir, ignore=[]):
     """ Compare output from pyinseq runs to expected output"""
-    dcmp = filecmp.dircmp(
-        expected_output,
-        output_dir,
-        ignore=ignore,
-    )
+    dcmp = filecmp.dircmp(expected_output, output_dir, ignore=ignore)
     # check that log file is created from pyinseq
     assert "log.txt" in os.listdir(output_dir)
 

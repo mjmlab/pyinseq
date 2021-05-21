@@ -9,8 +9,10 @@ Tests for individual functions in pyinseq module
 import filecmp
 import os
 from collections import OrderedDict
+
 # Setup logger before importing modules
 from pyinseq.logger import pyinseq_logger
+
 pyinseq_logger.setup_logger()
 # Module imports
 from pyinseq import utils
@@ -69,7 +71,8 @@ def test_create_experiment_directories(datadir, tmpdir, load_settings):
     with cd(str(tmpdir)):
         # Manually modify settings object
         from pathlib import Path
-        settings.output_dir = Path(str(tmpdir) + 'results/test_pyinseq')
+
+        settings.output_dir = Path(str(tmpdir) + "results/test_pyinseq")
         utils.create_experiment_directories(settings)
         # Check /results/experiment exist
         assert os.path.exists(settings.output_dir)

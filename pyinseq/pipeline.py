@@ -7,6 +7,7 @@ Main script for running the pyinseq package
 """
 
 import yaml
+
 # Module imports
 from pyinseq.utils import copy_file
 from pyinseq.analyze import t_fifty
@@ -61,10 +62,12 @@ def pipeline_summarize(samples_dict: dict, settings: Settings):
     pyinseq_logger.logger_io.write(f"Print log path: {settings.log}\n")
     logger.info(f"Print settings:\n{settings}\n")
     pyinseq_logger.logger_io.write(f"Print settings:\n{settings}\n")
-    with open(settings.samples_info_yml, 'r') as f:
+    with open(settings.samples_info_yml, "r") as f:
         d = yaml.load(f, Loader=yaml.FullLoader)
     logger.info(f"Print samples detail\n{yaml.dump(d, default_flow_style=False)}\n")
-    pyinseq_logger.logger_io.write(f"Print samples detail\n{yaml.dump(d, default_flow_style=False)}\n")
+    pyinseq_logger.logger_io.write(
+        f"Print samples detail\n{yaml.dump(d, default_flow_style=False)}\n"
+    )
 
 
 def pipeline_analysis(samples_dict: dict, settings: Settings) -> None:

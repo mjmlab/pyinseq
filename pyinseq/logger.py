@@ -17,7 +17,7 @@ class CustomLoggers:
     FORMATTER = logging.Formatter(
         fmt="{asctime} - {levelname} - {module} - {message}",
         datefmt="%Y-%m-%d %H:%M",
-        style='{'
+        style="{",
     )
 
     def __init__(self):
@@ -31,7 +31,7 @@ class CustomLoggers:
 
     def summarize_step(self):
         """ Dumps io buffer into a log summary file"""
-        with open(self.summary_log, 'a+') as f:
+        with open(self.summary_log, "a+") as f:
             snake_message = self.snake_io.getvalue()
             if not snake_message.startswith("(SNAKEMAKE INFO)"):
                 snake_message = "(SNAKEMAKE INFO)\n" + snake_message
@@ -54,6 +54,7 @@ class CustomLoggers:
         self.logger.addHandler(stream_handler)
         return
 
+
 ## ONLY LOGGER IN PYINSEQ ##
 pyinseq_logger = CustomLoggers()
 
@@ -64,7 +65,10 @@ class TqdmBarLogger:
     Custom progress bar that works with Logger
 
     """
-    def __init__(self, logger: logging.Logger, num_iterations: int, desc: str, unit: str):
+
+    def __init__(
+        self, logger: logging.Logger, num_iterations: int, desc: str, unit: str
+    ):
         self.logger = logger
         self.p_bar = tqdm.tqdm(
             total=num_iterations,
@@ -72,7 +76,8 @@ class TqdmBarLogger:
             unit=unit,
             leave=False,
             position=0,
-            colour='green')
+            colour="green",
+        )
 
     def info(self, msg):
         """ Removes logger from display and logs message"""
@@ -90,7 +95,7 @@ class TqdmBarLogger:
 
 def add_fileHandler(logger, logfile, formatter=None):
     """ Adds a filehandler to logger """
-    fh = logging.FileHandler(logfile, 'a')
+    fh = logging.FileHandler(logfile, "a")
     if formatter:
         fh.setFormatter(formatter)
     else:
@@ -107,4 +112,3 @@ def add_streamHandler(logger, stream, formatter=False):
     stream_handler.setLevel(logging.INFO)
     logger.addHandler(stream_handler)
     return
-

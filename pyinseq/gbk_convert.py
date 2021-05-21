@@ -20,6 +20,7 @@ Maintains original newlines (typically leaving up to 60 nucleotides per line)
 
 import re
 import csv
+
 # Module imports
 from pyinseq.logger import pyinseq_logger
 
@@ -28,11 +29,13 @@ logger = pyinseq_logger.logger
 
 def build_fna_and_table_files(gbk_file, settings):
     """Convert GenBank file to a fasta nucleotide (.fna) and feature table (.ftt) files."""
-    logger.info(f"Converting genebank {gbk_file} to fasta nucleotide (.fna) and feature table (.ftt).")
+    logger.info(
+        f"Converting genebank {gbk_file} to fasta nucleotide (.fna) and feature table (.ftt)."
+    )
     fasta = gbk2fna(gbk_file, settings.organism, settings.genome_path)
     gbk2table(gbk_file, fasta, settings.organism, settings.genome_path, settings.gff3)
 
-    
+
 def write_to_file(outfile, row_data):
     """ Writes table into outfile """
     with open(outfile, "w") as fo:
@@ -113,7 +116,7 @@ def gbk2table(infile, fasta, organism, output_directory="", gff3=False):
         fna_nucleotides = fasta["nucleotides"]
 
         if gff3:
-            logger.info('Writing gff3 version of genome files')
+            logger.info("Writing gff3 version of genome files")
             gff_rows = [("##gff-version 3",)]
             for contig in fna_nucleotides:
                 gff_rows.append(
@@ -173,7 +176,6 @@ def gbk2table(infile, fasta, organism, output_directory="", gff3=False):
                                         code,
                                         cog,
                                         product,
-
                                     )
                                 )
                                 if gff3:
@@ -241,7 +243,6 @@ def gbk2table(infile, fasta, organism, output_directory="", gff3=False):
                     if "/locus_tag=" in parts[0]:
                         locus_tag = parts[0][12:-1]
 
-
                     # Multi-line product description
                     if product_append:
                         product = product + " " + line.strip()
@@ -284,7 +285,6 @@ def gbk2table(infile, fasta, organism, output_directory="", gff3=False):
         write_to_file(outfile, gff_rows)
     logger.info(f"Features table stored in {outfile}")
     return
-
 
 
 if __name__ == "__main__":

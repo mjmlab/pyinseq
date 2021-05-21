@@ -9,6 +9,7 @@ Functions for using bowtie
 import re
 import logging
 import subprocess
+
 # Module imports
 from pyinseq.logger import pyinseq_logger, add_fileHandler
 
@@ -20,24 +21,26 @@ SNAKE_MESSAGE = """Job counts:
 """
 
 formatter = logging.Formatter(
-        fmt="{asctime} - {levelname} - map_reads - {message}",
-        datefmt="%Y-%m-%d %H:%M",
-        style='{'
-    )
+    fmt="{asctime} - {levelname} - map_reads - {message}",
+    datefmt="%Y-%m-%d %H:%M",
+    style="{",
+)
 
 
 def bowtie_build(organism):
     """Build a bowtie index given a fasta nucleotide file."""
     fna = organism + ".fna"
-    subprocess.check_call(['bowtie-build', "-q", fna, organism])
+    subprocess.check_call(["bowtie-build", "-q", fna, organism])
 
 
 def bowtie_map(organism, reads, bowtie_output, threads):
     """Map fastq reads to a bowtie index."""
     fna = organism + ".fna"
     # String version of the shell command
-    bash_command = f"bowtie -m 1 --best --strata -a --fullref -n 1 -l 17 " \
-                   f"{organism} -q {reads} {bowtie_output} -p {threads}"
+    bash_command = (
+        f"bowtie -m 1 --best --strata -a --fullref -n 1 -l 17 "
+        f"{organism} -q {reads} {bowtie_output} -p {threads}"
+    )
     # Convert bash command to run properly - no spaces; instead list of entries
     # that will appear in the shell as space-separated
     # Consider shlex.split() instead of split() -- any benefit here?
@@ -68,7 +71,9 @@ def parse_bowtie(bowtie_message):
 
 def summarize_mapping(sample, bowtie_msg_dict):
     """ Summarizes bowtie mapping step into pyinseq_logger io"""
-    pyinseq_logger.logger_io.write(f"- Mapped reads from {sample} to genome\nBOWTIE OUTPUT:\n")
+    pyinseq_logger.logger_io.write(
+        f"- Mapped reads from {sample} to genome\nBOWTIE OUTPUT:\n"
+    )
     for key, value in bowtie_msg_dict.items():
         pyinseq_logger.logger_io.write(f"{key} {value}\n")
     return
@@ -95,8 +100,8 @@ if __name__ == "__main__":
     # Begin bowtie
     bowtie_msg = bowtie_map(organism, reads, output, threads)
     # Print bowtie results for sample
-    logger.info(f'Bowtie results for {sample}:')
-    with open(snakemake.params.log, 'a+') as f:
+    logger.info(f"Bowtie results for {sample}:")
+    with open(snakemake.params.log, "a+") as f:
         print(bowtie_msg)
         print(bowtie_msg, file=f)
 
@@ -104,4 +109,3 @@ if __name__ == "__main__":
     summarize_mapping(sample, bowtie_msg_dict)
     # Writes to log files
     pyinseq_logger.summarize_step()
-

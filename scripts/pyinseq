@@ -6,14 +6,21 @@ Main entry-point for pyinseq
 """
 # Setup up universal logger
 from pyinseq.logger import pyinseq_logger
+
 pyinseq_logger.setup_logger()
 
 import sys
 import traceback
+
 # Module imports
 from pyinseq.parsers import get_args
 from pyinseq.settings import Settings
-from pyinseq.utils import write_config_file, execute, create_experiment_directories, pickle_object
+from pyinseq.utils import (
+    write_config_file,
+    execute,
+    create_experiment_directories,
+    pickle_object,
+)
 
 logger = pyinseq_logger.logger
 
@@ -30,12 +37,14 @@ if __name__ == "__main__":
         logger.info(f"Config file provided as: {args.config}")
         config_file = args.config
     else:
-        config_file = write_config_file(args, format=args.config_format, default=args.get_default_config)
+        config_file = write_config_file(
+            args, format=args.config_format, default=args.get_default_config
+        )
     # Get workflow object
     settings = Settings(args.command, config_file, args.additional_params)
     create_experiment_directories(settings)
 
-    if settings.command != 'genomeprep':
+    if settings.command != "genomeprep":
         settings.dump_sample_dict_to_yml()
 
     # Pickle settings

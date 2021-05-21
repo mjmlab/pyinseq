@@ -10,6 +10,7 @@ Output path includes the experiment and sample name:
 
 import re
 import screed
+
 # Module imports
 from pyinseq.utils import count_lines
 from pyinseq.logger import pyinseq_logger, TqdmBarLogger
@@ -40,7 +41,7 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
         demultiplex_dict[bc] = []
         demultiplex_count_dict[bc] = 0
     demultiplex_dict["other"] = []  # unassigned barcodes
-    demultiplex_count_dict['other'] = 0
+    demultiplex_count_dict["other"] = 0
     # For each line in the FASTQ file:
     #   Assign to barcode (fastq record into the dictionary)
     #   Cache by barcode; write to the appropriate output files (untrimmed and trimmed)
@@ -59,10 +60,8 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     logger.info("Preparing to demultiplex reads")
     num_fastq_lines = count_lines(reads, fastq=True)
     tqdm_logger = TqdmBarLogger(
-        logger,
-        num_fastq_lines,
-        desc="Demultiplexing reads",
-        unit='reads')
+        logger, num_fastq_lines, desc="Demultiplexing reads", unit="reads"
+    )
     # count of reads
     n_reads = 0
     for read in screed.open(reads):
@@ -81,9 +80,7 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
         n_reads += 1
         # Buffer dumping reads into barcode file
         if n_reads % 5e6 == 0:
-            tqdm_logger.info(
-                f"Demultiplexed {n_reads:,} reads. Writing to file"
-            )
+            tqdm_logger.info(f"Demultiplexed {n_reads:,} reads. Writing to file")
             write_reads(demultiplex_dict, samples_dict, settings)
             # Clear the dictionary after writing to file
             for barcode in demultiplex_dict:
@@ -103,8 +100,10 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     for bc in demultiplex_count_dict:
         for sample in samples_dict:
             if samples_dict[sample]["barcode"] == bc:
-                samples_dict[sample]['demultiplexed_reads'] = demultiplex_count_dict[bc]
-                pyinseq_logger.logger_io.write(f"- {sample} ({bc}): {demultiplex_count_dict[bc]:,} reads\n")
+                samples_dict[sample]["demultiplexed_reads"] = demultiplex_count_dict[bc]
+                pyinseq_logger.logger_io.write(
+                    f"- {sample} ({bc}): {demultiplex_count_dict[bc]:,} reads\n"
+                )
     logger.info(f"Total reads demultiplexed: {n_reads:,}")
 
     # Return an update samples_dict
@@ -128,29 +127,35 @@ def write_reads(demultiplex_dict, samples_dict, settings):
                     logger,
                     num_lines_to_write,
                     desc=f"Writing reads to {barcode_dict[barcode]}.fastq",
-                    unit='reads',
+                    unit="reads",
                 )
                 for read in demultiplex_dict[barcode]:
                     tqdm_write_logger.update()
                     fo.write(f"@{read.name}\n{read.sequence}\n+\n{read.quality}\n")
                 tqdm_write_logger.close()
         # Write trimmed if necessary
-        if settings.write_trimmed_reads and barcode != 'other':
-            with open(f"{settings.path}/{barcode_dict[barcode]}_trimmed.fastq", "a") as fo:
-                logger.debug(f"Writing trimmed reads to {barcode_dict[barcode]}_trimmed.fastq")
+        if settings.write_trimmed_reads and barcode != "other":
+            with open(
+                f"{settings.path}/{barcode_dict[barcode]}_trimmed.fastq", "a"
+            ) as fo:
+                logger.debug(
+                    f"Writing trimmed reads to {barcode_dict[barcode]}_trimmed.fastq"
+                )
                 # Same logger, TODO: could maybe wrap loop into iterator
                 tqdm_write_logger = TqdmBarLogger(
                     logger,
                     num_lines_to_write,
                     desc=f"Writing trimmed reads to {barcode_dict[barcode]}_trimmed.fastq",
-                    unit='reads',
+                    unit="reads",
                 )
                 for read in demultiplex_dict[barcode]:
                     tqdm_write_logger.update()
-                    fo.write(f"@{read.name}\n"
-                             f"{read.sequence[slice(read.trim[0], read.trim[1])]}\n"
-                             f"+\n"
-                             f"{read.quality[slice(read.trim[0], read.trim[1])]}\n")
+                    fo.write(
+                        f"@{read.name}\n"
+                        f"{read.sequence[slice(read.trim[0], read.trim[1])]}\n"
+                        f"+\n"
+                        f"{read.quality[slice(read.trim[0], read.trim[1])]}\n"
+                    )
                 tqdm_write_logger.close()
     return
 

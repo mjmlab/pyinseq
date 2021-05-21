@@ -7,6 +7,7 @@ Count and process the bowtie hits at each position in each sample
 """
 
 import csv
+
 # Module Imports
 from pyinseq.logger import pyinseq_logger
 
@@ -15,7 +16,9 @@ logger = pyinseq_logger.logger
 
 def map_sites(sample, settings):
     """Map insertions to nucleotide sites."""
-    logger.info(f"Sample {sample}: summarize the site data from the bowtie results into sites file.")
+    logger.info(
+        f"Sample {sample}: summarize the site data from the bowtie results into sites file."
+    )
     # Placeholder for dictionary of mapped reads in format:
     # {(contig, position) : [left_counts, right_counts]}
     map_dict = {}
@@ -52,7 +55,7 @@ def map_sites(sample, settings):
             "cpm",
         )
         writer.writerow(header_entry)
-        sample_dict = {sample: {'site hits': 0}}
+        sample_dict = {sample: {"site hits": 0}}
         for insertion in sorted(map_dict):
             left_counts = map_dict[insertion][0]
             right_counts = map_dict[insertion][1]
@@ -67,9 +70,11 @@ def map_sites(sample, settings):
                 cpm,
             )
             writer.writerow(row_entry)
-            sample_dict[sample]['site hits'] += total_counts
+            sample_dict[sample]["site hits"] += total_counts
     # Summarize site data into io
-    pyinseq_logger.logger_io.write(f"- {sample}: {overall_total} aligned reads mapped to sites\n")
+    pyinseq_logger.logger_io.write(
+        f"- {sample}: {overall_total} aligned reads mapped to sites\n"
+    )
     # Return a dict where {sample: {sites: 100} }
     return sample_dict
 
@@ -165,7 +170,7 @@ def map_genes(sample, settings):
                                 gene_dict.setdefault(locus_tag, [0])[0] += cpm
                 previous_feature = locus_tag
     # Write individual insertions to *_genes.txt
-    sample_dict = {sample: {'gene hits': 0}}
+    sample_dict = {sample: {"gene hits": 0}}
     with open(genes_file, "w", newline="") as csvfileW:
         headers = (
             "contig",
@@ -181,9 +186,11 @@ def map_genes(sample, settings):
         mapped_gene_writer.writerow(headers)
         for hit in mapped_hit_list:
             mapped_gene_writer.writerow(hit)
-            sample_dict[sample]['gene hits'] += int(hit[4])
+            sample_dict[sample]["gene hits"] += int(hit[4])
     # Summarize site data into io
-    pyinseq_logger.logger_io.write(f"- {sample}: {sites_in_genes} of mapped reads fall in genes\n")
+    pyinseq_logger.logger_io.write(
+        f"- {sample}: {sites_in_genes} of mapped reads fall in genes\n"
+    )
     # Return aggregated insertions by gene (filtered on 5'-3' threshold)
     return sample_dict
 
@@ -246,8 +253,10 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
             writer.writerows(gene_table)
 
     # Summarize build gene table step
-    pyinseq_logger.logger_io.write(f"- Gene table contains {len(sample_dict)} samples (columns) "
-                                   f"for {len(gene_table) - 1} genes (rows) \n")
+    pyinseq_logger.logger_io.write(
+        f"- Gene table contains {len(sample_dict)} samples (columns) "
+        f"for {len(gene_table) - 1} genes (rows) \n"
+    )
     return
 
 
