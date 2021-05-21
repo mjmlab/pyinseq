@@ -36,6 +36,7 @@ def load_settings():
         dump.mkdir()
     with cd(dump):
         from pyinseq.settings import Settings
+
         settings = Settings("pyinseq", config_file=config_file)
     return settings
 

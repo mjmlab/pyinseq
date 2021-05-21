@@ -8,6 +8,7 @@ test:
 
 clean_dump:
 	rm -rf pyinseq/tests/dump/*
+	rm -rf pyinseq/tests/dump/.snakemake
 
 get_dag:
-	snakemake --dag -s ../../workflows/PyinseqSnakemake/Snakefile --cores 2 --configfile test_pyinseq-snakemake_args_pyinseq-snake_config.yaml | dot -Tpng > pyinseq-snakemake_dag.png
+	snakemake --dag -s ../../workflows/PyinseqWorkflow/Snakefile --cores 2 --configfile test_pyinseq-config.yaml | dot -Tpng > pyinseq-snakemake_dag.png
