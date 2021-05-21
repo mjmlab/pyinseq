@@ -4,6 +4,7 @@ import sys
 import filecmp
 import traceback
 from distutils import dir_util
+from pathlib import Path
 
 try:
     from StringIO import StringIO
@@ -30,9 +31,10 @@ class cd:
 @pytest.fixture()
 def load_settings():
     config_file = "../data/input/config.yaml"
-    print(os.getcwd())
-    print(os.listdir(os.getcwd()))
-    with cd("pyinseq/tests/dump"):
+    dump = Path("pyinseq/tests/dump")
+    if not dump.exists():
+        dump.mkdir()
+    with cd(dump):
         from pyinseq.settings import Settings
         settings = Settings("pyinseq", config_file=config_file)
     return settings
