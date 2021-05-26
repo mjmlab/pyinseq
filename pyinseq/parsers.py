@@ -122,8 +122,10 @@ def get_args():
         required=False,
         default=False,
     )
-
-    subparsers = parser.add_subparsers(dest="command", help="sub-command help")
+    subparsers = parser.add_subparsers(
+        dest="command",
+        help="Command for performing specialized tasks"
+    )
     # demultiplex
     sub_parser_demultiplex = subparsers.add_parser(
         "demultiplex",

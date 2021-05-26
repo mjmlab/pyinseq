@@ -143,7 +143,7 @@ def write_config_file(args=None, format="yaml", default=False) -> Path:
     Given pyinseq arguments, creates a config file that can be given to snakemake
 
     :param args: Namespace object with pyinseq args
-    :param format: file extension for configfile (json or yaml)
+    :param format: file extension for config_file (json or yaml)
     :param default: boolean to write default config file
     :return: path to config_file
     """
@@ -160,6 +160,8 @@ def write_config_file(args=None, format="yaml", default=False) -> Path:
         logger.info("Writing configuration file from provided arguments")
         config_file = Path(f"{args.experiment}-config.{format}")
         with open(config_file, "w") as f:
+            if not args_dict['command']:
+                args_dict['command'] = 'pyinseq'
             config_dict = {key: args_dict[key] for key in args_dict}
             dumper(config_dict, f)
         return config_file

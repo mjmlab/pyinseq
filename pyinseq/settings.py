@@ -19,60 +19,21 @@ from pyinseq.utils import (
 
 
 class Settings:
-    """Instantiate to set up settings for the experiment."""
+    """General settings for pyinseq"""
 
-    def __init__(self, command, config_file, add_params=[]):
-        # command options are: ['pyinseq', 'demultiplex']
-        self.command = command if command else "pyinseq"
+    def __init__(self, config_file):
         # Attributes for all workflows
         self.config_file = config_file
         config_dict = get_config_dict(self.config_file)
+        # command options are: ['pyinseq', 'demultiplex', 'genomeprep]
+        self.command = config_dict['command']
         self.experiment = convert_to_filename(config_dict["experiment"])
         self.threads = config_dict["threads"]
         self.output_dir = Path(f"results/{self.experiment}")
         self.path = f"results/{self.experiment}/"
         self.log = f"{self.path}log.txt"
         self.summary_log = f"{self.path}summary_log.txt"
-
-        if self.command == "pyinseq":
-            self.reads = config_dict["input"]
-            self.samples = config_dict["samples"]
-            self.samples_txt = f"{self.path}samples.txt"
-            self.samples_dict = tab_delimited_samples_to_dict(self.samples)
-            self.samples_info_yml = f"{self.path}samples_info.yml"
-            self.raw_path = f"{self.path}raw_data/"
-            self.reference_genome = config_dict["genome"]
-            self.genome_path = f"{self.path}genome_lookup/"
-            self.map_to_genome = True
-            self.gff3 = config_dict["gff3"]
-            self.summary_table = f"{self.path}summary_gene_table.txt"
-            # Pyinseq optional args
-            self.disruption = set_disruption(config_dict["disruption"])
-            self.barcode_length = set_barcode_length(config_dict["barcode_length"])
-            self.transposon_seq = set_transposon_seq(config_dict["transposon_seq"])
-            # counts at one transposon site for it to qualify
-            self.min_counts = set_min_count(config_dict["min_count"])
-            # max ratio of left/right sites for it to qualify
-            self.max_ratio = set_max_ratio(config_dict["max_ratio"])
-
-        elif self.command == "demultiplex":
-            self.reads = config_dict["input"]
-            self.samples_txt = f"{self.path}samples.txt"
-            self.samples = config_dict["samples"]
-            self.samples_dict = tab_delimited_samples_to_dict(self.samples)
-            self.samples_info_yml = f"{self.path}samples_info.yml"
-            self.raw_path = f"{self.path}raw_data/"
-            self.barcode_length = set_barcode_length(config_dict["barcode_length"])
-            self.transposon_seq = set_transposon_seq(config_dict["transposon_seq"])
-
-        elif self.command == "genomeprep":
-            self.reference_genome = config_dict["genome"]
-            self.genome_path = f"{self.path}genome_lookup/"
-            self.gff3 = config_dict["gff3"]
-
         self.settings_pickle = self.output_dir.joinpath("settings.pickle")
-        # organism reference files called 'genome.fna' etc
-        self.organism = "genome"
 
         # Set shell command
         self.snakefile = get_workflow_snakefile_path(self.command)
@@ -84,23 +45,10 @@ class Settings:
             str(self.snakefile),
             "--cores",
             str(self.threads - 1),
-            "--use-conda",
         ]
         # Add additional parameters, if any...
-        self.snakemake_cmd.extend(add_params)
+        self.snakemake_cmd.extend(config_dict['additional_params'])
         self.snakemake_cmd = " ".join(self.snakemake_cmd)
-        # Create experiment directories, solves logging issue
-        self.process_reads = True if command in ["pyinseq", "demultiplex"] else False
-        self.process_sample_list = (
-            True if command in ["pyinseq", "demultiplex"] else False
-        )
-        self.parse_genebank = True if command in ["pyinseq", "genomeprep"] else False
-        self.generate_bowtie_index = (
-            True if command in ["pyinseq", "genomeprep"] else False
-        )
-        self.write_trimmed_reads = (
-            not config_dict["notrim"] if command == "demultiplex" else True
-        )
 
     def __repr__(self):
         # Print each variable on a separate line
@@ -132,6 +80,81 @@ class Settings:
                         dump_dict[sample][k] = updated_dict[sample][k]
             yaml.dump(dump_dict, fo)
         return
+
+
+class PyinseqSettings(Settings):
+
+    def __init__(self, config_file):
+        super().__init__(config_file)
+        config_dict = get_config_dict(self.config_file)
+        self.reads = config_dict["input"]
+        self.samples = config_dict["samples"]
+        self.samples_txt = f"{self.path}samples.txt"
+        self.samples_dict = tab_delimited_samples_to_dict(self.samples)
+        self.samples_info_yml = f"{self.path}samples_info.yml"
+        self.raw_path = f"{self.path}raw_data/"
+        self.reference_genome = config_dict["genome"]
+        self.genome_path = f"{self.path}genome_lookup/"
+        # organism reference files called 'genome.fna' etc
+        self.organism = "genome"
+        self.gff3 = config_dict["gff3"]
+        self.summary_table = f"{self.path}summary_gene_table.txt"
+        # Pyinseq optional args
+        self.disruption = set_disruption(config_dict["disruption"])
+        self.barcode_length = set_barcode_length(config_dict["barcode_length"])
+        self.transposon_seq = set_transposon_seq(config_dict["transposon_seq"])
+        # counts at one transposon site for it to qualify
+        self.min_counts = set_min_count(config_dict["min_count"])
+        # max ratio of left/right sites for it to qualify
+        self.max_ratio = set_max_ratio(config_dict["max_ratio"])
+        # Actions to carry out
+        self.map_to_genome = True
+        self.process_reads = True
+        self.process_sample_list = True
+        self.parse_genebank = True
+        self.generate_bowtie_index = True
+        self.write_trimmed_reads = True
+
+
+class DemultiplexSettings(Settings):
+    def __init__(self, config_file):
+        super().__init__(config_file)
+        config_dict = get_config_dict(self.config_file)
+        self.reads = config_dict["input"]
+        self.samples_txt = f"{self.path}samples.txt"
+        self.samples = config_dict["samples"]
+        self.samples_dict = tab_delimited_samples_to_dict(self.samples)
+        self.samples_info_yml = f"{self.path}samples_info.yml"
+        self.raw_path = f"{self.path}raw_data/"
+        self.barcode_length = set_barcode_length(config_dict["barcode_length"])
+        self.transposon_seq = set_transposon_seq(config_dict["transposon_seq"])
+        # Actions to carry out
+        self.parse_genebank = False
+        self.process_reads = True
+        self.process_sample_list = True
+        self.write_trimmed_reads = not config_dict["notrim"]
+
+
+class GenomeprepSettings(Settings):
+    def __init__(self, config_file):
+        super().__init__(config_file)
+        config_dict = get_config_dict(self.config_file)
+        self.reference_genome = config_dict["genome"]
+        self.genome_path = f"{self.path}genome_lookup/"
+        self.gff3 = config_dict["gff3"]
+        # organism reference files called 'genome.fna' etc
+        self.organism = "genome"
+        # Actions to carry out
+        self.parse_genebank = True
+        self.generate_bowtie_index = True
+        self.process_reads = False
+
+# HOLDS CLASS CONSTRUCTORS
+SETTINGS_CONSTRUCTORS = {
+    "pyinseq": PyinseqSettings,
+    "demultiplex": DemultiplexSettings,
+    "genomeprep": GenomeprepSettings,
+}
 
 
 def set_min_count(min_count=3):

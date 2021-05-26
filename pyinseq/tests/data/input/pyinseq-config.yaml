@@ -1,6 +1,6 @@
 additional_params: []
 barcode_length: 4
-command: null
+command: pyinseq
 config: false
 config_format: yaml
 disruption: 0.9

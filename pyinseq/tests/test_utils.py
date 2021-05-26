@@ -30,15 +30,16 @@ class cd:
 
 @pytest.fixture()
 def load_settings():
-    config_file = "../data/input/config.yaml"
-    dump = Path("pyinseq/tests/dump")
-    if not dump.exists():
-        dump.mkdir()
-    with cd(dump):
-        from pyinseq.settings import Settings
-
-        settings = Settings("pyinseq", config_file=config_file)
-    return settings
+    def fetch(command):
+        config_file = "../data/input/pyinseq-config.yaml"
+        dump = Path("pyinseq/tests/dump")
+        if not dump.exists():
+            dump.mkdir()
+        with cd(dump):
+            from pyinseq.settings import SETTINGS_CONSTRUCTORS
+            settings_constructor = SETTINGS_CONSTRUCTORS[command]
+            return settings_constructor(config_file)
+    return fetch
 
 
 """
