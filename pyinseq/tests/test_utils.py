@@ -37,8 +37,10 @@ def load_settings():
             dump.mkdir()
         with cd(dump):
             from pyinseq.settings import SETTINGS_CONSTRUCTORS
+
             settings_constructor = SETTINGS_CONSTRUCTORS[command]
             return settings_constructor(config_file)
+
     return fetch
 
 

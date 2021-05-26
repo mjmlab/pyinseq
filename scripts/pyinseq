@@ -6,6 +6,7 @@ Main entry-point for pyinseq
 """
 # Setup up universal logger
 from pyinseq.logger import pyinseq_logger
+
 pyinseq_logger.setup_logger()
 
 import sys
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     settings = constructor(config_file)
     create_experiment_directories(settings)
 
-    if settings.command != 'genomeprep':
+    if settings.command != "genomeprep":
         settings.dump_sample_dict_to_yml()
 
     # Pickle settings

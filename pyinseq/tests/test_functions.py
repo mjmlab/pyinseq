@@ -38,7 +38,7 @@ def test_filename_funny_characters():
 
 
 def test_pyinseq_Settings(datadir, load_settings):
-    setting = load_settings('pyinseq')
+    setting = load_settings("pyinseq")
 
     assert setting.path == "results/test_pyinseq/"
     assert setting.genome_path == "results/test_pyinseq/genome_lookup/"
@@ -65,7 +65,7 @@ def test_tab_delimited_samples_to_dict_no_trailing_newline():
 
 def test_create_experiment_directories(datadir, tmpdir, load_settings):
     """Test for function that creates the directory structure of pyinseq"""
-    settings = load_settings('pyinseq')
+    settings = load_settings("pyinseq")
     expected_output = datadir("output_pyinseq")
     # In the context of pytest directory
     with cd(str(tmpdir)):

@@ -160,8 +160,8 @@ def write_config_file(args=None, format="yaml", default=False) -> Path:
         logger.info("Writing configuration file from provided arguments")
         config_file = Path(f"{args.experiment}-config.{format}")
         with open(config_file, "w") as f:
-            if not args_dict['command']:
-                args_dict['command'] = 'pyinseq'
+            if not args_dict["command"]:
+                args_dict["command"] = "pyinseq"
             config_dict = {key: args_dict[key] for key in args_dict}
             dumper(config_dict, f)
         return config_file

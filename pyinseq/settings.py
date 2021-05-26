@@ -26,7 +26,7 @@ class Settings:
         self.config_file = config_file
         config_dict = get_config_dict(self.config_file)
         # command options are: ['pyinseq', 'demultiplex', 'genomeprep]
-        self.command = config_dict['command']
+        self.command = config_dict["command"]
         self.experiment = convert_to_filename(config_dict["experiment"])
         self.threads = config_dict["threads"]
         self.output_dir = Path(f"results/{self.experiment}")
@@ -47,7 +47,7 @@ class Settings:
             str(self.threads - 1),
         ]
         # Add additional parameters, if any...
-        self.snakemake_cmd.extend(config_dict['additional_params'])
+        self.snakemake_cmd.extend(config_dict["additional_params"])
         self.snakemake_cmd = " ".join(self.snakemake_cmd)
 
     def __repr__(self):
@@ -83,7 +83,6 @@ class Settings:
 
 
 class PyinseqSettings(Settings):
-
     def __init__(self, config_file):
         super().__init__(config_file)
         config_dict = get_config_dict(self.config_file)
@@ -148,6 +147,7 @@ class GenomeprepSettings(Settings):
         self.parse_genebank = True
         self.generate_bowtie_index = True
         self.process_reads = False
+
 
 # HOLDS CLASS CONSTRUCTORS
 SETTINGS_CONSTRUCTORS = {

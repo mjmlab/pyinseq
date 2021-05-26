@@ -12,10 +12,11 @@ import argparse
 # Module imports
 from pyinseq.utils import get_version
 
+
 def get_snake_parser():
     # Snake parser will be parent for all other parsers
     snake_parser = argparse.ArgumentParser(add_help=False)
-    snake_group = snake_parser.add_argument_group('SNAKEMAKE')
+    snake_group = snake_parser.add_argument_group("SNAKEMAKE")
     snake_group.add_argument(
         "--get_default_config",
         action="store_true",
@@ -42,8 +43,8 @@ def get_snake_parser():
     snake_group.add_argument(
         "--additional_params",
         help="Additional params passed to snakemake. "
-             "This should be included at the end of the command since everything will be passed to snakemake so make sure they are correct. "
-             "For example, you can use `-n` to check which files snakemake will create without execution the full workflow.",
+        "This should be included at the end of the command since everything will be passed to snakemake so make sure they are correct. "
+        "For example, you can use `-n` to check which files snakemake will create without execution the full workflow.",
         nargs="...",
         default=[],
         type=str,
@@ -54,24 +55,15 @@ def get_snake_parser():
 def get_args():
     """Parse command line arguments for main pyinseq. Returns both parser and Namespace object"""
 
-    parser = argparse.ArgumentParser('pyinseq', parents=[get_snake_parser()])
+    parser = argparse.ArgumentParser("pyinseq", parents=[get_snake_parser()])
     parser.add_argument(
-        "-v",
-        "--version",
-        action="version",
-        version=f"pyinseq: {get_version()}"
+        "-v", "--version", action="version", version=f"pyinseq: {get_version()}"
     )
     parser.add_argument(
-        "-i",
-        "--input",
-        help="input Illumina reads file or folder",
-        required=False
+        "-i", "--input", help="input Illumina reads file or folder", required=False
     )
     parser.add_argument(
-        "-s",
-        "--samples",
-        help="sample list with barcodes",
-        required=False
+        "-s", "--samples", help="sample list with barcodes", required=False
     )
     parser.add_argument(
         "-e",
@@ -123,26 +115,19 @@ def get_args():
         default=False,
     )
     subparsers = parser.add_subparsers(
-        dest="command",
-        help="Command for performing specialized tasks"
+        dest="command", help="Command for performing specialized tasks"
     )
     # demultiplex
     sub_parser_demultiplex = subparsers.add_parser(
         "demultiplex",
         parents=[get_snake_parser()],
-        help="Demultiplex reads into barcode samples"
+        help="Demultiplex reads into barcode samples",
     )
     sub_parser_demultiplex.add_argument(
-        "-i",
-        "--input",
-        help="input Illumina reads file or folder",
-        required=False
+        "-i", "--input", help="input Illumina reads file or folder", required=False
     )
     sub_parser_demultiplex.add_argument(
-        "-s",
-        "--samples",
-        help="sample list with barcodes",
-        required=False
+        "-s", "--samples", help="sample list with barcodes", required=False
     )
     sub_parser_demultiplex.add_argument(
         "-e",
@@ -162,7 +147,7 @@ def get_args():
     sub_parser_genome_prep = subparsers.add_parser(
         "genomeprep",
         parents=[get_snake_parser()],
-        help="Prepare genome files from nucleotide sequences"
+        help="Prepare genome files from nucleotide sequences",
     )
     sub_parser_genome_prep.add_argument(
         "-e",
@@ -191,6 +176,7 @@ def get_args():
         default=False,
     )
     return parser, parser.parse_args()
+
 
 """Inactive arguments in current version
 parser.add_argument('--nobarcodes',
