@@ -1,17 +1,17 @@
-additional_params:
-- --use-conda
+additional_params: []
 barcode_length: 4
-command: pyinseq
+command: genomeprep
 config: false
 config_format: yaml
 disruption: 0.9
-experiment: test_pyinseq
+experiment: test_genomeprep
 genome: ../data/input/ES114v2.gb
 get_default_config: false
 gff3: false
-input: ../data/input/example01.fastq
+input: null
 max_ratio: 10
 min_count: 3
-samples: ../data/input/example01.txt
+noindex: false
+samples: null
 threads: 4
 transposon_seq: ACAGGTTG

@@ -35,6 +35,8 @@ def test_pyinseq_script(datadir, tmpdir):
         output_name,
         "-d",
         "0.9",
+        '--additional_params',
+        '--use-conda'
     ]
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
     assert not status
@@ -102,6 +104,8 @@ def test_pyinseq_script_unique_transp_barcode_length(datadir, tmpdir):
         "9",
         "--transposon_seq",
         "TCGCACGG",
+        '--additional_params',
+        '--use-conda'
     ]
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
     assert not status
@@ -169,7 +173,8 @@ def test_pyinseq_genomeprep_script(datadir, tmpdir):
     output_dir = tmpdir.join(f"results/{output_name}")
     gb_fn = datadir("input/ES114v2.gb")
 
-    args = ["genomeprep", "-e", output_name, "-g", gb_fn]
+    args = ["genomeprep", "-e", output_name, "-g", gb_fn, '--additional_params',
+        '--use-conda']
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
     assert not status
 
@@ -183,7 +188,8 @@ def test_pyinseq_genomeprep_gff_script(datadir, tmpdir):
     output_dir = tmpdir.join(f"results/{output_name}")
     gb_fn = datadir("input/ES114v2.gb")
 
-    args = ["genomeprep", "-e", output_name, "-g", gb_fn, "--gff"]
+    args = ["genomeprep", "-e", output_name, "-g", gb_fn, "--gff", '--additional_params',
+        '--use-conda']
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
     assert not status
 
