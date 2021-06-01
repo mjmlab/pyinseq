@@ -46,13 +46,12 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     #   Assign to barcode (fastq record into the dictionary)
     #   Cache by barcode; write to the appropriate output files (untrimmed and trimmed)
     #   Use triple brackets in f-strings to leave a single bracket for regex
-    # REGEX DESCRIPTION:
-    #   beginning of string
-    #   group(1) = barcode, any bp (4-16bp) of mixed ACGT
-    #   group(2) = 16-17 bp of chromosmal sequence
-    #   flanking transposon sequence, last two must be TA for transposon
     pattern = re.compile(
-        f"""^([ACGT]{{{settings.barcode_length}}})([NACGT][ACGT]{{13,14}}(?:TA)){settings.transposon_seq}""",
+        f"""
+        ^                                     #   beginning of string
+        ([ACGT]{{{settings.barcode_length}}}) #   group(1) = barcode, any bp (4-16bp) of mixed ACGT
+        ([NACGT][ACGT]{{13,14}}               #   group(2) = 16-17 bp of chromosmal sequence
+        (?:TA)){settings.transposon_seq}""",  #   flanking transposon sequence, last two must be TA for transposon
         re.VERBOSE,
     )
 
