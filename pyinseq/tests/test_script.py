@@ -5,8 +5,7 @@
 Tests for running pyinseq pipelines
 
 """
-import os
-import pytest
+
 from .test_utils import runscript, datadir, compare_directories
 
 
@@ -37,33 +36,6 @@ def test_pyinseq_script(datadir, tmpdir):
         "0.9",
         "--additional_params",
         "--use-conda",
-    ]
-    status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
-    assert not status
-
-    # Compare directory outputs
-    compare_directories(
-        expected_output,
-        output_dir,
-        ignore=[
-            "E001_01_bowtie.txt",
-            "E001_02_bowtie.txt",
-            ".DS_Store",
-            "log.txt",
-            "summary_log.txt",
-        ],
-    )
-
-
-@pytest.mark.skip(reason="Need to pass Travis for now")
-def test_pyinseq_config(datadir, tmpdir):
-    config_file = datadir("input/pyinseq-config.yaml")
-    expected_output = datadir("output_pyinseq")
-    output_dir = tmpdir.join("results/example_pyinseq")
-
-    args = [
-        "-c",
-        config_file,
     ]
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
     assert not status

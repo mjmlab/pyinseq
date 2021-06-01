@@ -61,6 +61,9 @@ def datadir(tmpdir_factory, request):
     data_dir = os.path.join(os.path.dirname(__file__), "data")
     dir_util.copy_tree(data_dir, str(tmpdir))
 
+    # Create dump in temporary directory
+    tmpdir.join('dump').mkdir()
+
     def getter(filename="", as_str=True):
         filepath = tmpdir.join(filename)
         if as_str:
