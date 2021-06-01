@@ -30,7 +30,7 @@ logger = pyinseq_logger.logger
 def build_fna_and_table_files(gbk_file, settings):
     """Convert GenBank file to a fasta nucleotide (.fna) and feature table (.ftt) files."""
     logger.info(
-        f"Converting genebank {gbk_file} to fasta nucleotide (.fna) and feature table (.ftt)."
+        f"Converting GenBank {gbk_file} to fasta nucleotide (.fna) and feature table (.ftt)."
     )
     fasta = gbk2fna(gbk_file, settings.organism, settings.genome_path)
     gbk2table(gbk_file, fasta, settings.organism, settings.genome_path, settings.gff3)
