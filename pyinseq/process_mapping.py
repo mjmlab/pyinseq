@@ -148,11 +148,7 @@ def map_genes(sample, settings):
                                 # Add to the total for that gene --
                                 # Single-element list (rather than integer) so
                                 # that it is subscriptable to add cpm counts
-                                if locus_tag not in gene_dict.keys():
-                                    gene_dict[locus_tag] = [0]
-                                print(locus_tag)
-                                gene_dict[locus_tag][0] += cpm
-                                print(gene_dict[locus_tag][0])
+                                gene_dict.setdefault(locus_tag, [0])[0] += cpm
                 previous_feature = locus_tag
     # Write individual insertions to *_genes.txt
     with open(genes_file, "w", newline="") as csvfileW:

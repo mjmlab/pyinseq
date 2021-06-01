@@ -109,7 +109,7 @@ def demultiplex_parse_args(args):
     )
     parser.add_argument(
         "--barcode_length",
-        help="Length of the barcode which is used to demultiplex samples",
+        help="Length of the barcode which is used to demultiplex samples (4 - 16)",
         default=4,
     )
     parser.add_argument(
