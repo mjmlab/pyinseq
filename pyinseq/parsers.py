@@ -98,7 +98,7 @@ def get_args():
     )
     parser.add_argument(
         "--barcode_length",
-        help="Length of the barcode which is used to demultiplex samples",
+        help="Length of the barcode which is used to demultiplex samples (4 - 16bp)",
         type=int,
         default=4,
     )
@@ -141,6 +141,17 @@ def get_args():
         action="store_true",
         required=False,
         default=False,
+    )
+    sub_parser_demultiplex.add_argument(
+        "--barcode_length",
+        help="Length of the barcode which is used to demultiplex samples (4 - 16bp)",
+        type=int,
+        default=4,
+    )
+    sub_parser_demultiplex.add_argument(
+        "--transposon_seq",
+        help="Sequence for the transposon that flanks reads",
+        default="ACAGGTTG",
     )
 
     # Genomeprep
