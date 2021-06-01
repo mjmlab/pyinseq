@@ -62,7 +62,7 @@ def parse_args(args):
     parser.add_argument(
         "--transposon_seq",
         help="Sequence for the transposon that flanks reads",
-        default='ACAGGTTG',
+        default="ACAGGTTG",
     )
     """Inactive arguments in current version
     parser.add_argument('-s', '--samples',
@@ -109,13 +109,13 @@ def demultiplex_parse_args(args):
     )
     parser.add_argument(
         "--barcode_length",
-        help="Length of the barcode which is used to demultiplex samples",
+        help="Length of the barcode which is used to demultiplex samples (4 - 16)",
         default=4,
     )
     parser.add_argument(
         "--transposon_seq",
         help="Sequence for the transposon that flanks reads",
-        default='ACAGGTTG',
+        default="ACAGGTTG",
     )
     return parser.parse_args(args)
 
@@ -191,7 +191,7 @@ class Settings:
         self.keep_all = False
         self.barcode_length = 4
         self.disruption = 1
-        self.transposon_seq = 'ACAGGTTG'
+        self.transposon_seq = "ACAGGTTG"
 
     def __repr__(self):
         # Print each variable on a separate line

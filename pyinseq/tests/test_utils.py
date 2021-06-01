@@ -122,6 +122,7 @@ def runscript(
         sys.argv = oldargs
         out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
         sys.stdout, sys.stderr = oldout, olderr
+        print(out)
 
         os.chdir(cwd)
 
