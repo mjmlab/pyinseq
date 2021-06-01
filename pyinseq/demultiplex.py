@@ -20,10 +20,10 @@ logger = logging.getLogger("pyinseq")
 def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     """Demultiplex a fastq input file by 5' barcode into separate files.
 
-       Use regex to identify the chromosome slice and save this in the read
-       record as 'trim', e.g., read['trim'] = (4, 21)
-       Save raw reads into '{experiment}/raw_data/{sample_name}.fastq'
-       Save trimmed reads into '{experiment}/{sample_name}_trimmed.fastq'
+    Use regex to identify the chromosome slice and save this in the read
+    record as 'trim', e.g., read['trim'] = (4, 21)
+    Save raw reads into '{experiment}/raw_data/{sample_name}.fastq'
+    Save trimmed reads into '{experiment}/{sample_name}_trimmed.fastq'
     """
     # Dictionary of lists to hold FASTQ reads until they are written to files
     # Keys are barcodes
@@ -37,15 +37,19 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     # For each line in the FASTQ file:
     #   Assign to barcode (fastq record into the dictionary)
     #   Cache by barcode; write to the appropriate output files (untrimmed and trimmed)
+    #   Use triple brackets in f-strings to leave a single bracket for regex
+    # REGEX DESCRIPTION:
+    #   beginning of string
+    #   group(1) = barcode, any 4-bp of mixed ACGT
+    #   group(2) = 16-17 bp of chromosmal sequence
+    #   flanking transposon sequence, last two must be TA for transposon
+
     pattern = re.compile(
-        """
-    ^                               # beginning of string
-    ([ACGT]{4})                     # group(1) = barcode, any 4-bp of mixed ACGT
-    ([NACGT][ACGT]{13,14}(?:TA))    # group(2) = 16-17 bp of chromosomal sequence
-                                    # first bp can be N
-                                    # last two must be TA for transposon
-    ACAGGTTG                        # flanking transposon sequence
-    """,
+        f"""
+        ^                                     #   beginning of string
+        ([ACGT]{{{settings.barcode_length}}}) #   group(1) = barcode, any bp (4-16bp) of mixed ACGT
+        ([NACGT][ACGT]{{13,14}}               #   group(2) = 16-17 bp of chromosmal sequence
+        (?:TA)){settings.transposon_seq}""",  #   flanking transposon sequence, last two must be TA for transposon
         re.VERBOSE,
     )
 
@@ -94,6 +98,7 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
     # Write trimmed reads only when needed
     if settings.write_trimmed_reads:
         write_trimmed_reads(demultiplex_dict, samples_dict, settings)
+
     logger.info(f"Total records demultiplexed: {n_reads:,}")
     return n_reads
 
@@ -151,7 +156,10 @@ def write_trimmed_reads(demultiplex_dict, samples_dict, settings):
                 for read in demultiplex_dict[barcode]:
                     p_bar.update()
                     fo.write(
-                        f"@{read.name}\n{read.sequence[slice(read.trim[0], read.trim[1])]}\n+\n{read.quality[slice(read.trim[0], read.trim[1])]}\n"
+                        f"@{read.name}\n"
+                        f"{read.sequence[slice(read.trim[0], read.trim[1])]}\n"
+                        f"+\n"
+                        f"{read.quality[slice(read.trim[0], read.trim[1])]}\n"
                     )
                 # Remove any traces of Progress Bar
                 p_bar.close()

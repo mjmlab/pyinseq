@@ -54,6 +54,16 @@ def parse_args(args):
         help="Maximum ratio of left:right or right:left reads per insertion site",
         default=10,
     )
+    parser.add_argument(
+        "--barcode_length",
+        help="Length of the barcode which is used to demultiplex samples (4 - 16)",
+        default=4,
+    )
+    parser.add_argument(
+        "--transposon_seq",
+        help="Sequence for the transposon that flanks reads",
+        default="ACAGGTTG",
+    )
     """Inactive arguments in current version
     parser.add_argument('-s', '--samples',
                         help='sample list with barcodes. \
@@ -96,6 +106,16 @@ def demultiplex_parse_args(args):
         help="do not write trimmed reads (i.e. write raw reads only)",
         action="store_true",
         required=False,
+    )
+    parser.add_argument(
+        "--barcode_length",
+        help="Length of the barcode which is used to demultiplex samples (4 - 16)",
+        default=4,
+    )
+    parser.add_argument(
+        "--transposon_seq",
+        help="Sequence for the transposon that flanks reads",
+        default="ACAGGTTG",
     )
     return parser.parse_args(args)
 
@@ -171,6 +191,7 @@ class Settings:
         self.keep_all = False
         self.barcode_length = 4
         self.disruption = 1
+        self.transposon_seq = "ACAGGTTG"
 
     def __repr__(self):
         # Print each variable on a separate line
@@ -229,6 +250,35 @@ def _set_gene_parameters(min_count, max_ratio, setting):
         )
     else:
         setting.max_ratio = max_ratio
+    return
+
+
+def _set_barcode_length(barcode_length, setting):
+    """Check that min_count and max_ratio are positive, otherwise set default."""
+    if barcode_length > 16:
+        logger.error(
+            f"Barcode length {barcode_length} is larger than 16bp which is unsupported by pyinseq. "
+            f"Setting length to 4bp default"
+        )
+    if barcode_length < 4:
+        logger.error(
+            f"Barcode length {barcode_length} is smaller than 4bp which is unsupported by pyinseq. "
+            f"Setting length to 4bp default"
+        )
+    else:
+        setting.barcode_length = barcode_length
+    return
+
+
+def _set_transposon_seq(transposon_seq, setting):
+    """Check that min_count and max_ratio are positive, otherwise set default."""
+    if not transposon_seq.isalpha():
+        logger.error(
+            f"Transposon sequence provided contains non-letter characters. "
+            f"Setting default to ACAGGTTG"
+        )
+    else:
+        setting.transposon_seq = transposon_seq
     return
 
 
@@ -401,6 +451,8 @@ def main(args):
         if settings.process_reads:
             _set_disruption(float(args.disruption), settings)
             _set_gene_parameters(int(args.min_count), int(args.max_ratio), settings)
+            _set_barcode_length(int(args.barcode_length), settings)
+            _set_transposon_seq(str(args.transposon_seq), settings)
     # sample names and paths
     if settings.process_sample_list:
         samples = args.samples

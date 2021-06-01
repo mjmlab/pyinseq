@@ -38,6 +38,7 @@ def test_class_Settings_init():
     assert x.summary_log == "results/example/log.txt"
     assert not x.keep_all
     assert x.barcode_length == 4
+    assert x.transposon_seq == "ACAGGTTG"
 
 
 def test_tab_delimited_samples_to_dict_trailing_newline():

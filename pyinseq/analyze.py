@@ -17,8 +17,8 @@ def read_summary_table(settings: "runner.Settings") -> pd.DataFrame:
 
 
 def t_fifty(sample: str, settings: "runner.Settings") -> pd.DataFrame:
-    """T50: The minimum number of transposon insertion sites in the sample that 
-            account for at least 50% of the samples's reads.
+    """T50: The minimum number of transposon insertion sites in the sample that
+    account for at least 50% of the samples's reads.
     """
     # calculate sum of counts in df
     df = read_sites_file(sample, settings)
@@ -71,7 +71,7 @@ def plot_pairwise(samples, settings):
 
 
 def df_raw_counts(samples: dict, settings: "runner.Settings") -> pd.DataFrame:
-    """ Returns total raw counts from samples in a DataFrame. """
+    """Returns total raw counts from samples in a DataFrame."""
     # Results DataFrame with desired columns
     result_df = pd.DataFrame(
         columns=["contig", "nucleotide", "left_counts", "right_counts", "total_counts"]
@@ -101,7 +101,7 @@ def df_raw_counts(samples: dict, settings: "runner.Settings") -> pd.DataFrame:
 
 
 def df_cpm_counts(samples: dict, settings: "runner.Settings") -> pd.DataFrame:
-    """ Returns total cpm counts from samples in a DataFrame. """
+    """Returns total cpm counts from samples in a DataFrame."""
     # Results DataFrame with desired columns
     result_df = pd.DataFrame(columns=["contig", "nucleotide", "cpm"])
 
@@ -127,7 +127,7 @@ def df_cpm_counts(samples: dict, settings: "runner.Settings") -> pd.DataFrame:
 
 
 def df_gene_counts(samples: dict, settings: "runner.Settings") -> pd.DataFrame:
-    """ Return total count of hits per gene. """
+    """Return total count of hits per gene."""
     # Results DataFrame with desired columns
     results_df = pd.DataFrame(
         columns=[
