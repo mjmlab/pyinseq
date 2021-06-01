@@ -51,6 +51,7 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
         ([NACGT][ACGT]{{13,14}}               #   group(2) = 16-17 bp of chromosmal sequence
         (?:TA)){settings.transposon_seq}""",  #   flanking transposon sequence, last two must be TA for transposon
         re.VERBOSE,
+
     )
 
     # Initiate progress bar
