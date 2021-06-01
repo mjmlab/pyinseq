@@ -6,8 +6,9 @@ Tests for individual functions in pyinseq module
 
 """
 
-import filecmp
 import os
+import sys
+import filecmp
 from collections import OrderedDict
 
 # Setup logger before importing modules
@@ -17,7 +18,10 @@ pyinseq_logger.setup_logger()
 # Module imports
 from pyinseq import utils
 from pyinseq.settings import Settings
-from .test_utils import cd, runscript, datadir, load_settings
+from pyinseq.parsers import get_args
+
+# Test imports
+from .test_utils import cd, runscript, datadir, load_settings, get_dump
 
 
 def test_filename_replace_spaces():
@@ -80,3 +84,37 @@ def test_create_experiment_directories(datadir, tmpdir, load_settings):
             "genome_lookup",
             "raw_data",
         ]
+
+
+def test_write_config_file(datadir, tmpdir):
+    """Test for writing configuration file"""
+    input_fn = "../data/input/example01.fastq"
+    sample_fn = "../data/input/example01.txt"
+    gb_fn = "../data/input/ES114v2.gb"
+    output_name = "test_pyinseq"
+    expected_config = "../data/input/pyinseq-config.yaml"
+    output_config = "test_pyinseq-config.yaml"
+
+    # Modify sys.argv
+    sys.argv = [
+        "pyinseq",
+        "-i",
+        input_fn,
+        "-s",
+        sample_fn,
+        "-g",
+        gb_fn,
+        "-e",
+        output_name,
+        "-d",
+        "0.9",
+        "--additional_params",
+        "--use-conda",
+    ]
+    # Get the Namespace object from argparse
+    parser, args = get_args()
+    dump = get_dump()
+    with cd(dump):
+        utils.write_config_file(args)
+        # Check files
+        assert filecmp.cmp(expected_config, output_config)

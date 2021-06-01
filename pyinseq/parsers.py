@@ -31,7 +31,7 @@ def get_snake_parser():
         "-c",
         "--config",
         help="Provide config file (in json or yaml format) instead of pyinseq arguments to run pipeline",
-        default=False,
+        required=False,
     )
     snake_group.add_argument(
         "-t",

@@ -28,13 +28,19 @@ class cd:
         os.chdir(self.savedPath)
 
 
+def get_dump():
+    """Helper for creating and returning a dump Path"""
+    dump = Path("pyinseq/tests/dump")
+    if not dump.exists():
+        dump.mkdir()
+    return dump
+
+
 @pytest.fixture()
 def load_settings():
     def fetch(command):
         config_file = "../data/input/pyinseq-config.yaml"
-        dump = Path("pyinseq/tests/dump")
-        if not dump.exists():
-            dump.mkdir()
+        dump = get_dump()
         with cd(dump):
             from pyinseq.settings import SETTINGS_CONSTRUCTORS
 
@@ -62,7 +68,7 @@ def datadir(tmpdir_factory, request):
     dir_util.copy_tree(data_dir, str(tmpdir))
 
     # Create dump in temporary directory
-    tmpdir.join('dump').mkdir()
+    tmpdir.join("dump").mkdir()
 
     def getter(filename="", as_str=True):
         filepath = tmpdir.join(filename)

@@ -2,7 +2,7 @@ additional_params:
 - --use-conda
 barcode_length: 4
 command: pyinseq
-config: false
+config: null
 config_format: yaml
 disruption: 0.9
 experiment: test_pyinseq
