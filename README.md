@@ -12,19 +12,21 @@ bacteria.
 
 
 * [Introduction](#Introduction)
-* [Installation](##Installation)
-  * [Requirements](###Requirements)
-  * [Using conda](###Using-conda-(recommended))
-  * [Using pip](###Using-pip)
-  * [Installation of the bleeding edge version](###Installation-of-the-bleeding-edge-version)
-* [Usage](##Usage)
-  * [Main command](###Main-command)
-  * [Specialized tasks](###Specialized-tasks)
-  * [Command line operation](###Command-line-operation)
-  * [Output description](##Output-files)
-* [Notes on output](##Notes-on-output)
-* [FAQ](##FAQ)
-* [License](##License)
+* [Installation](#Installation)
+  * [Requirements](#Requirements)
+  * [Using conda](#Using-conda-(recommended))
+  * [Using pip](#Using-virtualenv-and-pip)
+  * [Installation from source code](#Installation-from-source-code)
+* [User Guide](#User-guide)
+  * [Input files description](#Input-files-description)
+  * [General usage](#General-usage)
+  * [Rerunning pyinseq](#Rerunning-pyinseq)
+  * [Specialized tasks](#Specialized-tasks)
+  * [Output description](#Output-files)
+* [Overview of command line operation](#Overview-of-command-line-operation)
+* [Notes on output](#Notes-on-output)
+* [FAQ](#FAQ)
+* [License](#License)
 
 ## Introduction
 
@@ -197,7 +199,7 @@ pip install git+git://github.com/mjmlab/pyinseq
 
 > Make sure that `bowtie` executables are available on your `PATH` variable. You can also follow this [section](#usage) to install it.
 
-## Usage
+## User guide
 
 ### Input files description
 
@@ -480,28 +482,21 @@ $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name
 
 ## Output description
 
-### `results/` directory
-
-- `summary_gene_table.text`: summary for entire experiment
-- `<sample>_sites.txt` (for each sample): Counts of each insertion in each sample
-- `<sample>_genes.txt` (for each sample): Counts of each insertion mapped to genes
-- `<sample>_bowtie.txt` (for each sample): Bowtie mapping results
-- `<sample>_trimmed.fastq` (for each sample): Demultiplexed fastq reads trimmed for the chromosome sequence only
-
-#### Report files
-
-- `log.txt`: text printed to console
-- `summary_log.txt`: summarized version of log output
-- `samples_info_yml`: basics stats for each sample
-
-### `results/genome_lookup/` subdirectory
-- `genome.fna`: genome fasta nucleotide file
-- `genome.ftt`: genome feature file
-- bowtie indexes
-
-### `results/raw_data/` subdirectory
-- `<sample>.fastq` (for each sample): demultiplexed files for each sample/barcode
-- `_other.fastq`: demultiplexed files for unrecognized barcodes
+| File | Description |
+| --- | --- |
+| `results/summary_gene_table.txt` | summary for entire experiment |
+| `results/<sample>_sites.txt` (for each sample) | Counts of each insertion in each sample |
+| `results/<sample>_genes.txt` (for each sample) | Counts of each insertion mapped to genes |
+| `results/<sample>_bowtie.txt` (for each sample) | Bowtie mapping results |
+| `results/<sample>_trimmed.fastq` (for each sample) | Demultiplexed fastq reads trimmed for the chromosome sequence only |
+| `results/log.txt` | text printed to console |
+| `results/summary_log.txt` | summarized version of log output |
+| `results/samples_info_yml` | basics stats for each sample | 
+| `results/genome_lookup/genome.fna` | genome fasta nucleotide file |
+| `results/genome_lookup/genome.ftt` | genome feature table | 
+| bowtie indexes | index files created from genome by bowtie | 
+| `results/raw_data/<sample>.fastq` (for each sample) | demultiplexed files for each sample/barcode |
+| `results/raw_data/_other.fastq` | demultiplexed files for unrecognized barcodes | 
 
 
 ## Notes on output
@@ -526,9 +521,12 @@ Ensure that the file is in GenBank and not RefSeq format.
 
 You can do this two ways: 
 * uninstalling pyinseq from the virtual environment
-```pip uninstall pyinseq```
 
-* or completely removing the conda virtual environment.
+```pip uninstall pyinseq``` or ```conda remove pyinseq```
+
+* or completely remove the conda virtual environment.
+
+``` conda env remove -n pyinseq```
 
 ### How can I notify of an issue with `pyinseq`
 
