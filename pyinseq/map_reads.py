@@ -72,7 +72,7 @@ def parse_bowtie(bowtie_message):
 def summarize_mapping(sample, bowtie_msg_dict):
     """Summarizes bowtie mapping step into pyinseq_logger io"""
     pyinseq_logger.logger_io.write(
-        f"- Mapped reads from {sample} to genome\nBOWTIE OUTPUT:\n"
+        f"- Mapped reads from {sample} to genome\nBOWTIE OUTPUT - {sample}:\n"
     )
     for key, value in bowtie_msg_dict.items():
         pyinseq_logger.logger_io.write(f"{key} {value}\n")
