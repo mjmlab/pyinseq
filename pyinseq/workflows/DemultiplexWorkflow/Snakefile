@@ -25,7 +25,6 @@ samples_dict = settings.samples_dict
 output_dir = str(settings.output_dir)
 
 # Setup pyinseq logger and add file handler to snakemake
-logger.quiet = True
 pyinseq_logger.add_logfile_paths(settings)
 add_fileHandler(pyinseq_logger.logger, settings.log)
 # Add io stream to snakemake for saving info

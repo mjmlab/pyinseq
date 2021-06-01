@@ -20,6 +20,7 @@ from pyinseq.utils import (
     execute,
     create_experiment_directories,
     pickle_object,
+    get_config_dict,
 )
 
 logger = pyinseq_logger.logger
@@ -40,8 +41,10 @@ if __name__ == "__main__":
         config_file = write_config_file(
             args, format=args.config_format, default=args.get_default_config
         )
+    config_dict = get_config_dict(config_file)
+    command = config_dict["command"]
 
-    constructor = SETTINGS_CONSTRUCTORS[args.command]
+    constructor = SETTINGS_CONSTRUCTORS[command]
     settings = constructor(config_file)
     create_experiment_directories(settings)
 

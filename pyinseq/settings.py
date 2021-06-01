@@ -35,7 +35,7 @@ class Settings:
         self.summary_log = f"{self.path}summary_log.txt"
         self.settings_pickle = self.output_dir.joinpath("settings.pickle")
 
-        # Set shell command
+        # Set snakemake shell command
         self.snakefile = get_workflow_snakefile_path(self.command)
         self.snakemake_cmd = [
             "snakemake",
@@ -45,6 +45,7 @@ class Settings:
             str(self.snakefile),
             "--cores",
             str(self.threads - 1),
+            "--quiet",
         ]
         # Add additional parameters, if any...
         self.snakemake_cmd.extend(config_dict["additional_params"])
