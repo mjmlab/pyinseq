@@ -105,7 +105,7 @@ def map_genes(sample, settings):
     gene_dict = {}
     sites_file = settings.path.joinpath(f"{sample}_sites.txt")
     genes_file = settings.path.joinpath(f"{sample}_genes.txt")
-    second_message = f"Transposon hits that disrupt the 5-prime-most {round(settings.disruption * 100, ndigits=2)}% of each gene are tallied"
+    second_message = f"Transposon hits that disrupt the 5-prime-most {round(settings.disruption * 100)}% of each gene are tallied"
     if settings.disruption == 1:
         second_message = "Transposon hits that disrupt any position in a gene are tallied"
     logger.info(f"Sample {sample}: Tally site data from {sites_file.name} to gene-level data in {genes_file.name}. {second_message}")
