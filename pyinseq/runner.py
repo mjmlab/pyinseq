@@ -109,12 +109,12 @@ def demultiplex_parse_args(args):
     )
     parser.add_argument(
         "--barcode_length",
-        help="Length of the barcode which is used to demultiplex samples (4 - 16)",
+        help="Length of the barcode which is used to demultiplex samples (4 - 16 nt). Default is 4.",
         default=4,
     )
     parser.add_argument(
         "--transposon_seq",
-        help="Sequence for the transposon that flanks reads",
+        help="Sequence for the transposon that flanks reads. Default is ACAGGTTG.",
         default="ACAGGTTG",
     )
     return parser.parse_args(args)
