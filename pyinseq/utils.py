@@ -41,7 +41,7 @@ def create_experiment_directories(settings):
     the full path of the present directory to the user"""
     # Check that experiment name has no special characters or spaces
     experiment = convert_to_filename(settings.experiment)
-    output_path = settings.output_dir
+    output_path = settings.path
 
     # ERROR MESSAGES
     error_directory_exists = (

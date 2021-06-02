@@ -9,6 +9,7 @@ Tests for individual functions in pyinseq module
 import os
 import sys
 import filecmp
+from pathlib import Path
 from collections import OrderedDict
 
 # Setup logger before importing modules
@@ -44,12 +45,12 @@ def test_filename_funny_characters():
 def test_pyinseq_Settings(datadir, load_settings):
     setting = load_settings("pyinseq")
 
-    assert setting.path == "results/test_pyinseq/"
-    assert setting.genome_path == "results/test_pyinseq/genome_lookup/"
-    assert setting.raw_path == "results/test_pyinseq/raw_data/"
-    assert setting.samples_txt == "results/test_pyinseq/samples.txt"
-    assert setting.log == "results/test_pyinseq/log.txt"
-    assert setting.summary_log == "results/test_pyinseq/summary_log.txt"
+    assert setting.path == Path("results/test_pyinseq/")
+    assert setting.genome_path == Path("results/test_pyinseq/genome_lookup/")
+    assert setting.raw_path == Path("results/test_pyinseq/raw_data/")
+    assert setting.samples_txt == Path("results/test_pyinseq/samples.txt")
+    assert setting.log == Path("results/test_pyinseq/log.txt")
+    assert setting.summary_log == Path("results/test_pyinseq/summary_log.txt")
     assert setting.barcode_length == 4
 
 
@@ -76,17 +77,17 @@ def test_create_experiment_directories(datadir, tmpdir, load_settings):
         # Manually modify settings object
         from pathlib import Path
 
-        settings.output_dir = Path(str(tmpdir) + "results/test_pyinseq")
+        settings.path = Path(tmpdir +  "results/test_pyinseq")
         utils.create_experiment_directories(settings)
         # Check /results/experiment exist
-        assert os.path.exists(settings.output_dir)
-        assert filecmp.dircmp(expected_output, settings.output_dir).common_dirs == [
+        assert os.path.exists(settings.path)
+        assert filecmp.dircmp(expected_output, settings.path).common_dirs == [
             "genome_lookup",
             "raw_data",
         ]
 
 import pytest
-@pytest.mark.skip(reason="TravisCI failing for unknown reason")
+#@pytest.mark.skip(reason="TravisCI failing for unknown reason")
 def test_write_config_file(datadir, tmpdir):
     """Test for writing configuration file"""
     input_fn = "../data/input/example01.fastq"

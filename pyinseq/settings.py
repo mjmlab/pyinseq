@@ -29,11 +29,10 @@ class Settings:
         self.command = config_dict["command"]
         self.experiment = convert_to_filename(config_dict["experiment"])
         self.threads = config_dict["threads"]
-        self.output_dir = Path(f"results/{self.experiment}")
-        self.path = f"results/{self.experiment}/"
-        self.log = f"{self.path}log.txt"
-        self.summary_log = f"{self.path}summary_log.txt"
-        self.settings_pickle = self.output_dir.joinpath("settings.pickle")
+        self.path = Path(f"results/{self.experiment}/")
+        self.log = self.path.joinpath("log.txt")
+        self.summary_log = self.path.joinpath("summary_log.txt")
+        self.settings_pickle = self.path.joinpath("settings.pickle")
 
         # Set snakemake shell command
         self.snakefile = get_workflow_snakefile_path(self.command)
@@ -89,16 +88,16 @@ class PyinseqSettings(Settings):
         config_dict = get_config_dict(self.config_file)
         self.reads = config_dict["input"]
         self.samples = config_dict["samples"]
-        self.samples_txt = f"{self.path}samples.txt"
+        self.samples_txt = self.path.joinpath("samples.txt")
         self.samples_dict = tab_delimited_samples_to_dict(self.samples)
-        self.samples_info_yml = f"{self.path}samples_info.yml"
-        self.raw_path = f"{self.path}raw_data/"
+        self.samples_info_yml = self.path.joinpath("samples_info.yml")
+        self.raw_path = self.path.joinpath("raw_data")
         self.reference_genome = config_dict["genome"]
-        self.genome_path = f"{self.path}genome_lookup/"
+        self.genome_path = self.path.joinpath("genome_lookup")
         # organism reference files called 'genome.fna' etc
         self.organism = "genome"
         self.gff3 = config_dict["gff3"]
-        self.summary_table = f"{self.path}summary_gene_table.txt"
+        self.summary_table = self.path.joinpath("summary_gene_table.txt")
         # Pyinseq optional args
         self.disruption = set_disruption(config_dict["disruption"])
         self.barcode_length = set_barcode_length(config_dict["barcode_length"])
@@ -121,11 +120,11 @@ class DemultiplexSettings(Settings):
         super().__init__(config_file)
         config_dict = get_config_dict(self.config_file)
         self.reads = config_dict["input"]
-        self.samples_txt = f"{self.path}samples.txt"
         self.samples = config_dict["samples"]
+        self.samples_txt = self.path.joinpath("samples.txt")
         self.samples_dict = tab_delimited_samples_to_dict(self.samples)
-        self.samples_info_yml = f"{self.path}samples_info.yml"
-        self.raw_path = f"{self.path}raw_data/"
+        self.samples_info_yml = self.path.joinpath("samples_info.yml")
+        self.raw_path = self.path.joinpath("raw_data")
         self.barcode_length = set_barcode_length(config_dict["barcode_length"])
         self.transposon_seq = set_transposon_seq(config_dict["transposon_seq"])
         # Actions to carry out
@@ -140,7 +139,7 @@ class GenomeprepSettings(Settings):
         super().__init__(config_file)
         config_dict = get_config_dict(self.config_file)
         self.reference_genome = config_dict["genome"]
-        self.genome_path = f"{self.path}genome_lookup/"
+        self.genome_path = self.path.joinpath("genome_lookup")
         self.gff3 = config_dict["gff3"]
         # organism reference files called 'genome.fna' etc
         self.organism = "genome"
@@ -207,6 +206,7 @@ def set_barcode_length(barcode_length=4):
 
 def set_transposon_seq(transposon_seq="ACAGGTTG"):
     """Check that min_count and max_ratio are positive, otherwise set default."""
+    # TODO: Check that they are DNA nucleotides ATGC
     if not transposon_seq.isalpha():
         logger.error(
             f"Transposon sequence provided contains non-letter characters. "

@@ -118,7 +118,7 @@ def write_reads(demultiplex_dict, samples_dict, settings):
     # Write to sample file
     for barcode in demultiplex_dict:
         if demultiplex_dict[barcode]:
-            with open(f"{settings.raw_path}{barcode_dict[barcode]}.fastq", "a") as fo:
+            with open(settings.raw_path.joinpath(f"{barcode_dict[barcode]}.fastq"), "a") as fo:
                 logger.debug(f"Writing reads to {barcode_dict[barcode]}.fastq")
                 # Initialize Progress Bar
                 num_lines_to_write = len(demultiplex_dict[barcode])
@@ -135,7 +135,7 @@ def write_reads(demultiplex_dict, samples_dict, settings):
         # Write trimmed if necessary
         if settings.write_trimmed_reads and barcode != "other":
             with open(
-                f"{settings.path}/{barcode_dict[barcode]}_trimmed.fastq", "a"
+                settings.path.joinpath(f"{barcode_dict[barcode]}_trimmed.fastq"), "a"
             ) as fo:
                 logger.debug(
                     f"Writing trimmed reads to {barcode_dict[barcode]}_trimmed.fastq"

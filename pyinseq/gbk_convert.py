@@ -73,7 +73,7 @@ def gbk2fna(infile, organism, output_directory=""):
                 if parts[0] == "ORIGIN":
                     dna_seq = True
 
-        outfile = f"{output_directory}{organism}.fna"
+        outfile = output_directory.joinpath(f"{organism}.fna")
         write_to_file(outfile, fna_rows)
 
     logger.info(f"Nucleotides stored in {outfile}")
@@ -276,12 +276,12 @@ def gbk2table(infile, fasta, organism, output_directory="", gff3=False):
                 if parts[0] == "FEATURES":
                     features = True
 
-    outfile = f"{output_directory}{organism}.ftt"
+    outfile = output_directory.joinpath(f"{organism}.ftt")
     write_to_file(outfile, ftt_rows)
     if gff3:
         gff_rows.append(("##FASTA",))
         gff_rows = gff_rows + fna_rows
-        outfile = f"{output_directory}{organism}.gff"
+        outfile = output_directory.joinpath(f"{organism}.gff")
         write_to_file(outfile, gff_rows)
     logger.info(f"Features table stored in {outfile}")
     return

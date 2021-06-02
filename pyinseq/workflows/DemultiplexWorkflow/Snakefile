@@ -22,7 +22,7 @@ ENVS = Path(pyinseq.__file__).parent.joinpath("envs")
 # Load pickled settings
 settings = load_pickle(f"results/{config['experiment']}/settings.pickle")
 samples_dict = settings.samples_dict
-output_dir = str(settings.output_dir)
+output_dir = str(settings.path)
 
 # Setup pyinseq logger and add file handler to snakemake
 pyinseq_logger.add_logfile_paths(settings)

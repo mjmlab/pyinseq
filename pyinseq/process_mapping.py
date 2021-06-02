@@ -16,16 +16,16 @@ logger = pyinseq_logger.logger
 
 def map_sites(sample, settings):
     """Map insertions to nucleotide sites."""
-    logger.info(
-        f"Sample {sample}: summarize the site data from the bowtie results into sites file."
-    )
     # Placeholder for dictionary of mapped reads in format:
     # {(contig, position) : [left_counts, right_counts]}
     map_dict = {}
     # overall_total = denominator for cpm calculation
     overall_total = 0
-    bowtie_file = settings.path + sample + "_bowtie.txt"
-    sites_file = settings.path + sample + "_sites.txt"
+    bowtie_file = settings.path.joinpath(f"{sample}_bowtie.txt")
+    sites_file = settings.path.joinpath(f"{sample}_sites.txt")
+    logger.info(
+        f"Sample {sample}: Tally site data from {bowtie_file.name} into {sites_file.name} file."
+    )
     with open(bowtie_file, "r") as fi:
         for line in fi:
             bowtie_data = line.rstrip().split("\t")
@@ -94,7 +94,6 @@ def map_genes(sample, settings):
     All insertions are written to the file but only ones <= disruption threshold
     are counted in the dictionary.
     """
-    logger.info(f"Sample {sample}: map site data to genes")
     # List of tuples of genome features
     genome = ftt_lookup(settings.organism, settings.experiment)
     # list of tuples of each mapped insertion to be immediately written per insertion
@@ -104,8 +103,12 @@ def map_genes(sample, settings):
     # by the disruption threshold.
     # if disruption = 1.0 then every hit in the gene is included
     gene_dict = {}
-    sites_file = settings.path + sample + "_sites.txt"
-    genes_file = settings.path + sample + "_genes.txt"
+    sites_file = settings.path.joinpath(f"{sample}_sites.txt")
+    genes_file = settings.path.joinpath(f"{sample}_genes.txt")
+    second_message = f"Transposon hits that disrupt the 5-prime-most {round(settings.disruption * 100, ndigits=2)}% of each gene are tallied"
+    if settings.disruption == 1:
+        second_message = "Transposon hits that disrupt any position in a gene are tallied"
+    logger.info(f"Sample {sample}: Tally site data from {sites_file.name} to gene-level data in {genes_file.name}. {second_message}")
     with open(sites_file, "r", newline="") as csvfileR:
         sites_reader = csv.reader(csvfileR, delimiter="\t")
         next(sites_reader, None)  # skip the headers
