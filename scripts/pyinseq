@@ -14,6 +14,7 @@ import traceback
 
 # Module imports
 from pyinseq.parsers import get_args
+from pyinseq.tests.test_utils import run_pytest
 from pyinseq.settings import SETTINGS_CONSTRUCTORS
 from pyinseq.utils import (
     write_config_file,
@@ -34,6 +35,11 @@ if __name__ == "__main__":
     if not sys.argv[1:]:
         parser.print_help()
         exit(0)
+
+    if args.test:
+        run_pytest()
+        exit(0)
+
     if args.config:
         logger.info(f"Config file provided as: {args.config}")
         config_file = args.config
@@ -41,6 +47,7 @@ if __name__ == "__main__":
         config_file = write_config_file(
             args, format=args.config_format, default=args.get_default_config
         )
+
     config_dict = get_config_dict(config_file)
     command = config_dict["command"]
 
@@ -64,6 +71,6 @@ if __name__ == "__main__":
         traceback.print_tb(exc_tb)
         traceback.print_exc()
 
-    # Cleanup settings
+    # Cleanup settings and combine logging output
     settings.clean_up()
     logger.info(f"***** {settings.command.upper()} WORKFLOW FINISHED *****")
