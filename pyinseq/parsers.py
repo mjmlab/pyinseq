@@ -49,6 +49,11 @@ def get_snake_parser():
         default=[],
         type=str,
     )
+    snake_group.add_argument('--test',
+                             action='store_true',
+                             help='Runs pytest on pyinseq module',
+                             required=False,
+                             default=False)
     return snake_parser
 
 
