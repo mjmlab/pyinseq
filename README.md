@@ -2,7 +2,7 @@
 ![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
 ![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)
 
-<img src="pyinseq-logo.png" alt="drawing" width="200"/>
+<img src="img/pyinseq-logo.png" alt="drawing" width="200"/>
 
 Lightweight python package to map transposon insertion sequencing (INSeq) data in
 bacteria.
