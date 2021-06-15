@@ -28,6 +28,13 @@ class cd:
         os.chdir(self.savedPath)
 
 
+def run_pytest():
+    """ Runs pytest directly from source code. CWD should be in pyinseq source dir"""
+    rootdir = Path(__file__).parents[2]
+    with cd(rootdir):
+        pytest.main([])
+
+
 def get_dump():
     """Helper for creating and returning a dump Path"""
     dump = Path("pyinseq/tests/dump")
