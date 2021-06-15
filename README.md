@@ -2,7 +2,7 @@
 ![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
 ![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)
 
-<img src="docs/pyinseq-logo.png" alt="drawing" width="200"/>
+<img src="pyinseq-logo.png" alt="drawing" width="200"/>
 
 Lightweight python package to map transposon insertion sequencing (INSeq) data in
 bacteria.
@@ -10,13 +10,14 @@ bacteria.
 
 ## Table of contents
 
-
+* [Quick start](#quick-start)
 * [Introduction](#Introduction)
 * [Installation](#Installation)
   * [Requirements](#Requirements)
   * [Using conda](#Using-conda-(recommended))
   * [Using pip](#Using-virtualenv-and-pip)
   * [Installation from source code](#Installation-from-source-code)
+  * [Testing](#Testing)
 * [User Guide](#User-guide)
   * [Input files description](#Input-files-description)
   * [General usage](#General-usage)
@@ -27,6 +28,26 @@ bacteria.
 * [Notes on output](#Notes-on-output)
 * [FAQ](#FAQ)
 * [License](#License)
+
+## Quick start
+
+This section is meant for users who know there way around terminal and `conda`. To use `pyinseq`, 
+create a virtual environment with `python` 3.6 and install `pyinseq` using `conda`.
+
+```bash
+# This one-liner should do the trick
+$ conda create -c bioconda -n pyinseq-py36 pyinseq
+$ conda activate  pyinseq-py36
+```
+
+Now you can run `pyinseq`!
+
+```bash
+(pyinseq-py36) $ pyinseq --help
+```
+
+> If you do not have `bowtie` installed, you can pass `--additional_params --use-conda` at the end of the command and it will install at runtime.
+
 
 ## Introduction
 
@@ -59,6 +80,8 @@ Pyinseq was written and tested using a MacOS (or Linux-based) operating system.
 
 > Pyinseq has not being tested on Windows operating systems, but the 
 > new OS carries support for terminals with *Ubuntu*
+
+> Also note that `pyinseq` is optimized for `bowtie` and **not bowtie2** which is a different software.
 
 ### Using conda (recommended)
 
@@ -163,7 +186,7 @@ Download the binary release from [here](https://sourceforge.net/projects/bowtie-
 
 ```bash
 # Download the zipfile with executables
-(pyinseq) $ curl -L https://sourceforge.net/projects/bowtie-bio/files/bowtie/1.3.0/bowtie-1.3.0-macos-x86_64.zip -O bowtie-1.3.0-macos-x86_64.zip
+(pyinseq) $ curl -L https://sourceforge.net/projects/bowtie-bio/files/bowtie/1.3.0/bowtie-1.3.0-macos-x86_64.zip -O ~/bowtie-1.3.0-macos-x86_64.zip
 (pyinseq) $ unzip bowtie-1.3.0-macos-x86_64.zip
 ```
 
@@ -198,6 +221,16 @@ pip install git+git://github.com/mjmlab/pyinseq
 ```
 
 > Make sure that `bowtie` executables are available on your `PATH` variable. You can also follow this [section](#usage) to install it.
+
+### Testing
+
+You can test your installation of `pyinseq` by using the option `--test`.
+
+```bash
+$ pyinseq --test
+```
+
+If all tests pass then you are good to go!
 
 ## User guide
 
@@ -534,4 +567,4 @@ Please use the [GitHub Issues](https://github.com/mjmlab/pyinseq/issues).
 
 ## [License](LICENSE.md)
 
-Pyinseq is an open-source software licensed under 
+Pyinseq is an open-source software licensed under BSD-3
