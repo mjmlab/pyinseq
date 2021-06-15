@@ -31,7 +31,7 @@ bacteria.
 
 ## Quick start
 
-This section is meant for users who know there way around terminal and `conda`. To use `pyinseq`, 
+This section is meant for users who know their way around terminal and `conda`. To use `pyinseq`, 
 create a virtual environment with `python` 3.6 and install `pyinseq` using `conda`.
 
 ```bash
