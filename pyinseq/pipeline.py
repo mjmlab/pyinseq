@@ -65,9 +65,6 @@ def pipeline_summarize(samples_dict: dict, settings: Settings):
     with open(settings.samples_info_yml, "r") as f:
         d = yaml.load(f, Loader=yaml.FullLoader)
     logger.info(f"Print samples detail\n{yaml.dump(d, default_flow_style=False)}\n")
-    pyinseq_logger.logger_io.write(
-        f"Print samples detail\n{yaml.dump(d, default_flow_style=False)}\n"
-    )
 
 
 def pipeline_analysis(samples_dict: dict, settings: Settings) -> None:

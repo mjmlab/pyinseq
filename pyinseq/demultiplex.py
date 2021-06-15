@@ -101,7 +101,7 @@ def demultiplex_fastq(reads, samples_dict: dict, settings) -> int:
             if samples_dict[sample]["barcode"] == bc:
                 samples_dict[sample]["demultiplexed_reads"] = demultiplex_count_dict[bc]
                 pyinseq_logger.logger_io.write(
-                    f"- {sample} ({bc}): {demultiplex_count_dict[bc]:,} reads\n"
+                    f"- {sample} ({bc}): {demultiplex_count_dict[bc]:,} reads"
                 )
     logger.info(f"Total reads demultiplexed: {n_reads:,}")
 

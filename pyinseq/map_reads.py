@@ -14,7 +14,9 @@ import subprocess
 from pyinseq.logger import pyinseq_logger, add_fileHandler
 
 # Custom snake message for jobs
-SNAKE_MESSAGE = """Job counts:
+SNAKE_MESSAGE = """
+(SNAKEMAKE INFO)
+Job counts:
 \tcount	jobs
 \t1\tbowtie_mapping
 \t1
@@ -75,7 +77,7 @@ def summarize_mapping(sample, bowtie_msg_dict):
         f"- Mapped reads from {sample} to genome\nBOWTIE OUTPUT - {sample}:\n"
     )
     for key, value in bowtie_msg_dict.items():
-        pyinseq_logger.logger_io.write(f"{key} {value}\n")
+        pyinseq_logger.logger_io.write(f"{key} {value}")
     return
 
 
@@ -94,7 +96,8 @@ if __name__ == "__main__":
     pyinseq_logger.summary_log = snakemake.params.summary_log
     add_fileHandler(logger, snakemake.params.log, formatter=formatter)
 
-    # Write custom snake message
+    # Print and write custom snake message
+    print(SNAKE_MESSAGE)
     pyinseq_logger.snake_io.write(SNAKE_MESSAGE)
 
     # Begin bowtie

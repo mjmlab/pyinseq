@@ -33,11 +33,10 @@ class CustomLoggers:
         """Dumps io buffer into a log summary file"""
         with open(self.summary_log, "a+") as f:
             snake_message = self.snake_io.getvalue()
-            if not snake_message.startswith("(SNAKEMAKE INFO)"):
-                snake_message = "(SNAKEMAKE INFO)\n" + snake_message
+            pyinseq_message = self.logger_io.getvalue()
             f.write(snake_message)
-            f.write("(PYINSEQ INFO)\n")
-            f.write(self.logger_io.getvalue())
+            f.write("(PYINSEQ INFO)\n" + pyinseq_message)
+        # Flush io's
         self.snake_io.flush()
         self.logger_io.flush()
 
