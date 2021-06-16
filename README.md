@@ -40,13 +40,19 @@ $ conda create -c bioconda -n pyinseq-py36 pyinseq
 $ conda activate  pyinseq-py36
 ```
 
-Now you can run `pyinseq`!
+Verify your installation with `--test`
 
 ```bash
-(pyinseq-py36) $ pyinseq --help
+(pyinseq-py36) $ pyinseq --test
 ```
 
 > If you do not have `bowtie` installed, you can pass `--additional_params --use-conda` at the end of the command and it will install at runtime.
+
+Now you can run `pyinseq`!
+
+```bash
+$ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name>
+```
 
 
 ## Introduction
@@ -147,7 +153,7 @@ usage: pyinseq [-h] [--get_default_config] [--config_format CONFIG_FORMAT]
 
 > `conda` will install `bowtie` during the pyinseq run if prompted. However, if not prompted then you would have to 
 > [manually ](#Manually-installing-bowtie) install bowtie prior to using `pyinseq`.
-> 
+
 ### Using `virtualenv` and `pip`
 
 #### Install `virtualenv` and create an environment
@@ -477,6 +483,9 @@ $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name
 
 - Configuration file for running a `pyinseq` workflow. Every other argument will be ignored.
 
+`--test`
+
+- Runs pytest on installed `pyinseq` software.
 
 #### Optional arguments
 
