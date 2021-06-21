@@ -7,28 +7,6 @@
 Lightweight python package to map transposon insertion sequencing (INSeq) data in
 bacteria.
 
-
-## Table of contents
-
-* [Quick start](#quick-start)
-* [Introduction](#Introduction)
-* [Installation](#Installation)
-  * [Requirements](#Requirements)
-  * [Using conda](#Using-conda-(recommended))
-  * [Using pip](#Using-virtualenv-and-pip)
-  * [Installation from source code](#Installation-from-source-code)
-  * [Testing](#Testing)
-* [User Guide](#User-guide)
-  * [Input files description](#Input-files-description)
-  * [General usage](#General-usage)
-  * [Rerunning pyinseq](#Rerunning-pyinseq)
-  * [Specialized tasks](#Specialized-tasks)
-  * [Output description](#Output-files)
-* [Overview of command line operation](#Overview-of-command-line-operation)
-* [Notes on output](#Notes-on-output)
-* [FAQ](#FAQ)
-* [License](#License)
-
 ## Quick start
 
 This section is meant for users who know their way around terminal and `conda`. To use `pyinseq`, 
@@ -53,6 +31,26 @@ Now you can run `pyinseq`!
 ```bash
 $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name>
 ```
+
+## Table of contents
+
+* [Introduction](#Introduction)
+* [Installation](#Installation)
+  * [Requirements](#Requirements)
+  * [Using conda](#Using-conda-(recommended))
+  * [Using pip](#Using-virtualenv-and-pip)
+  * [Installation from source code](#Installation-from-source-code)
+  * [Testing](#Testing)
+* [User Guide](#User-guide)
+  * [Input files description](#Input-files-description)
+  * [General usage](#General-usage)
+  * [Rerunning pyinseq](#Rerunning-pyinseq)
+  * [Specialized tasks](#Specialized-tasks)
+  * [Output description](#Output-files)
+* [Overview of command line operation](#Overview-of-command-line-operation)
+* [Notes on output](#Notes-on-output)
+* [FAQ](#FAQ)
+* [License](#License)
 
 
 ## Introduction
@@ -576,4 +574,4 @@ Please use the [GitHub Issues](https://github.com/mjmlab/pyinseq/issues).
 
 ## [License](LICENSE.md)
 
-Pyinseq is an open-source software licensed under BSD-3
+Pyinseq is an open-source software licensed under BSD-3.
