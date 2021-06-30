@@ -77,7 +77,7 @@ def test_create_experiment_directories(datadir, tmpdir, load_settings):
         # Manually modify settings object
         from pathlib import Path
 
-        settings.path = Path(tmpdir +  "results/test_pyinseq")
+        settings.path = Path(tmpdir + "results/test_pyinseq")
         utils.create_experiment_directories(settings)
         # Check /results/experiment exist
         assert os.path.exists(settings.path)
@@ -93,7 +93,7 @@ def test_write_config_file(datadir, tmpdir):
     sample_fn = "../data/input/example01.txt"
     gb_fn = "../data/input/ES114v2.gb"
     output_name = "test_pyinseq"
-    expected_config = "../data/input/pyinseq-config.yaml"
+    expected_config = datadir("input/pyinseq-config.yaml")
     output_config = "test_pyinseq-config.yaml"
 
     # Modify sys.argv
