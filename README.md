@@ -15,7 +15,7 @@ create a virtual environment with `python` 3.6 and install `pyinseq` using `cond
 ```bash
 # This one-liner should do the trick
 $ conda create -c bioconda -n pyinseq-py36 pyinseq
-$ conda activate  pyinseq-py36
+$ conda activate pyinseq-py36
 ```
 
 Verify your installation with `--test`
