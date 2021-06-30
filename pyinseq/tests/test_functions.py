@@ -118,4 +118,7 @@ def test_write_config_file(datadir, tmpdir):
     with cd(dump):
         utils.write_config_file(args)
         # Check files
+        for i in [expected_config, output_config]:
+            with open(i, 'r') as f:
+                print(f.readlines())
         assert filecmp.cmp(expected_config, output_config)
