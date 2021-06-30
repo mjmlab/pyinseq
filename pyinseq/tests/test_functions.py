@@ -109,6 +109,8 @@ def test_write_config_file(datadir, tmpdir):
         output_name,
         "-d",
         "0.9",
+        "--threads",
+        "2",
         "--additional_params",
         "--use-conda",
     ]
@@ -118,7 +120,4 @@ def test_write_config_file(datadir, tmpdir):
     with cd(dump):
         utils.write_config_file(args)
         # Check files
-        for i in [expected_config, output_config]:
-            with open(i, 'r') as f:
-                print(f.readlines())
         assert filecmp.cmp(expected_config, output_config)

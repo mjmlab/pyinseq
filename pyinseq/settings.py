@@ -61,11 +61,11 @@ class Settings:
         except OSError:
             pass
         # combine logging text here
-        with open(self.summary_log, 'r') as f:
-            summary_log_text = ''.join(f.readlines())
+        with open(self.summary_log, "r") as f:
+            summary_log_text = "".join(f.readlines())
         self.summary_log.unlink()
-        with open(self.log, 'a') as f:
-            f.write('-' * 50 + '\n\n')
+        with open(self.log, "a") as f:
+            f.write("-" * 50 + "\n\n")
             f.write(summary_log_text)
 
     def dump_sample_dict_to_yml(self, updated_dict=None):

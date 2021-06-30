@@ -107,8 +107,12 @@ def map_genes(sample, settings):
     genes_file = settings.path.joinpath(f"{sample}_genes.txt")
     second_message = f"Transposon hits that disrupt the 5-prime-most {round(settings.disruption * 100)}% of each gene are tallied"
     if settings.disruption == 1:
-        second_message = "Transposon hits that disrupt any position in a gene are tallied"
-    logger.info(f"Sample {sample}: Tally site data from {sites_file.name} to gene-level data in {genes_file.name}. {second_message}")
+        second_message = (
+            "Transposon hits that disrupt any position in a gene are tallied"
+        )
+    logger.info(
+        f"Sample {sample}: Tally site data from {sites_file.name} to gene-level data in {genes_file.name}. {second_message}"
+    )
     with open(sites_file, "r", newline="") as csvfileR:
         sites_reader = csv.reader(csvfileR, delimiter="\t")
         next(sites_reader, None)  # skip the headers

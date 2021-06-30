@@ -14,5 +14,5 @@ max_ratio: 10
 min_count: 3
 samples: ../data/input/example01.txt
 test: false
-threads: 4
+threads: 2
 transposon_seq: ACAGGTTG

@@ -29,7 +29,7 @@ class cd:
 
 
 def run_pytest():
-    """ Runs pytest directly from source code. CWD should be in pyinseq source dir"""
+    """Runs pytest directly from source code. CWD should be in pyinseq source dir"""
     rootdir = Path(__file__).parents[2]
     with cd(rootdir):
         pytest.main([])
