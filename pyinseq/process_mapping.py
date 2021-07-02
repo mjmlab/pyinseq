@@ -253,8 +253,6 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
                 # matches based on locus_tag.
                 if hit_locus_tag == ftt_locus_tag:
                     gene_table[i][current_column] += mapped_genes[gene][0]
-        print(sample)
-        print(mapped_genes)
         with open(f"results/{experiment}/summary_gene_table.txt", "w") as fo:
             writer = csv.writer(
                 fo, delimiter="\t", dialect="excel", lineterminator="\n"

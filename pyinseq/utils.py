@@ -137,7 +137,7 @@ def get_config_dict(config_file):
         return yaml.load(f, Loader=yaml.FullLoader)
 
 
-def write_config_file(args=None, format="yaml", default=False) -> Path:
+def write_config_file(args=None, format="yml", default=False) -> Path:
     """
 
     Given pyinseq arguments, creates a config file that can be given to snakemake
@@ -148,7 +148,7 @@ def write_config_file(args=None, format="yaml", default=False) -> Path:
     :return: path to config_file
     """
     args_dict = vars(args)
-    dumper = {"yaml": yaml.dump, "json": json.dump}[format]
+    dumper = {"yml": yaml.dump, "json": json.dump}[format]
     if default:
         logger.info("Writing DEFAULT configuration file as template for pyinseq")
         with open(f"default-config-pyinseq.{format}", "w") as f:

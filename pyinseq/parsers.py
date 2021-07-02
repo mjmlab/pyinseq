@@ -24,8 +24,8 @@ def get_snake_parser():
     )
     snake_group.add_argument(
         "--config_format",
-        default="yaml",
-        help="Format for the configuration file. Options are: 'json' or 'yaml'",
+        default="yml",
+        help="Format for the configuration file. Options are: 'json' or 'yml'",
     )
     snake_group.add_argument(
         "-c",
