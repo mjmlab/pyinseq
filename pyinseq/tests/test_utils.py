@@ -46,7 +46,7 @@ def get_dump():
 @pytest.fixture()
 def load_settings():
     def fetch(command):
-        config_file = "../data/input/pyinseq-config.yaml"
+        config_file = "../data/input/test-pyinseq-config.yml"
         dump = get_dump()
         with cd(dump):
             from pyinseq.settings import SETTINGS_CONSTRUCTORS

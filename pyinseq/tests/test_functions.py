@@ -93,8 +93,8 @@ def test_write_config_file(datadir, tmpdir):
     sample_fn = "../data/input/example01.txt"
     gb_fn = "../data/input/ES114v2.gb"
     output_name = "test_pyinseq"
-    expected_config = datadir("input/pyinseq-config.yaml")
-    output_config = "test_pyinseq-config.yaml"
+    expected_config = datadir("input/test-pyinseq-config.yaml")
+    output_config = "test_pyinseq-config.yml"
 
     # Modify sys.argv
     sys.argv = [
