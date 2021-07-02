@@ -27,6 +27,8 @@ install:
   # mamba is better for installing bowtie2
   - conda install -n base -c conda-forge mamba
   - source activate test-environment
+  # Temporary fix for bowtie dependency
+  - conda install -c bioconda bowtie
   - pip install ./
 script:
   - make test

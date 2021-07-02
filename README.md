@@ -136,6 +136,7 @@ $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name
 
 | File | Description |
 | --- | --- |
+| `<experiment name>-config.yml` | Configuration file with run parameters |
 | `results/summary_gene_table.txt` | summary for entire experiment |
 | `results/<sample>_sites.txt` (for each sample) | Counts of each insertion in each sample |
 | `results/<sample>_genes.txt` (for each sample) | Counts of each insertion mapped to genes |
@@ -148,7 +149,7 @@ $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name
 | `results/genome_lookup/genome.ftt` | genome feature table | 
 | bowtie indexes | index files created from genome by bowtie | 
 | `results/raw_data/<sample>.fastq` (for each sample) | demultiplexed files for each sample/barcode |
-| `results/raw_data/_other.fastq` | demultiplexed files for unrecognized barcodes | 
+| `results/raw_data/_other.fastq` | demultiplexed files for unrecognized barcodes |
 
 
 ## Notes on output
