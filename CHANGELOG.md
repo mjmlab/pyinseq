@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.3.0] - Unreleased
+### Fixed
+- Refactor demultiplex script
+- Logger is now compatible with snakemake logging
+- Bugs in gbk_convert
+
+### Changed
+- Remove third party folder which contained 'bowtie' executables
+- file paths are now handled by pathlib
+- New settings class that is compatible with snakemake
+- The map_reads script is now a stand-alone script
+
+### Added
+- Workflows are now executed by snakemake
+- Snakefiles for each command of pyinseq
+- New command line parser function
+- Conda environment files to install `bowtie`
+- An option for running pytest on pyinseq
+- New tests for pyinseq
+
+
 ## [0.2.1] - 2021-06-02
 ### Fixed
 - `pyinseq` alone brings up the help documentation
@@ -28,6 +49,7 @@
 - `pyinseq demultiplex` command (including --notrim option).
 - Improved logging of messages during the run.
 - `log.txt` file to record log output to file.
+
 
 ## [0.1.0] - 2016-12-13
 ### Added

@@ -1,8 +1,0 @@
-site_name: pyinseq
-theme: cinder
-copyright: 2015-2021 Mark Mandel and Contributors
-
-nav:
-  - Home: index.md
-  - Troubleshooting: troubleshooting.md
-  - About: about.md

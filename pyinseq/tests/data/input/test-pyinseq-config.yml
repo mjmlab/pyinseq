@@ -1,0 +1,18 @@
+additional_params:
+- --use-conda
+barcode_length: 4
+command: pyinseq
+config: null
+config_format: yml
+disruption: 0.9
+experiment: test_pyinseq
+genome: ../data/input/ES114v2.gb
+get_default_config: false
+gff3: false
+input: ../data/input/example01.fastq
+max_ratio: 10
+min_count: 3
+samples: ../data/input/example01.txt
+test: false
+threads: 2
+transposon_seq: ACAGGTTG

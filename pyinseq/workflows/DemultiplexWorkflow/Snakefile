@@ -1,0 +1,63 @@
+#!/usr/bin/python
+
+"""
+
+Snakefile for pyinseq demultiplex pipeline
+
+"""
+
+from pathlib import Path
+# Setup logger before importing modules
+from pyinseq.logger import pyinseq_logger, add_fileHandler, add_streamHandler
+pyinseq_logger.setup_logger()
+# Module imports
+import pyinseq
+from pyinseq.pipeline import pipeline_summarize
+from pyinseq.demultiplex import demultiplex_fastq
+from pyinseq.utils import load_pickle
+
+# Path to environment folder
+ENVS = Path(pyinseq.__file__).parent.joinpath("envs")
+
+# Load pickled settings
+settings = load_pickle(f"results/{config['experiment']}/settings.pickle")
+samples_dict = settings.samples_dict
+output_dir = str(settings.path)
+
+# Setup pyinseq logger and add file handler to snakemake
+pyinseq_logger.add_logfile_paths(settings)
+add_fileHandler(pyinseq_logger.logger, settings.log)
+# Add io stream to snakemake for saving info
+add_streamHandler(logger.logger, pyinseq_logger.snake_io)
+## SNAKE MESSAGE TO LOGGER
+logger.logger.info("(SNAKEMAKE INFO)")
+
+
+rule all:
+    input:
+        expand(output_dir + "/raw_data/{sample}.fastq", sample=samples_dict.keys()),
+        f"{output_dir}/samples.txt",
+
+
+rule demultiplex:
+    input:
+        fastq=f"{settings.reads}"
+    output:
+        expand(output_dir + "/raw_data/{sample}.fastq", sample=samples_dict.keys()),
+    threads: 1
+    run:
+        # Run demultiplex
+        barcode_read_count = demultiplex_fastq(input.fastq, samples_dict, settings)
+        settings.dump_sample_dict_to_yml(barcode_read_count)
+        pyinseq_logger.summarize_step()
+
+
+rule summarize:
+    input:
+        expand(output_dir + "/raw_data/{sample}.fastq",sample=samples_dict.keys()),
+    output:
+        "{output_dir}/samples.txt"
+    threads: 1
+    run:
+        pipeline_summarize(samples_dict, settings)
+        pyinseq_logger.summarize_step()

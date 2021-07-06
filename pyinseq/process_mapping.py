@@ -1,21 +1,31 @@
 #!/usr/bin/env python3
+
 """
+
 Count and process the bowtie hits at each position in each sample
 
 """
 
 import csv
 
+# Module Imports
+from pyinseq.logger import pyinseq_logger
 
-def map_sites(sample, samples_dict, settings):
+logger = pyinseq_logger.logger
+
+
+def map_sites(sample, settings):
     """Map insertions to nucleotide sites."""
     # Placeholder for dictionary of mapped reads in format:
     # {(contig, position) : [left_counts, right_counts]}
     map_dict = {}
     # overall_total = denominator for cpm calculation
     overall_total = 0
-    bowtie_file = settings.path + sample + "_bowtie.txt"
-    sites_file = settings.path + sample + "_sites.txt"
+    bowtie_file = settings.path.joinpath(f"{sample}_bowtie.txt")
+    sites_file = settings.path.joinpath(f"{sample}_sites.txt")
+    logger.info(
+        f"Sample {sample}: Tally site data from {bowtie_file.name} into {sites_file.name} file."
+    )
     with open(bowtie_file, "r") as fi:
         for line in fi:
             bowtie_data = line.rstrip().split("\t")
@@ -45,6 +55,7 @@ def map_sites(sample, samples_dict, settings):
             "cpm",
         )
         writer.writerow(header_entry)
+        sample_dict = {sample: {"site hits": 0}}
         for insertion in sorted(map_dict):
             left_counts = map_dict[insertion][0]
             right_counts = map_dict[insertion][1]
@@ -59,7 +70,13 @@ def map_sites(sample, samples_dict, settings):
                 cpm,
             )
             writer.writerow(row_entry)
-    return map_dict
+            sample_dict[sample]["site hits"] += total_counts
+    # Summarize site data into io
+    pyinseq_logger.logger_io.write(
+        f"- {sample}: {overall_total} aligned reads mapped to sites\n"
+    )
+    # Return a dict where {sample: {sites: 100} }
+    return sample_dict
 
 
 def map_genes(sample, settings):
@@ -77,7 +94,6 @@ def map_genes(sample, settings):
     All insertions are written to the file but only ones <= disruption threshold
     are counted in the dictionary.
     """
-    print(sample)
     # List of tuples of genome features
     genome = ftt_lookup(settings.organism, settings.experiment)
     # list of tuples of each mapped insertion to be immediately written per insertion
@@ -87,11 +103,20 @@ def map_genes(sample, settings):
     # by the disruption threshold.
     # if disruption = 1.0 then every hit in the gene is included
     gene_dict = {}
-    sites_file = settings.path + sample + "_sites.txt"
-    genes_file = settings.path + sample + "_genes.txt"
+    sites_file = settings.path.joinpath(f"{sample}_sites.txt")
+    genes_file = settings.path.joinpath(f"{sample}_genes.txt")
+    second_message = f"Transposon hits that disrupt the 5-prime-most {round(settings.disruption * 100)}% of each gene are tallied"
+    if settings.disruption == 1:
+        second_message = (
+            "Transposon hits that disrupt any position in a gene are tallied"
+        )
+    logger.info(
+        f"Sample {sample}: Tally site data from {sites_file.name} to gene-level data in {genes_file.name}. {second_message}"
+    )
     with open(sites_file, "r", newline="") as csvfileR:
         sites_reader = csv.reader(csvfileR, delimiter="\t")
         next(sites_reader, None)  # skip the headers
+        sites_in_genes = 0
         for line in sites_reader:
             contig, nucleotide, left_counts, right_counts, total_counts, cpm = line[0:6]
             nucleotide = int(nucleotide)
@@ -122,6 +147,7 @@ def map_genes(sample, settings):
                 # contig from insertion; locus from lookup table
                 if contig == locus:
                     if start <= nucleotide <= end:
+                        sites_in_genes += int(total_counts)
                         # 0.0 = 5'end ; 1.0 = 3'end
                         if strand == "+":
                             three_primeness = (1 + nucleotide - start) / length
@@ -151,6 +177,7 @@ def map_genes(sample, settings):
                                 gene_dict.setdefault(locus_tag, [0])[0] += cpm
                 previous_feature = locus_tag
     # Write individual insertions to *_genes.txt
+    sample_dict = {sample: {"gene hits": 0}}
     with open(genes_file, "w", newline="") as csvfileW:
         headers = (
             "contig",
@@ -166,8 +193,13 @@ def map_genes(sample, settings):
         mapped_gene_writer.writerow(headers)
         for hit in mapped_hit_list:
             mapped_gene_writer.writerow(hit)
+            sample_dict[sample]["gene hits"] += int(hit[4])
+    # Summarize site data into io
+    pyinseq_logger.logger_io.write(
+        f"- {sample}: {sites_in_genes} of mapped reads fall in genes\n"
+    )
     # Return aggregated insertions by gene (filtered on 5'-3' threshold)
-    return gene_dict
+    return sample_dict
 
 
 def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
@@ -175,6 +207,7 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
     For each entry in a feature table (.ftt) list the summary of hits
     for each sample in the experiment
     """
+    logger.info("Aggregate gene mapping from all samples into the summary_data_table")
 
     gene_table = ftt_lookup(organism, experiment)
 
@@ -220,13 +253,18 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
                 # matches based on locus_tag.
                 if hit_locus_tag == ftt_locus_tag:
                     gene_table[i][current_column] += mapped_genes[gene][0]
-        print(sample)
-        print(mapped_genes)
         with open(f"results/{experiment}/summary_gene_table.txt", "w") as fo:
             writer = csv.writer(
                 fo, delimiter="\t", dialect="excel", lineterminator="\n"
             )
             writer.writerows(gene_table)
+
+    # Summarize build gene table step
+    pyinseq_logger.logger_io.write(
+        f"- Gene table contains {len(sample_dict)} samples (columns) "
+        f"for {len(gene_table) - 1} genes (rows) \n"
+    )
+    return
 
 
 def ftt_lookup(organism, experiment=""):

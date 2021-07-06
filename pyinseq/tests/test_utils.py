@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-from distutils import dir_util
 import os
-from pkg_resources import Requirement, resource_filename, ResolutionError
-import shutil
 import sys
+import filecmp
 import traceback
+from distutils import dir_util
+from pathlib import Path
 
 try:
     from StringIO import StringIO
@@ -12,6 +12,50 @@ except ImportError:
     from io import StringIO
 
 import pytest
+
+
+class cd:
+    """Context manager to change to the specified directory then back."""
+
+    def __init__(self, new_path):
+        self.new_path = os.path.expanduser(new_path)
+
+    def __enter__(self):
+        self.savedPath = os.getcwd()
+        os.chdir(self.new_path)
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.savedPath)
+
+
+def run_pytest():
+    """Runs pytest directly from source code. CWD should be in pyinseq source dir"""
+    rootdir = Path(__file__).parents[2]
+    with cd(rootdir):
+        pytest.main([])
+
+
+def get_dump():
+    """Helper for creating and returning a dump Path"""
+    dump = Path("pyinseq/tests/dump")
+    if not dump.exists():
+        dump.mkdir()
+    return dump
+
+
+@pytest.fixture()
+def load_settings():
+    def fetch(command):
+        config_file = "../data/input/test-pyinseq-config.yml"
+        dump = get_dump()
+        with cd(dump):
+            from pyinseq.settings import SETTINGS_CONSTRUCTORS
+
+            settings_constructor = SETTINGS_CONSTRUCTORS[command]
+            return settings_constructor(config_file)
+
+    return fetch
+
 
 """
 These script running functions were taken from the khmer project:
@@ -29,6 +73,9 @@ def datadir(tmpdir_factory, request):
     # this is the data/ dir in pyinseq/tests
     data_dir = os.path.join(os.path.dirname(__file__), "data")
     dir_util.copy_tree(data_dir, str(tmpdir))
+
+    # Create dump in temporary directory
+    tmpdir.join("dump").mkdir()
 
     def getter(filename="", as_str=True):
         filepath = tmpdir.join(filename)
@@ -104,27 +151,25 @@ def runscript(
         sys.stdout.name = "StringIO"
         sys.stderr = StringIO()
 
-        if directory:
-            os.chdir(directory)
-        else:
+        # Use with to change directories
+        if not directory:
             directory = cwd
 
-        try:
-            print("running:", scriptname, "in:", directory, file=oldout)
-            print("arguments", sysargs, file=oldout)
-            status = _runscript(scriptname)
-        except SystemExit as e:
-            status = e.code
-        except:
-            traceback.print_exc(file=sys.stderr)
-            status = -1
+        with cd(directory):
+            try:
+                print("running:", scriptname, "in:", directory, file=oldout)
+                print("arguments", sysargs, file=oldout)
+                status = _runscript(scriptname)
+            except SystemExit as e:
+                status = e.code
+            except:
+                traceback.print_exc(file=sys.stderr)
+                status = -1
     finally:
         sys.argv = oldargs
         out, err = sys.stdout.getvalue(), sys.stderr.getvalue()
         sys.stdout, sys.stderr = oldout, olderr
         print(out)
-
-        os.chdir(cwd)
 
     if status != 0 and not fail_ok:
         print(
@@ -139,5 +184,25 @@ def runscript(
             sep="\n",
         )
         assert False
-
     return status, out, err
+
+
+def compare_directories(expected_output, output_dir, ignore=[]):
+    """Compare output from pyinseq runs to expected output"""
+    dcmp = filecmp.dircmp(expected_output, output_dir, ignore=ignore)
+    # check that log file is created from pyinseq
+    assert "log.txt" in os.listdir(output_dir)
+
+    # checks that files are same in both directories
+    assert not dcmp.left_only and not dcmp.right_only
+
+    # check files to see if content differs
+    assert not dcmp.diff_files
+    assert not dcmp.funny_files  # Check for files that cannot be compared
+
+    # because subdirs is a dict keyed by subdir name
+    # with dircmp objects as values
+    for subdcmp in dcmp.subdirs.values():
+        assert not subdcmp.diff_files
+        assert not subdcmp.funny_files
+        assert not subdcmp.left_only and not subdcmp.right_only

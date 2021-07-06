@@ -1,0 +1,62 @@
+#!/usr/bin/python
+
+"""
+
+Snakefile for pyinseq genomeprep pipeline
+
+"""
+
+from pathlib import Path
+# Setup logger before importing modules
+from pyinseq.logger import pyinseq_logger, add_fileHandler, add_streamHandler
+pyinseq_logger.setup_logger()
+# Module imports
+import pyinseq
+from pyinseq.utils import load_pickle
+from pyinseq.gbk_convert import build_fna_and_table_files
+
+# Path to environment folder
+ENVS = Path(pyinseq.__file__).parent.joinpath("envs")
+
+# Load pickled settings
+settings = load_pickle(f"results/{config['experiment']}/settings.pickle")
+output_dir = str(settings.path)
+
+# Setup pyinseq logger and add file handler to snakemake
+pyinseq_logger.add_logfile_paths(settings)
+add_fileHandler(pyinseq_logger.logger, settings.log)
+# Add io stream to snakemake for saving info
+add_streamHandler(logger.logger, pyinseq_logger.snake_io)
+## SNAKE MESSAGE TO LOGGER
+logger.logger.info("(SNAKEMAKE INFO)")
+
+
+rule all:
+    input:
+        f"{output_dir}/genome_lookup/genome.1.ebwt",
+        f"{output_dir}/genome_lookup/genome.ftt",
+
+
+rule genome_prep:
+    input:
+        genebank=f"{settings.reference_genome}"
+    output:
+        fna_file="{output_dir}/genome_lookup/genome.fna",
+        ftt_file="{output_dir}/genome_lookup/genome.ftt",
+    threads: settings.threads
+    run:
+        # Build needed genome tables
+        build_fna_and_table_files(input.genebank, settings)
+        pyinseq_logger.summarize_step()
+
+
+rule bowtie_index:
+    input:
+        fna_file=f"{output_dir}/genome_lookup/genome.fna",
+    output:
+        "{output_dir}/genome_lookup/genome.1.ebwt",
+    threads: settings.threads
+    conda:
+        str(ENVS.joinpath("bowtie.yaml"))
+    shell:
+        "bowtie-build -q {input.fna_file} {output_dir}/genome_lookup/genome"

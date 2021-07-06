@@ -1,0 +1,125 @@
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	genome_prep
+	1
+(PYINSEQ INFO)
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	demultiplex
+	1
+(PYINSEQ INFO)
+534 reads demultiplexed
+- E001_01 (GAAG): 252 reads
+- E001_02 (CTTT): 274 reads
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	bowtie_mapping
+	1
+(PYINSEQ INFO)
+- Mapped reads from E001_02 to genome
+BOWTIE OUTPUT:
+# reads processed: 274
+# reads with at least one reported alignment: 274
+# reads that failed to align: 0
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	bowtie_mapping
+	1
+(PYINSEQ INFO)
+- Mapped reads from E001_01 to genome
+BOWTIE OUTPUT:
+# reads processed: 252
+# reads with at least one reported alignment: 252
+# reads that failed to align: 0
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_sites
+	1
+(PYINSEQ INFO)
+- E001_02: 274 aligned reads mapped to sites
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_sites
+	1
+(PYINSEQ INFO)
+- E001_01: 252 aligned reads mapped to sites
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_genes
+	1
+(PYINSEQ INFO)
+- E001_02: 204 of mapped reads fall in genes
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	map_genes
+	1
+(PYINSEQ INFO)
+- E001_01: 196 of mapped reads fall in genes
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	build_gene_table
+	1
+(PYINSEQ INFO)
+- Gene table contains 2 samples (columns) for 3987 genes (rows) 
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	summarize
+	1
+(PYINSEQ INFO)
+Print log path: results/example_pyinseq/log.txt
+Print settings:
+command: pyinseq
+config_file: example_pyinseq-config.yaml
+experiment: example_pyinseq
+threads: 4
+output_dir: results/example_pyinseq
+path: results/example_pyinseq/
+log: results/example_pyinseq/log.txt
+summary_log: results/example_pyinseq/summary_log.txt
+reads: ../data/input/example01.fastq
+samples: ../data/input/example01.txt
+samples_txt: results/example_pyinseq/samples.txt
+samples_dict: {'E001_01': {'barcode': 'GAAG'}, 'E001_02': {'barcode': 'CTTT'}}
+samples_info_yml: results/example_pyinseq/samples_info.yml
+raw_path: results/example_pyinseq/raw_data/
+reference_genome: ../data/input/ES114v2.gb
+genome_path: results/example_pyinseq/genome_lookup/
+map_to_genome: True
+gff: False
+summary_table: results/example_pyinseq/summary_gene_table.txt
+disruption: 0.9
+barcode_length: 4
+transposon_seq: ACAGGTTG
+min_counts: 3
+max_ratio: 10
+settings_pickle: results/example_pyinseq/settings.pickle
+organism: genome
+snakefile: /Users/emanuelburgos/Dropbox/Mandel_Lab/Projects/Project_Pyinseq/pyinseq/pyinseq/workflows/PyinseqWorkflow/Snakefile
+snakemake_cmd: snakemake --config experiment=example_pyinseq -s /Users/emanuelburgos/Dropbox/Mandel_Lab/Projects/Project_Pyinseq/pyinseq/pyinseq/workflows/PyinseqWorkflow/Snakefile --cores 3
+process_reads: False
+process_sample_list: False
+parse_genebank: False
+generate_bowtie_index: False
+write_trimmed_reads: True
+Print samples detail
+E001_01:
+  barcode: GAAG
+  demultiplexed_reads: 252
+  gene hits: 182
+  site hits: 252
+E001_02:
+  barcode: CTTT
+  demultiplexed_reads: 274
+  gene hits: 204
+  site hits: 274
+

@@ -1,7 +1,20 @@
-2021-05-21 11:25 - INFO - demultiplex - Preparing to demultiplex reads
-2021-05-21 11:25 - INFO - demultiplex - Total reads demultiplexed: 534
-2021-05-21 11:25 - INFO - pipeline - Print log path: results/test_demultiplex_notrim/log.txt
-2021-05-21 11:25 - INFO - pipeline - Print settings:
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	demultiplex
+	1
+(PYINSEQ INFO)
+534 reads demultiplexed
+- E001_01 (GAAG): 252 reads
+- E001_02 (CTTT): 274 reads
+(SNAKEMAKE INFO)
+Job counts:
+	count	jobs
+	1	summarize
+	1
+(PYINSEQ INFO)
+Print log path: results/test_demultiplex_notrim/log.txt
+Print settings:
 command: demultiplex
 config_file: test_demultiplex_notrim-config.yaml
 experiment: test_demultiplex_notrim
@@ -27,13 +40,11 @@ process_sample_list: True
 parse_genebank: False
 generate_bowtie_index: False
 write_trimmed_reads: False
-
-2021-05-21 11:25 - INFO - pipeline - Print samples detail
+Print samples detail
 E001_01:
   barcode: GAAG
   demultiplexed_reads: 252
 E001_02:
   barcode: CTTT
   demultiplexed_reads: 274
-
 

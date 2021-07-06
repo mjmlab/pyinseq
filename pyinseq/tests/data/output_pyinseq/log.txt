@@ -1,57 +1,73 @@
-2018-11-25 19:24 - INFO - runner - Demultiplex reads
-2018-11-25 19:24 - INFO - demultiplex - Total records demultiplexed: 534
-2018-11-25 19:24 - INFO - runner - Prepare genome features (.ftt) and fasta nucleotide (.fna) files
-2018-11-25 19:24 - INFO - runner - Prepare bowtie index
-2018-11-25 19:24 - INFO - runner - Building bowtie index files in results/output_pyinseq/genome_lookup
-2018-11-25 19:24 - INFO - runner - Map with bowtie
-2018-11-25 19:24 - INFO - runner - Sample E001_01: map reads with bowtie
-2018-11-25 19:24 - INFO - runner - # reads processed: 252
-# reads with at least one reported alignment: 252 (100.00%)
-# reads that failed to align: 0 (0.00%)
-Reported 252 alignments to 1 output stream(s)
-
-2018-11-25 19:24 - INFO - runner - Sample E001_01: summarize the site data from the bowtie results
-2018-11-25 19:24 - INFO - runner - Sample E001_01: map site data to genes
-2018-11-25 19:24 - INFO - runner - T50 result for E001_01: 3
-2018-11-25 19:24 - INFO - runner - Sample E001_02: map reads with bowtie
-2018-11-25 19:24 - INFO - runner - # reads processed: 274
+2021-05-21 11:21 - INFO - gbk_convert - Converting genebank ../data/input/ES114v2.gb to fasta nucleotide (.fna) and feature table (.ftt).
+2021-05-21 11:21 - INFO - gbk_convert - Nucleotides stored in results/example_pyinseq/genome_lookup/genome.fna
+2021-05-21 11:21 - INFO - gbk_convert - Features table stored in results/example_pyinseq/genome_lookup/genome.ftt
+2021-05-21 11:21 - INFO - demultiplex - Preparing to demultiplex reads
+2021-05-21 11:21 - INFO - demultiplex - Total reads demultiplexed: 534
+2021-05-21 11:21 - INFO - map_reads - Mapping reads in results/example_pyinseq/E001_02_trimmed.fastq to genome using bowtie
+2021-05-21 11:21 - INFO - map_reads - Bowtie results for E001_02:
+# reads processed: 274
 # reads with at least one reported alignment: 274 (100.00%)
 # reads that failed to align: 0 (0.00%)
-Reported 274 alignments to 1 output stream(s)
+Reported 274 alignments
 
-2018-11-25 19:24 - INFO - runner - Sample E001_02: summarize the site data from the bowtie results
-2018-11-25 19:24 - INFO - runner - Sample E001_02: map site data to genes
-2018-11-25 19:24 - INFO - runner - T50 result for E001_02: 3
-2018-11-25 19:24 - INFO - runner - Aggregate gene mapping from all samples into the summary_data_table
-2018-11-25 19:24 - INFO - runner - Print samples info: results/output_pyinseq/samples.yml
-2018-11-25 19:24 - INFO - runner - Print summary log: results/output_pyinseq/log.txt
-2018-11-25 19:24 - INFO - runner - Print command entered
-pyinseq -i input/example01.fastq -s input/example01.txt -g input/ES114v2.gb -d 0.9 -e output_pyinseq
-2018-11-25 19:24 - INFO - runner - Print settings
+2021-05-21 11:21 - INFO - map_reads - Mapping reads in results/example_pyinseq/E001_01_trimmed.fastq to genome using bowtie
+2021-05-21 11:21 - INFO - map_reads - Bowtie results for E001_01:
+# reads processed: 252
+# reads with at least one reported alignment: 252 (100.00%)
+# reads that failed to align: 0 (0.00%)
+Reported 252 alignments
+
+2021-05-21 11:21 - INFO - process_mapping - Sample E001_02: summarize the site data from the bowtie results into sites file.
+2021-05-21 11:21 - INFO - process_mapping - Sample E001_01: summarize the site data from the bowtie results into sites file.
+2021-05-21 11:22 - INFO - process_mapping - Sample E001_02: map site data to genes
+2021-05-21 11:22 - INFO - process_mapping - Sample E001_01: map site data to genes
+2021-05-21 11:22 - INFO - process_mapping - Aggregate gene mapping from all samples into the summary_data_table
+2021-05-21 11:22 - INFO - pipeline - Print log path: results/example_pyinseq/log.txt
+2021-05-21 11:22 - INFO - pipeline - Print settings:
 command: pyinseq
-experiment: output_pyinseq
-path: results/output_pyinseq/
-parse_genbank_file: True
-genome_path: results/output_pyinseq/genome_lookup/
-organism: genome
-raw_path: results/output_pyinseq/raw_data/
-generate_bowtie_index: True
-process_reads: True
-process_sample_list: True
+config_file: example_pyinseq-config.yaml
+experiment: example_pyinseq
+threads: 4
+output_dir: results/example_pyinseq
+path: results/example_pyinseq/
+log: results/example_pyinseq/log.txt
+summary_log: results/example_pyinseq/summary_log.txt
+reads: ../data/input/example01.fastq
+samples: ../data/input/example01.txt
+samples_txt: results/example_pyinseq/samples.txt
+samples_dict: {'E001_01': {'barcode': 'GAAG'}, 'E001_02': {'barcode': 'CTTT'}}
+samples_info_yml: results/example_pyinseq/samples_info.yml
+raw_path: results/example_pyinseq/raw_data/
+reference_genome: ../data/input/ES114v2.gb
+genome_path: results/example_pyinseq/genome_lookup/
 map_to_genome: True
-samples_yaml: results/output_pyinseq/samples.yml
-summary_log: results/output_pyinseq/log.txt
-write_trimmed_reads: True
+gff: False
+summary_table: results/example_pyinseq/summary_gene_table.txt
+disruption: 0.9
+barcode_length: 4
+transposon_seq: ACAGGTTG
 min_counts: 3
 max_ratio: 10
-keepall: False
-barcode_length: 4
-disruption: 0.9
-2018-11-25 19:24 - INFO - runner - Print samples detail
-!!python/object/apply:collections.OrderedDict
-- - - E001_01
-    - barcode: GAAG
-  - - E001_02
-    - barcode: CTTT
+settings_pickle: results/example_pyinseq/settings.pickle
+organism: genome
+snakefile: /Users/emanuelburgos/Dropbox/Mandel_Lab/Projects/Project_Pyinseq/pyinseq/pyinseq/workflows/PyinseqWorkflow/Snakefile
+snakemake_cmd: snakemake --config experiment=example_pyinseq -s /Users/emanuelburgos/Dropbox/Mandel_Lab/Projects/Project_Pyinseq/pyinseq/pyinseq/workflows/PyinseqWorkflow/Snakefile --cores 3
+process_reads: False
+process_sample_list: False
+parse_genebank: False
+generate_bowtie_index: False
+write_trimmed_reads: True
 
-2018-11-25 19:24 - INFO - runner - ***** pyinseq complete! *****
+2021-05-21 11:22 - INFO - pipeline - Print samples detail
+E001_01:
+  barcode: GAAG
+  demultiplexed_reads: 252
+  gene hits: 182
+  site hits: 252
+E001_02:
+  barcode: CTTT
+  demultiplexed_reads: 274
+  gene hits: 204
+  site hits: 274
+
+
