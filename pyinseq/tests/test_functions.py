@@ -93,8 +93,8 @@ def test_write_config_file(datadir, tmpdir):
     sample_fn = "../data/input/example01.txt"
     gb_fn = "../data/input/ES114v2.gb"
     output_name = "test_pyinseq"
-    expected_config = datadir("input/test-pyinseq-config.yaml")
-    output_config = "test_pyinseq-config.yml"
+    expected_config = datadir("input/test-pyinseq-config.yml")
+    output_config = tmpdir.join("test_pyinseq-config.yml")
 
     # Modify sys.argv
     sys.argv = [
@@ -116,8 +116,7 @@ def test_write_config_file(datadir, tmpdir):
     ]
     # Get the Namespace object from argparse
     parser, args = get_args()
-    dump = get_dump()
-    with cd(dump):
+    with cd(str(tmpdir)):
         utils.write_config_file(args)
         # Check files
         assert filecmp.cmp(expected_config, output_config)

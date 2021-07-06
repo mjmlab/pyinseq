@@ -3,7 +3,7 @@ additional_params:
 barcode_length: 4
 command: pyinseq
 config: null
-config_format: yaml
+config_format: yml
 disruption: 0.9
 experiment: test_pyinseq
 genome: ../data/input/ES114v2.gb
