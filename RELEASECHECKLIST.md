@@ -1,8 +1,6 @@
 - [ ] Change version number in pyinseq/VERSION
-- [ ] Change short and full version in docs/conf.py
-- [ ] Check copyright date in docs/conf.py
 - [ ] Update CHANGELOG.md, prepare text for GitHub release
 - [ ] Commit changes and ensure that the commit passes tests
 - [ ] Tag the release and push to GitHub
-- [ ] Upload to pypitest: `python setup.py sdist upload -r pypitest`
-- [ ] Upload to pypi: `python setup.py sdist upload -r pypi`
+- [ ] Upload to pypitest: `python3 -m twine upload --repository testpypi dist/*`
+- [ ] Upload to pypi: `python3 -m twine upload dist/*`
