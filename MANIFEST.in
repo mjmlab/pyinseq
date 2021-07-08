@@ -1,2 +1,5 @@
 include pyinseq/VERSION
-graft pyinseq/third-party
+include pyinseq/workflows/PyinseqWorkflow/Snakefile
+include pyinseq/workflows/DemultiplexWorkflow/Snakefile
+include pyinseq/workflows/GenomeprepWorkflow/Snakefile
+include pyinseq/envs/bowtie.yaml
