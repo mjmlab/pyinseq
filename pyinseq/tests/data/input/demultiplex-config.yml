@@ -1,8 +1,7 @@
-snakemake_params: []
 barcode_length: 4
 command: demultiplex
-config: false
-config_format: yaml
+config: null
+config_format: yml
 disruption: 0.9
 experiment: test_demultiplex
 genome: null
@@ -13,6 +12,7 @@ max_ratio: 10
 min_count: 3
 notrim: false
 samples: ../data/input/example01.txt
+snakemake_params: []
 test: false
 threads: 4
 transposon_seq: ACAGGTTG
