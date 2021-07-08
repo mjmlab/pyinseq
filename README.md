@@ -127,7 +127,7 @@ $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name
 
 - Number of cores to use for execution
 
-`--additional_params`
+`--snakemake_params`
 
 - Additional parameters that will get passed to `snakemake`.
 
@@ -301,7 +301,7 @@ $ pyinseq -i reads.fastq -s samples.txt -g genome.gbk -e pyinseq --threads 4
 
 ```bash
 $ cat demo-run-config.yaml
-additional_params: []
+snakemake_params: []
 barcode_length: 4
 command: pyinseq
 config: false
@@ -322,7 +322,7 @@ transposon_seq: ACAGGTTG
 If you installed **conda** in your terminal, you can use the option `--use-conda` which will install bowtie during the executuion of the workflow. 
 
 ```bash
-$ pyinseq -i reads.fastq -s samples.txt -g genome.gbk -e demo-run --threads 4 --additional_params --use-conda 
+$ pyinseq -i reads.fastq -s samples.txt -g genome.gbk -e demo-run --threads 4 --snakemake_params --use-conda 
 ```
 
 You can also get a default configuration file by using `--get_default_config` and modify it using a text-editor.
@@ -433,7 +433,7 @@ Verify that pyinseq installed correctly by running:
 (pyinseq) $ pyinseq --help
 2021-05-26 13:10 - INFO - pyinseq - Process command line arguments
 usage: pyinseq [-h] [--get_default_config] [--config_format CONFIG_FORMAT]
-               [-c CONFIG] [-t THREADS] [--additional_params ...] [-v]
+               [-c CONFIG] [-t THREADS] [--snakemake_params ...] [-v]
                [-i INPUT] [-s SAMPLES] [-e EXPERIMENT] [-g GENOME]
                [-d DISRUPTION] [--min_count MIN_COUNT] [--max_ratio MAX_RATIO]
                [--barcode_length BARCODE_LENGTH]
