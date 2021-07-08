@@ -41,7 +41,7 @@ def get_snake_parser():
         type=int,
     )
     snake_group.add_argument(
-        "--additional_params",
+        "--snakemake_params",
         help="Additional params passed to snakemake. "
         "This should be included at the end of the command since everything will be passed to snakemake so make sure they are correct. "
         "For example, you can use `-n` to check which files snakemake will create without execution the full workflow.",

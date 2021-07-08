@@ -1,4 +1,4 @@
-additional_params: []
+snakemake_params: []
 barcode_length: 4
 command: genomeprep
 config: false

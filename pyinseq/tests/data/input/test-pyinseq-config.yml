@@ -1,4 +1,4 @@
-additional_params:
+snakemake_params:
 - --use-conda
 barcode_length: 4
 command: pyinseq

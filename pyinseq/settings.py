@@ -47,7 +47,7 @@ class Settings:
             "--quiet",
         ]
         # Add additional parameters, if any...
-        self.snakemake_cmd.extend(config_dict["additional_params"])
+        self.snakemake_cmd.extend(config_dict["snakemake_params"])
         self.snakemake_cmd = " ".join(self.snakemake_cmd)
 
     def __repr__(self):

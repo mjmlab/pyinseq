@@ -111,7 +111,7 @@ def test_write_config_file(datadir, tmpdir):
         "0.9",
         "--threads",
         "2",
-        "--additional_params",
+        "--snakemake_params",
         "--use-conda",
     ]
     # Get the Namespace object from argparse
