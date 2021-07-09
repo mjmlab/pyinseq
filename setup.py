@@ -26,17 +26,14 @@ SCRIPTS = glob("scripts/*")
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open("requirements.txt", "r") as fh:
-    requirements = fh.readlines()
 
 # Collect paths to Snakefile's and ENVS
 snake_data = [
-            "workflows/PyinseqWorkflow/Snakefile",
-            "workflows/DemultiplexWorkflow/Snakefile",
-            "workflows/GenomeprepWorkflow/Snakefile",
-            "envs/bowtie.yaml",
+            "pyinseq/workflows/PyinseqWorkflow/Snakefile",
+            "pyinseq/workflows/DemultiplexWorkflow/Snakefile",
+            "pyinseq/workflows/GenomeprepWorkflow/Snakefile",
+            "pyinseq/envs/bowtie.yaml",
 ]
-
 
 def main():
     setup(
@@ -46,7 +43,7 @@ def main():
         long_description=long_description,
         long_description_content_type="text/markdown",
         url="https://github.com/mjmlab/pyinseq",
-        author="Mark J. Mandel",
+        author="Mark J. Mandel,Emanuel Burgos,Camille Scott,Loren Velasquez,Benjamin K. Johnson",
         author_email="mandel01@gmail.com",
         license="BSD",
         packages=find_packages(),
@@ -56,18 +53,18 @@ def main():
         scripts=SCRIPTS,
         setup_requires=["pytest-runner"],
         tests_require=["pytest"],
-        install_requires=requirements,
+        python_requires='!=3.8.*,>=3.6.*',
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Science/Research",
             "License :: OSI Approved :: BSD License",
             "Operating System :: MacOS :: MacOS X",
             "Operating System :: POSIX",
-            "Programming Language :: Python :: 3.5",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
             "Topic :: Scientific/Engineering :: Bio-Informatics",
         ],
         zip_safe=False,
-
     )
 
 

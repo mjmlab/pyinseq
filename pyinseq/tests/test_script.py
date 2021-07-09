@@ -34,7 +34,7 @@ def test_pyinseq_script(datadir, tmpdir):
         output_name,
         "-d",
         "0.9",
-        "--additional_params",
+        "--snakemake_params",
         "--use-conda",
     ]
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
@@ -77,7 +77,7 @@ def test_pyinseq_script_unique_transp_barcode_length(datadir, tmpdir):
         "9",
         "--transposon_seq",
         "TCGCACGG",
-        "--additional_params",
+        "--snakemake_params",
         "--use-conda",
     ]
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
@@ -152,7 +152,7 @@ def test_pyinseq_genomeprep_script(datadir, tmpdir):
         output_name,
         "-g",
         gb_fn,
-        "--additional_params",
+        "--snakemake_params",
         "--use-conda",
     ]
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
@@ -175,7 +175,7 @@ def test_pyinseq_genomeprep_gff_script(datadir, tmpdir):
         "-g",
         gb_fn,
         "--gff",
-        "--additional_params",
+        "--snakemake_params",
         "--use-conda",
     ]
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))

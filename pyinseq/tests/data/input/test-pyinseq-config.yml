@@ -1,5 +1,3 @@
-additional_params:
-- --use-conda
 barcode_length: 4
 command: pyinseq
 config: null
@@ -13,6 +11,8 @@ input: ../data/input/example01.fastq
 max_ratio: 10
 min_count: 3
 samples: ../data/input/example01.txt
+snakemake_params:
+- --use-conda
 test: false
 threads: 2
 transposon_seq: ACAGGTTG

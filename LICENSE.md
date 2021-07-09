@@ -1,4 +1,4 @@
-Copyright (c) 2015-2021, Mark J. Mandel  
+Copyright (c) 2015-2021, The Authors  
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or 
