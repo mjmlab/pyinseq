@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.0] - 2021-07-08
+## [0.3.0] - 2021-07-09
 ### Fixed
 - Refactor demultiplex.py for readability and faster execution
 - Logger is now compatible with snakemake logging module
