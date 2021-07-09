@@ -43,7 +43,7 @@ def main():
         long_description=long_description,
         long_description_content_type="text/markdown",
         url="https://github.com/mjmlab/pyinseq",
-        author="Mark J. Mandel",
+        author="Mark J. Mandel,Emanuel Burgos,Camille Scott,Loren Velasquez,Benjamin K. Johnson"
         author_email="mandel01@gmail.com",
         license="BSD",
         packages=find_packages(),
