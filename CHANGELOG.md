@@ -1,27 +1,27 @@
 # Changelog
 
-## [0.3.0] - 2021-07-09
+## [0.3.0] - 2021-07-12
 ### Fixed
 - Refactor demultiplex.py for readability and faster execution
 - Logger is now compatible with snakemake logging module
 - Fixed small parsing bugs in gbk_convert.py
 
 ### Changed
-- Remove third party folder which contained 'bowtie' executables
+- Remove third-party folder which contained `bowtie` executables (now `bowtie` is installed via conda or manually)
 - file paths are now handled by pathlib
 - New settings class that is compatible with snakemake
 - The map_reads script is now a stand-alone script
 - Settings class which is used by snakemake and pyinseq
-- Pyinseq and snakemake now use `pathlib` for handling filepaths
-- Removed readthedocs website
+- Pyinseq and snakemake now use `pathlib` for handling file paths
+- Removed readthedocs website (documentation is now in the README.md; no longer using ReadTheDocs)
 - Removed docs/
 - Removed third-party/
 
 ### Added
 - Snakemake can now execute workflows using Snakefile in pyinseq
-- Additional Snakefiles for genomprep and demultiplex of pyinseq
+- Additional Snakefiles for genomeprep and demultiplex of pyinseq
 - Conda virtual environment files that allow conda to install `bowtie` software during runtime
-- Parser.py script for parsing command line arguments
+- Parser.py script for parsing command-line arguments
 - Include '--test' option for running pytest on pyinseq
 - New pytests for testing workflows in pyinseq
 - Pyinseq will now summarize sample information and snakemake output
