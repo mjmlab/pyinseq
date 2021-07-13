@@ -2,14 +2,10 @@
 ![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
 ![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)
 
-<img src="img/pyinseq-logo.png" alt="drawing" width="200"/>
+![logo](https://github.com/mjmlab/pyinseq/raw/master/img/pyinseq-logo.png)
 
 Lightweight python package to map transposon insertion sequencing (INSeq) data in
 bacteria.
-
-## IMPORTANT NOTE
-
-We are merging in the `snakemake` & `conda` branch on July 2, 2021. `pyinseq` is not actually up on bioconda quite yet... It will be there very soon! In the meantime, this version is stable but cannot yet be installed via conda. You also may want to look at [v.0.2.1](https://github.com/mjmlab/pyinseq/releases/tag/v0.2.1). Contact us with any questions. We will remove this note once the package is available from bioconda.
 
 ## Quick start
 
