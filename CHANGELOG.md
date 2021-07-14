@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1] - 2021-07-14
+### Fixed
+- File links in README are now compatible with Pypi
+
+### Added
+- Pyinseq logo for documentation
+
+
 ## [0.3.0] - 2021-07-12
 ### Fixed
 - Refactor demultiplex.py for readability and faster execution
