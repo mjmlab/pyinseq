@@ -34,8 +34,6 @@ def test_pyinseq_script(datadir, tmpdir):
         output_name,
         "-d",
         "0.9",
-        "--snakemake_params",
-        "--use-conda",
     ]
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
     assert not status
@@ -77,8 +75,6 @@ def test_pyinseq_script_unique_transp_barcode_length(datadir, tmpdir):
         "9",
         "--transposon_seq",
         "TCGCACGG",
-        "--snakemake_params",
-        "--use-conda",
     ]
     status, out, err = runscript("pyinseq", args, directory=str(tmpdir))
     assert not status

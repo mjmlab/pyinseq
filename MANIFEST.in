@@ -3,4 +3,6 @@ include pyinseq/workflows/PyinseqWorkflow/Snakefile
 include pyinseq/workflows/DemultiplexWorkflow/Snakefile
 include pyinseq/workflows/GenomeprepWorkflow/Snakefile
 include pyinseq/envs/bowtie.yaml
-include img/pyinseq-logo.png
+include img/pyinseq-logo-small.png
+include pyinseq/tests/data/*/*
+include pyinseq/tests/data/*/*/*
