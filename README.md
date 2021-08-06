@@ -13,7 +13,7 @@ This section is meant for users who know their way around terminal and `conda`. 
 create a virtual environment with `python` 3.6 and install `pyinseq` using `conda`.
 
 ```bash
-$ conda create -c bioconda -n pyinseq-py36 pyinseq
+$ conda create -c mjmlab -n pyinseq-py36 pyinseq
 $ conda activate pyinseq-py36
 ```
 
