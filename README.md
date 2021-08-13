@@ -101,27 +101,27 @@ $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name
 
 `-d` / `--disruption`
 
-- Five-prime fraction of gene (`0.0` - `1.0`) that must be disrupted for the hit to be counted in the summary_gene_table. Often insertions at the 3' end of a gene do not disrupt function so it may be of interest to run the pipeline with a disruption value of `0.8` or `0.9`.
+- Five-prime fraction of gene (`0.0` - `1.0`) that must be disrupted for the hit to be counted in the summary_gene_table. Often insertions at the 3' end of a gene do not disrupt function so it may be of interest to run the pipeline with a disruption value of `0.8` or `0.9`. [default: 0.9]
   
 `--min_count`
 
-- Minimum number of reads per insertion site.
+- Minimum number of reads per insertion site. [default: 3]
 
 `--max_ratio`
 
-- Maximum ratio of left:right or right:left reads per insertion site. 
+- Maximum ratio of left:right or right:left reads per insertion site. [default: 10]
 
 `--barcode_length`
 
-- Length of barcode index that is expected in samples.
+- Length of barcode index that is expected in samples. [default: 4]
 
 `--transposon_seq`
 
-- DNA sequence of transposon that flanks reads.
+- DNA sequence of transposon that flanks reads. [default: 'ACAGGTTG']
 
 `-t` / `--threads`
 
-- Number of cores to use for execution
+- Number of cores to use for execution [default: the CPU count of the computer]
 
 `--snakemake_params`
 
@@ -133,13 +133,12 @@ $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name
 | File | Description |
 | --- | --- |
 | `<experiment name>-config.yml` | Configuration file with run parameters |
-| `results/summary_gene_table.txt` | summary for entire experiment |
+| `results/summary_gene_table.txt` | summary for entire experiment (values in counts-per-million, cpm) |
 | `results/<sample>_sites.txt` (for each sample) | Counts of each insertion in each sample |
 | `results/<sample>_genes.txt` (for each sample) | Counts of each insertion mapped to genes |
 | `results/<sample>_bowtie.txt` (for each sample) | Bowtie mapping results |
 | `results/<sample>_trimmed.fastq` (for each sample) | Demultiplexed fastq reads trimmed for the chromosome sequence only |
 | `results/log.txt` | text printed to console |
-| `results/summary_log.txt` | summarized version of log output |
 | `results/samples_info_yml` | basics stats for each sample | 
 | `results/genome_lookup/genome.fna` | genome fasta nucleotide file |
 | `results/genome_lookup/genome.ftt` | genome feature table | 
@@ -156,8 +155,8 @@ $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name
 **samples_info.yml**
 * Contains basic information of each sample in the experiment. 
 
-**summary_log.txt**
-* Log file that will save printed output from `snakemake`. This includes the order of steps taken during the pyinseq execution.
+**log.txt**
+* Log file from pyinseq, including the messages from the `snakemake` execution. This includes the order of steps taken during the pyinseq execution.
 
 **`<experiment name>`-config.yaml**
 * Configuration file with run parameters.
@@ -174,9 +173,9 @@ $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name
 
 1. The gene feature table (.ftt) is comparable to the protein feature table (.ptt) but it also includes RNA genes.
 
-1. The `bowtie` software is installed through `conda`.
+1. If `pyinseq` is installed from `conda`, then `bowtie` is installed from `conda` as a dependency.
 
-1. At the end of the analysis results are aggregated into a tab-delimited table and sample info is summarized.
+1. At the end of the analysis, results are aggregated into a tab-delimited table and sample info is summarized.
 
 1. `pyinseq` is written primarily in Python and uses `snakemake` as the workflow manager. You probably figured that out already.
 
