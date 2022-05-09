@@ -1,9 +1,20 @@
 # Changelog
 
+## [X.X.X] - PENDING
+### Fixed
+- Added instructions for `mamba` installation, which is now required for `snakemake`
+### Changed
+- Only supports Python 3.7
+- Updated installation instructions to 
+### Added
+
+### Removed
+- Removed conda package for pyinseq; will rely on installation via pip from PyPi or GitHub
+
+
 ## [0.3.1] - 2021-07-14
 ### Fixed
 - File links in README are now compatible with Pypi
-
 ### Added
 - Pyinseq logo for documentation
 
