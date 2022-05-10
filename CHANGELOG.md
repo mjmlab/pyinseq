@@ -4,10 +4,8 @@
 ### Fixed
 - Added instructions for `mamba` installation, which is now required for `snakemake`
 ### Changed
-- Only supports Python 3.7
-- Updated installation instructions to 
-### Added
-
+- Python version supported: 3.7, 3.8
+- Updated installation instructions
 ### Removed
 - Removed conda package for pyinseq; will rely on installation via pip from PyPi or GitHub
 

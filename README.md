@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.com/mjmlab/pyinseq.svg?branch=master)](https://app.travis-ci.com/github/mjmlab/pyinseq)
 ![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)
+![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)
 
 ![logo](https://github.com/mjmlab/pyinseq/raw/master/img/pyinseq-logo-small.png)
 
