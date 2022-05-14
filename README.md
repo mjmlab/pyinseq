@@ -15,7 +15,7 @@ bacteria.
 ## Quick start <!-- omit in TOC -->
 
 This section is meant for users who know their way around terminal and `conda`. To use `pyinseq`, 
-create a virtual environment with `python` 3.6 and install `pyinseq` using `conda`.
+create a virtual environment with `python` 3.7 and install `pyinseq` using `conda`.
 
 ```bash
 $ conda install -n base -c conda-forge mamba
