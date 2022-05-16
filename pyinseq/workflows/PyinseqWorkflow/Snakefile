@@ -131,19 +131,13 @@ rule map_genes:
 
 rule build_gene_table:
     input:
-        expand(output_dir + "/{sample}_genes.txt", sample=samples_dict.keys()),
+        gene_files=expand(output_dir + "/{sample}_genes.txt", sample=samples_dict.keys()),
     output:
         "{output_dir}/summary_gene_table.txt"
     threads: 1
     run:
-        # Get gene_mappings dictionary
-        gene_mappings = dict()
-        for sample_gene_table in input:
-            from pathlib import Path
-            sample = Path(sample_gene_table).name.replace('_genes.txt', '')
-            gene_mappings[sample] = read_gene_file(sample_gene_table)
-        # Map sites
-        build_gene_table(settings.organism, samples_dict, gene_mappings, settings.experiment)
+        gene_files_paths = [Path(i) for i in input.gene_files]
+        build_gene_table(samples_dict, gene_files_paths, settings)
         pyinseq_logger.summarize_step()
 
 

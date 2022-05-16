@@ -7,9 +7,11 @@ Count and process the bowtie hits at each position in each sample
 """
 
 import csv
+from pathlib import Path
 
 # Module Imports
 from pyinseq.logger import pyinseq_logger
+from pyinseq.utils import read_gene_file
 
 logger = pyinseq_logger.logger
 
@@ -93,6 +95,8 @@ def map_genes(sample, settings):
     ThreePrimeness = insertion location in gene (5' end = 0.0, 3' end = 1.0)
     All insertions are written to the file but only ones <= disruption threshold
     are counted in the dictionary.
+
+    Returns sample dictionary with gene counts
     """
     # List of tuples of genome features
     genome = ftt_lookup(settings.organism, settings.experiment)
@@ -202,14 +206,14 @@ def map_genes(sample, settings):
     return sample_dict
 
 
-def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
+def build_gene_table(sample_dict, gene_files, settings):
     """
     For each entry in a feature table (.ftt) list the summary of hits
     for each sample in the experiment
     """
     logger.info("Aggregate gene mapping from all samples into the summary_data_table")
 
-    gene_table = ftt_lookup(organism, experiment)
+    gene_table = ftt_lookup(settings.organism, settings.experiment)
 
     # Header will be extended in the future to
     # list the experiment and barcode of each sample of interest
@@ -236,7 +240,15 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
     # current column, sample being matched
     current_column = len(gene_table[0]) - 1
 
+    gene_mappings = dict()
+    for g in gene_files:
+        parent_path = g.parent
+
     for sample in sample_dict:
+        # Read in gene file
+        sample = parent_path.joinpath(f'{sample}_genes.txt')
+        gene_mappings[sample] = read_gene_file(sample, settings.disruption)
+
         # Add the new sample name as a new column the table
         current_column += 1
         gene_table[0].append(sample)
@@ -252,8 +264,8 @@ def build_gene_table(organism, sample_dict, gene_mappings, experiment=""):
                 ftt_locus_tag = f[7]
                 # matches based on locus_tag.
                 if hit_locus_tag == ftt_locus_tag:
-                    gene_table[i][current_column] += mapped_genes[gene][0]
-        with open(f"results/{experiment}/summary_gene_table.txt", "w") as fo:
+                    gene_table[i][current_column] += mapped_genes[gene]
+        with open(f"results/{settings.experiment}/summary_gene_table.txt", "w") as fo:
             writer = csv.writer(
                 fo, delimiter="\t", dialect="excel", lineterminator="\n"
             )

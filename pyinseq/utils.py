@@ -104,10 +104,11 @@ def count_lines(filename: str, fastq=False):
         return None
 
 
-def read_gene_file(gene_file):
+def read_gene_file(gene_file, disruption=0.9):
     """
     Helper for reading a sample gene file.
-    Returns a dictionary where key is gene and value is cpm
+    Returns a dictionary where key is gene and value is average cpm
+    for that locus tag
 
     :param gene_file:
     :return:
@@ -116,8 +117,12 @@ def read_gene_file(gene_file):
     with open(gene_file, "r") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for record in reader:
-            gene_dict[record["locus_tag"]] = [float(record["cpm"])]
-
+            locus_tag = record["locus_tag"]
+            primeness = float(record['three_primeness'])
+            if primeness < disruption:
+                if locus_tag not in gene_dict:
+                    gene_dict[locus_tag] = 0
+                gene_dict[locus_tag] += float(record["cpm"])
     return gene_dict
 
 
