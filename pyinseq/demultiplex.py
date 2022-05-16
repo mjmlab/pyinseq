@@ -142,7 +142,8 @@ def write_reads(demultiplex_dict, samples_dict, settings):
                 logger.debug(
                     f"Writing trimmed reads to {barcode_dict[barcode]}_trimmed.fastq"
                 )
-                # Same logger, TODO: could maybe wrap loop into iterator
+                # Same logger
+                num_lines_to_write = len(demultiplex_dict[barcode])
                 tqdm_write_logger = TqdmBarLogger(
                     logger,
                     num_lines_to_write,

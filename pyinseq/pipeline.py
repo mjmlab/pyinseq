@@ -18,7 +18,7 @@ from pyinseq.process_mapping import map_sites, map_genes, build_gene_table
 
 logger = pyinseq_logger.logger
 
-
+# DEPRECATED
 def pipeline_mapping(settings, samples_dict):
     """Aggregate bowtie output, map to genes in the feature table, and aggregate samples."""
     # Dictionary of each sample's cpm by gene
