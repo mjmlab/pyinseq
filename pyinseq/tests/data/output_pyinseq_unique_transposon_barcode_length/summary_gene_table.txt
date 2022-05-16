@@ -1,4 +1,4 @@
-Contig	Start	End	Strand	Length	PID	Gene	Synonym	Code	COG	Product	E001_01	E001_02
+Contig	Start	End	Strand	Length	PID	Gene	Synonym	Code	COG	Product	results/test/E001_01_genes.txt	results/test/E001_02_genes.txt
 CP000020	313	747	-	435	AAW84496.1	mioC	VF_0001	-	-	FMN-binding protein MioC	0	0
 CP000020	817	2184	-	1368	AAW84497.1	trmE	VF_0002	-	-	tRNA modification GTPase TrmE	0	0
 CP000020	2281	3906	-	1626	AAW84498.1	yidC	VF_0003	-	-	cytoplasmic insertase into membrane protein, Sec system	0	0
@@ -10,7 +10,7 @@ CP000020	6352	7104	-	753	AAW84503.1	fliY	VF_0008	-	-	cystine-binding protein	0	0
 CP000020	7401	8810	+	1410	AAW84504.1	dnaA	VF_0009	-	-	chromosomal replication initiator protein DnaA	0	0
 CP000020	8843	9943	+	1101	AAW84505.1	dnaN	VF_0010	-	-	DNA polymerase III, beta subunit	0	0
 CP000020	9957	11036	+	1080	AAW84506.1	recF	VF_0011	-	-	gap repair protein	0	0
-CP000020	11054	13471	+	2418	AAW84507.1	gyrB	VF_0012	-	-	DNA gyrase, subunit B	0	51094.890510948906
+CP000020	11054	13471	+	2418	AAW84507.1	gyrB	VF_0012	-	-	DNA gyrase, subunit B	0	29197.080291970804
 CP000020	13895	14329	+	435	AAW84508.1	ibpA	VF_0013	-	-	heat shock chaperone	0	0
 CP000020	14539	15786	-	1248	AAW84509.1	avtA	VF_0014	-	-	valine-pyruvate aminotransferase	0	0
 CP000020	16015	16935	+	921	AAW84510.1	glyQ	VF_0015	-	-	glycyl-tRNA synthetase, alpha subunit	0	0
@@ -3935,7 +3935,7 @@ CP000022	2274	2723	-	450	AAW88245.1	-	VF_B0003	-	-	hypothetical protein	0	0
 CP000022	2743	3072	-	330	AAW88246.1	-	VF_B0004	-	-	hypothetical protein	0	0
 CP000022	3075	3266	-	192	AAW88247.1	-	VF_B0005	-	-	hypothetical protein	0	0
 CP000022	3293	3694	-	402	AAW88248.1	-	VF_B0006	-	-	hypothetical protein	0	0
-CP000022	3771	4268	-	498	AAW88249.1	-	VF_B0007	-	-	DNA repair protein RadC	222222.22222222222	204379.56204379562
+CP000022	3771	4268	-	498	AAW88249.1	-	VF_B0007	-	-	DNA repair protein RadC	277777.77777777775	255474.45255474452
 CP000022	4574	4954	-	381	AAW88250.1	-	VF_B0008	-	-	hypothetical protein	0	0
 CP000022	5759	6046	-	288	AAW88251.1	-	VF_B0009	-	-	hypothetical protein	0	0
 CP000022	6085	6282	-	198	AAW88252.1	-	VF_B0010	-	-	hypothetical protein	0	0
