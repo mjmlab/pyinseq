@@ -118,7 +118,7 @@ def read_gene_file(gene_file, disruption=0.9):
         reader = csv.DictReader(f, delimiter="\t")
         for record in reader:
             locus_tag = record["locus_tag"]
-            primeness = float(record['three_primeness'])
+            primeness = float(record["three_primeness"])
             if primeness < disruption:
                 if locus_tag not in gene_dict:
                     gene_dict[locus_tag] = 0
