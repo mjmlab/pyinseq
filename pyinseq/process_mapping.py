@@ -246,8 +246,8 @@ def build_gene_table(sample_dict, gene_files, settings):
 
     for sample in sample_dict:
         # Read in gene file
-        sample = parent_path.joinpath(f'{sample}_genes.txt')
-        gene_mappings[sample] = read_gene_file(sample, settings.disruption)
+        sample_gene_file = parent_path.joinpath(f'{sample}_genes.txt')
+        gene_mappings[sample] = read_gene_file(sample_gene_file, settings.disruption)
 
         # Add the new sample name as a new column the table
         current_column += 1

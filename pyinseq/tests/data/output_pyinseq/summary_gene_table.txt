@@ -1,4 +1,4 @@
-Contig	Start	End	Strand	Length	PID	Gene	Synonym	Code	COG	Product	results/test_d_09/E001_01_genes.txt	results/test_d_09/E001_02_genes.txt
+Contig	Start	End	Strand	Length	PID	Gene	Synonym	Code	COG	Product	E001_01	E001_02
 CP000020	313	747	-	435	AAW84496.1	mioC	VF_0001	-	-	FMN-binding protein MioC	0	0
 CP000020	817	2184	-	1368	AAW84497.1	trmE	VF_0002	-	-	tRNA modification GTPase TrmE	0	0
 CP000020	2281	3906	-	1626	AAW84498.1	yidC	VF_0003	-	-	cytoplasmic insertase into membrane protein, Sec system	0	0
