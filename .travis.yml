@@ -4,8 +4,8 @@ sudo: required
 dist: xenial
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
-  - "3.6"
   - "3.7"
+  - "3.8"
 install:
   - sudo apt-get update
   - sudo apt-get install libtbb2 # Needed for bowtie install
@@ -24,10 +24,9 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-  # mamba is better for installing bowtie2
+  # mamba is needed for snakemake
   - conda install -n base -c conda-forge mamba
   - source activate test-environment
-  # Temporary fix for bowtie dependency
   - conda install -c bioconda bowtie
   - pip install ./
 script:

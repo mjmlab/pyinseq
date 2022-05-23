@@ -1,53 +1,61 @@
-[![Build Status](https://travis-ci.com/mjmlab/pyinseq.svg?branch=master)](https://travis-ci.org/mjmlab/pyinseq)
-![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
+[![Build Status](https://travis-ci.com/mjmlab/pyinseq.svg?branch=master)](https://app.travis-ci.com/github/mjmlab/pyinseq)
 ![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)
+![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)
 
 ![logo](https://github.com/mjmlab/pyinseq/raw/master/img/pyinseq-logo-small.png)
 
 Lightweight python package to map transposon insertion sequencing (INSeq) data in
 bacteria.
 
-## Quick start
+
+## Note: BUG <!-- omit in TOC -->
+
+`pyinseq` has a [bug](https://github.com/mjmlab/pyinseq/issues/85) in the creation of the `summary_gene_table.txt` file. Will remove this note when resolved.
+
+## Quick start <!-- omit in TOC -->
 
 This section is meant for users who know their way around terminal and `conda`. To use `pyinseq`, 
-create a virtual environment with `python` 3.6 and install `pyinseq` using `conda`.
+create a virtual environment with `python` 3.7 and install `pyinseq` using `conda`.
 
 ```bash
-$ conda create -c mjmlab -n pyinseq-py36 pyinseq
-$ conda activate pyinseq-py36
+$ conda install -n base -c conda-forge mamba
+$ conda create -n pyinseq-py37 python=3.7
+$ conda activate pyinseq-py37
+(pyinseq-py37) $ conda install -c bioconda bowtie
+(pyinseq-py37) $ pip install pyinseq
 ```
 
 Verify your installation with `--test`
 
 ```bash
-(pyinseq-py36) $ pyinseq --test
+(pyinseq-py37) $ pyinseq --test
 ```
 
 Now you can run `pyinseq`!
 
 ```bash
-$ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name>
+(pyinseq-py37) $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name>
 ```
 
-## Table of contents
+## Table of contents <!-- omit in TOC -->
 
-* [Background](#Background)
-* [Overview of command line operation](#Overview-of-command-line-operation)
-* [Notes on output](#Notes-on-output)
-* [User Guide](#User-guide)
-  * [Input files description](#Input-files-description)
-  * [General usage](#General-usage)
-  * [Rerunning pyinseq](#Rerunning-pyinseq)
-  * [Specialized tasks](#Specialized-tasks)
-  * [Output description](#Output-files)
-* [Installation](#Installation)
-  * [Requirements](#Requirements)
-  * [Using conda](#Using-conda-(recommended))
-  * [Using pip](#Using-virtualenv-and-pip)
-  * [Install from source code](#Install-from-source-code)
-  * [Testing](#Testing)
-* [FAQ](#FAQ)
-* [License](#License)
+- [Overview of Command Line Operation](#overview-of-command-line-operation)
+- [Output description](#output-description)
+- [Notes on output](#notes-on-output)
+- [Background](#background)
+- [User guide](#user-guide)
+  - [Input files description](#input-files-description)
+  - [General Usage](#general-usage)
+  - [Specialized tasks](#specialized-tasks)
+- [Installation](#installation)
+  - [Requirements](#requirements)
+  - [Installation in a conda environment (recommended)](#installation-in-a-conda-environment-recommended)
+  - [Testing](#testing)
+- [FAQ](#faq)
+  - [Why do I get errors in processing the GenBank file?](#why-do-i-get-errors-in-processing-the-genbank-file)
+  - [How do I uninstall pyinseq?](#how-do-i-uninstall-pyinseq)
+  - [How can I notify of an issue with `pyinseq`](#how-can-i-notify-of-an-issue-with-pyinseq)
+- [License](#license)
 
 
 ## Overview of Command Line Operation
@@ -97,7 +105,7 @@ $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name
 
 `--gff`
 
-- Generate genome files in **gff3** format.
+- Generate genome output file in **gff3** format.
 
 `-d` / `--disruption`
 
@@ -368,15 +376,16 @@ $ pyinseq genomeprep -g <genbank file> -e <experiment name>
 `pyinseq` was written and tested using a MacOS (or Linux-based) operating system.
 
 - MacOS or Linux-based operating systems.
-- [Python 3.6](https://www.python.org/downloads/release/python-3613/) (or 3.7)
-- [bowtie](http://bowtie-bio.sourceforge.net/index.shtml) (v1.3.0)
+- [Python 3.7](https://www.python.org/downloads/release/python-3713/)
+- [bowtie](http://bowtie-bio.sourceforge.net/index.shtml) (v1.0.0)
+- [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
 
 > `pyinseq` has not being tested on Windows operating systems, but as of Windows 10 
 > there is support for terminals with *Ubuntu*
 
-> Also note that `pyinseq` uses `bowtie` and **not bowtie2** which is a different software.
+> Also note that `pyinseq` uses `bowtie`; **not bowtie2**, which is a different software.
 
-### Using conda (recommended)
+### Installation in a conda environment (recommended)
 
 Conda is a command-line package manager that can create virtual environments with 
 all the necessary dependencies to run `pyinseq`. You can acquire conda by installing 
@@ -392,40 +401,65 @@ Once conda is installed, you can verify it by running:
 $ conda --help
 ```
 
+#### Installing mamba
+
+`mamba` is now required for `snakemake`. Install it system-wide with this command. The subsequent steps are shown using `conda` since that is more common for the
+scientific audience, but can largely be accomplished in `mamba` if the user desires.
+
+```
+conda install -n base -c conda-forge mamba
+```
+
 #### Creating a virtual environment
 
 A virtual environment is an isolated computational space where you can install dependencies and software without affecting the base operating system's configuration. 
-We can use `conda` to create a virtual environment with python 3.6
+We can use `conda` to create a virtual environment with python 3.7
 
 ```bash
-$ conda create -n pyinseq python=3.6
+$ conda create -n pyinseq-py37 python=3.7
 ```
-
-> To use `python` 3.7, change `python=3.6` to `python=3.7`
 
 To activate your environment:
 
 ```bash
-$ conda activate pyinseq
+$ conda activate pyinseq-py37
 ```
 
 You should see the name of your environment surrounded by parentheses in your terminal prompt.
 
 ```bash
-(pyinseq) $ 
+(pyinseq-py37) $ 
 ```
-#### Installing `pyinseq` through `bioconda`
-
-Now, using conda you can install `pyinseq` directly from the bioconda channel into your virtual environment.
+#### Install `bowtie`:
 
 ```bash
-(pyinseq) $ conda install -c bioconda pyinseq 
+(pyinseq-py37) $ conda install -c bioconda bowtie
 ```
+#### Install `pyinseq`:
+
+Install the stable version:
+
+```bash
+(pyinseq-py37) $ pip install pyinseq
+```
+
+Or, install the most recent version from GitHub:
+
+```
+(pyinseq-py37) $ pip install git+https://github.com/mjmlab/pyinseq
+```
+
+
+Verify your installation with `--test`
+
+```bash
+(pyinseq-py37) $ pyinseq --test
+
 
 Verify that pyinseq installed correctly by running:
 
 ```bash
-(pyinseq) $ pyinseq --help
+(pyinseq-py37) $ pyinseq --help
 2021-05-26 13:10 - INFO - pyinseq - Process command line arguments
 usage: pyinseq [-h] [--get_default_config] [--config_format CONFIG_FORMAT]
                [-c CONFIG] [-t THREADS] [--snakemake_params ...] [-v]
@@ -438,85 +472,12 @@ usage: pyinseq [-h] [--get_default_config] [--config_format CONFIG_FORMAT]
 ```
  Now you are ready to run `pyinseq`!
 
-### Using `virtualenv` and `pip`
-
-#### Install `virtualenv` and create an environment
-
-If conda is not available, you can manually install [Python 3.6](https://www.python.org/downloads/release/python-3613/) (or 3.7) and use `pip` to install `virtualenv`. 
-
-```bash
-$ pip3 install virtualenv
-```
-
-Then use `virtualenv` to create a virtual environment. First, determine where your Python lives.
-
-```bash
-$ which python3
-/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
-```
-
-Then use this path to point to the Python interpreter that will be used in the virtual environment called `pyinseq`.
-
-```bash
-$ virtualenv -p /Library/Frameworks/Python.framework/Versions/3.6/bin/python3 ~/venvs/pyinseq
-```
-
-Activate this environment and install `pyinseq` using `pip`.
-
-```bash
-$ source ~/venvs/pyinseq/bin/activate
-(pyinseq) $ pip install pyinseq
-```
-
-#### Install `bowtie` manually
-
-Installation of `pyinseq` from `pip`/PyPi rather than conda will be missing [bowtie](http://bowtie-bio.sourceforge.net/index.shtml) (v1.3.0). 
-Download the binary release [here](https://sourceforge.net/projects/bowtie-bio/files/bowtie/1.3.0/) or use `curl`. For example, below I am using `curl` to download the zipfile into my computer.
-
-```bash
-# Download the zipfile with executables
-(pyinseq) $ curl -L https://sourceforge.net/projects/bowtie-bio/files/bowtie/1.3.0/bowtie-1.3.0-macos-x86_64.zip -O ~/bowtie-1.3.0-macos-x86_64.zip
-(pyinseq) $ unzip bowtie-1.3.0-macos-x86_64.zip
-```
-
-Once you download the executables, you can add the `bin` folder to the `PATH` environment variable.
-
-```bash
-(pyinseq) $ export PATH=~/bowtie-1.3.0-macos-x86_64/:$PATH
-```
-
-Verify that `bowtie` executables are available on the terminal.
-
-```bash
-(pyinseq) $ bowtie --help
-usage: bowtie [-h] [-b | -i] [--verbose] [--debug] [--large-index]
-              [--index INDEX]
-```
-
-### Install from source code
-
-If the above methods are not for you, you can directly clone the repository from github and install `pyinseq`
-
-```bash
-$ git clone https://github.com/mjmlab/pyinseq
-$ cd pyinseq
-$ pip install ./
-```
-
-Or just install directly from `github`.
-
-```
-pip install git+git://github.com/mjmlab/pyinseq
-```
-
-> Make sure that `bowtie` executables are available in your `PATH` variable. You can also follow this [section](#install-bowtie-manually) to install bowtie.
-
 ### Testing
 
 You can test your installation of `pyinseq` by using the option `--test`.
 
 ```bash
-$ pyinseq --test
+(pyinseq-py37) $ pyinseq --test
 ```
 
 If all tests pass then you are good to go!
@@ -532,11 +493,13 @@ Ensure that the file is in GenBank and not RefSeq format.
 You can do this two ways: 
 * uninstalling pyinseq from the virtual environment
 
-```pip uninstall pyinseq``` or ```conda remove pyinseq```
+```pip uninstall pyinseq```
 
 * or completely remove the conda virtual environment.
 
-``` conda env remove -n pyinseq```
+``` conda env remove -n pyinseq-py37```
+
+Note: will need to `conda deactivate` first to leave the environment.
 
 ### How can I notify of an issue with `pyinseq`
 

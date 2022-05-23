@@ -15,8 +15,8 @@ finally:
 
 from glob import glob
 
-if sys.version_info < (3, 6):
-    print >>sys.stderr, "ERROR: pyinseq requires python 3.6 or greater"
+if sys.version_info < (3, 7):
+    print >>sys.stderr, "ERROR: pyinseq requires python 3.7 or greater"
     sys.exit()
 
 __version__ = open(os.path.join("pyinseq", "VERSION")).read().strip()
@@ -53,15 +53,15 @@ def main():
         scripts=SCRIPTS,
         setup_requires=["pytest-runner"],
         tests_require=["pytest"],
-        python_requires='!=3.8.*,>=3.6.*',
+        python_requires='!=3.9.*,>=3.7.*',
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Science/Research",
             "License :: OSI Approved :: BSD License",
             "Operating System :: MacOS :: MacOS X",
             "Operating System :: POSIX",
-            "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
             "Topic :: Scientific/Engineering :: Bio-Informatics",
         ],
         zip_safe=False,

@@ -1,9 +1,19 @@
 # Changelog
 
+## [0.3.2] - 2022-05-16
+### Fixed
+- Fixed [bug](https://github.com/mjmlab/pyinseq/issues/85) in generation of the `summary_gene_table.txt file`
+- Fixed Travis CI link in README.md
+- Added instructions for `mamba` installation, which is now required for `snakemake`
+### Changed
+- Python version supported: 3.7, 3.8 (dropped support for 3.6)
+- Updated installation instructions
+### Removed
+- Removed conda package for pyinseq; will rely on installation via pip from PyPi or GitHub
+
 ## [0.3.1] - 2021-07-14
 ### Fixed
 - File links in README are now compatible with Pypi
-
 ### Added
 - Pyinseq logo for documentation
 
