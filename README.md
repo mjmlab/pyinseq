@@ -8,10 +8,6 @@ Lightweight python package to map transposon insertion sequencing (INSeq) data i
 bacteria.
 
 
-## Note: BUG <!-- omit in TOC -->
-
-`pyinseq` has a [bug](https://github.com/mjmlab/pyinseq/issues/85) in the creation of the `summary_gene_table.txt` file. Will remove this note when resolved.
-
 ## Quick start <!-- omit in TOC -->
 
 This section is meant for users who know their way around terminal and `conda`. To use `pyinseq`, 
