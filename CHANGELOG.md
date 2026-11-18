@@ -7,7 +7,7 @@
 - Packaging moved to `pyproject.toml`; `setup.py`, `setup.cfg`, `requirements.txt` and `MANIFEST.in` removed
 - `pyinseq` command is now a console entry point (`pyinseq.cli:main`)
 - Development tools (pytest, black, pre-commit, codecov) are no longer installed as runtime dependencies; use `pip install "pyinseq[test]"` or `pip install -e ".[dev]"`
-- Continuous integration moved from Travis CI to GitHub Actions (Linux and macOS)
+- Continuous integration moved from Travis CI to GitHub Actions (Python 3.11-3.14 on Linux and macOS)
 - snakemake is now run with the greedy scheduler and via the current Python interpreter
 - `mamba` is no longer required
 ### Fixed

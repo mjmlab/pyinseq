@@ -30,11 +30,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
-        include:
-          - os: macos-latest
-            python-version: "3.13"
     defaults:
       run:
         # Login shell so the conda environment is activated in every step
@@ -77,3 +74,19 @@ jobs:
       - name: Run tests
         working-directory: ${{ runner.temp }}
         run: pyinseq --test
+
+  # Single status check for branch protection: passes only if every job
+  # above succeeded, so the required check doesn't change with the matrix
+  all-checks-passed:
+    if: always()
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail unless lint and all test jobs succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for r in $RESULTS; do
+            [ "$r" = "success" ] || exit 1
+          done
