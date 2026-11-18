@@ -1,10 +1,16 @@
-## Makefile to intall `pyinseq` in the path and run the test script
+## Makefile to install `pyinseq` and run the test suite
 
 install:
-	python setup.py install
+	python -m pip install .
+
+install-dev:
+	python -m pip install -e ".[dev]"
 
 test:
-	py.test --cov=./pyinseq/tests
+	python -m pytest --cov=pyinseq
+
+lint:
+	black --check pyinseq/
 
 clean_dump:
 	rm -rf pyinseq/tests/dump/*

@@ -2,6 +2,7 @@
 """
 Analyzes resulting output
 """
+
 import numpy as np
 import pandas as pd
 import seaborn as sn
@@ -93,7 +94,7 @@ def df_raw_counts(samples: dict, settings: "runner.Settings") -> pd.DataFrame:
                         previous + row[c]
                     )
             else:
-                result_df = result_df.append(row)
+                result_df = pd.concat([result_df, row.to_frame().T])
     result_df.to_csv(
         f"{settings.analysis_path}{settings.experiment}_raw_counts.csv", sep="\t"
     )
@@ -119,7 +120,7 @@ def df_cpm_counts(samples: dict, settings: "runner.Settings") -> pd.DataFrame:
                     previous + row["cpm"]
                 )
             else:
-                result_df = result_df.append(row)
+                result_df = pd.concat([result_df, row.to_frame().T])
     result_df.to_csv(
         f"{settings.analysis_path}{settings.experiment}_cpm_counts.csv", sep="\t"
     )
@@ -158,7 +159,7 @@ def df_gene_counts(samples: dict, settings: "runner.Settings") -> pd.DataFrame:
                         previous + row[c]
                     )
             else:
-                results_df = results_df.append(row)
+                results_df = pd.concat([results_df, row.to_frame().T])
     results_df.to_csv(
         f"{settings.analysis_path}{settings.experiment}_gene_counts.csv", sep="\t"
     )

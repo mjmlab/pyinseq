@@ -109,3 +109,8 @@ fabric.properties
 \.idea/codeStyles/Project\.xml
 \.vscode/settings\.json
 pyinseq/.idea/*
+# Test scratch output
+pyinseq/tests/dump/
+
+# Unpacked sdist build artifacts
+pyinseq-[0-9]*/

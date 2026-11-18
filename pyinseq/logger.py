@@ -24,6 +24,8 @@ class CustomLoggers:
         # Set io's
         self.logger_io = io.StringIO()
         self.snake_io = io.StringIO()
+        # Available at import time; handlers are attached by setup_logger()
+        self.logger = logging.getLogger("pyinseq")
 
     def add_logfile_paths(self, settings):
         self.log = settings.log
@@ -44,6 +46,12 @@ class CustomLoggers:
         """Sets up logger with sys.stdout handler"""
         self.logger = logging.getLogger("pyinseq")
         self.logger.setLevel(logging.INFO)
+        # Replace the stdout handler from any previous call so that repeated
+        # setup (e.g. running the CLI several times in one process) does not
+        # duplicate output and always writes to the current sys.stdout
+        previous = getattr(self, "_stdout_handler", None)
+        if previous is not None:
+            self.logger.removeHandler(previous)
         stream_handler = logging.StreamHandler(stream=sys.stdout)
         if formatter:
             stream_handler.setFormatter(formatter)
@@ -51,6 +59,7 @@ class CustomLoggers:
             stream_handler.setFormatter(CustomLoggers.FORMATTER)
         stream_handler.setLevel(logging.INFO)
         self.logger.addHandler(stream_handler)
+        self._stdout_handler = stream_handler
         return
 
 

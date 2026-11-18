@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """
 
 Snakefile for pyinseq genomeprep pipeline
@@ -26,9 +24,11 @@ output_dir = str(settings.path)
 pyinseq_logger.add_logfile_paths(settings)
 add_fileHandler(pyinseq_logger.logger, settings.log)
 # Add io stream to snakemake for saving info
-add_streamHandler(logger.logger, pyinseq_logger.snake_io)
+# (snakemake < 9 wraps its logging.Logger in a `.logger` attribute)
+snake_logger = getattr(logger, "logger", logger)
+add_streamHandler(snake_logger, pyinseq_logger.snake_io)
 ## SNAKE MESSAGE TO LOGGER
-logger.logger.info("(SNAKEMAKE INFO)")
+snake_logger.info("(SNAKEMAKE INFO)")
 
 
 rule all:

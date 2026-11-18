@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python -m pip install black
+      - run: black --check pyinseq/
+
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        include:
+          - os: macos-latest
+            python-version: "3.13"
+    defaults:
+      run:
+        # Login shell so the conda environment is activated in every step
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v7
+
+      # conda provides bowtie (from bioconda) and is also used by snakemake
+      # for workflows run with --use-conda
+      - uses: conda-incubator/setup-miniconda@v4
+        with:
+          miniforge-version: latest
+          python-version: ${{ matrix.python-version }}
+          activate-environment: pyinseq
+          channels: conda-forge,bioconda
+          conda-remove-defaults: "true"
+
+      # bowtie gets its own environment so it never constrains the Python
+      # version under test; only the bowtie executables are put on PATH
+      - name: Install bowtie
+        run: |
+          conda create --yes --quiet --prefix "$HOME/bowtie-env" bowtie
+          mkdir -p "$HOME/bowtie-bin"
+          ln -s "$HOME"/bowtie-env/bin/bowtie* "$HOME/bowtie-bin/"
+          echo "$HOME/bowtie-bin" >> "$GITHUB_PATH"
+
+      - name: Install pyinseq
+        run: python -m pip install ".[test]"
+
+      - name: Show versions
+        run: |
+          python --version
+          conda --version
+          snakemake --version
+          bowtie --version | head -n 1
+          pyinseq --version
+
+      # Run the test suite from the installed package, outside the source
+      # tree, the same way users verify an installation
+      - name: Run tests
+        working-directory: ${{ runner.temp }}
+        run: pyinseq --test

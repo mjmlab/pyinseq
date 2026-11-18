@@ -1,20 +1,15 @@
-#!/usr/bin/env python3
 """
 
 Main entry-point for pyinseq
 
 """
-# Setup up universal logger
-from pyinseq.logger import pyinseq_logger
-
-pyinseq_logger.setup_logger()
 
 import sys
 import traceback
 
 # Module imports
+from pyinseq.logger import pyinseq_logger
 from pyinseq.parsers import get_args
-from pyinseq.tests.test_utils import run_pytest
 from pyinseq.settings import SETTINGS_CONSTRUCTORS
 from pyinseq.utils import (
     write_config_file,
@@ -24,21 +19,34 @@ from pyinseq.utils import (
     get_config_dict,
 )
 
-logger = pyinseq_logger.logger
+
+def run_tests():
+    """Run the pyinseq test suite that ships with the package."""
+    try:
+        from pyinseq.tests.test_utils import run_pytest
+    except ImportError:
+        print(
+            "pytest is required for --test. Install it with: pip install 'pyinseq[test]'",
+            file=sys.stderr,
+        )
+        return 1
+    return run_pytest()
 
 
-if __name__ == "__main__":
-    ### START HERE ###
+def main():
+    # Setup up universal logger
+    pyinseq_logger.setup_logger()
+    logger = pyinseq_logger.logger
+
     logger.info("Process command line arguments")
     parser, args = get_args()
     # Print help if no args given
     if not sys.argv[1:]:
         parser.print_help()
-        exit(0)
+        sys.exit(0)
 
     if args.test:
-        run_pytest()
-        exit(0)
+        sys.exit(run_tests())
 
     if args.config:
         logger.info(f"Config file provided as: {args.config}")
@@ -63,14 +71,23 @@ if __name__ == "__main__":
     logger.info(f"Workflow selected: {settings.command}")
     logger.info(f"***** BEGIN {settings.command.upper()} WORKFLOW *****")
 
+    returncode = 1
     try:
-        execute(settings.snakemake_cmd)
-    except Exception as e:
+        returncode = execute(settings.snakemake_cmd)
+    except Exception:
         logger.exception("Exception while executing snakemake subprocess")
-        exc_type, exc_value, exc_tb = sys.exc_info()
-        traceback.print_tb(exc_tb)
         traceback.print_exc()
 
     # Cleanup settings and combine logging output
     settings.clean_up()
+    if returncode != 0:
+        logger.error(
+            f"***** {settings.command.upper()} WORKFLOW FAILED "
+            f"(snakemake exit code {returncode}) *****"
+        )
+        sys.exit(returncode)
     logger.info(f"***** {settings.command.upper()} WORKFLOW FINISHED *****")
+
+
+if __name__ == "__main__":
+    main()
