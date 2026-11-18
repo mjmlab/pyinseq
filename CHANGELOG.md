@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.4.0] - 2026-11-18
+### Changed
+- Python versions supported: 3.11, 3.12, 3.13, 3.14 (dropped 3.7 - 3.10)
+- Requires snakemake 8 or newer (tested with snakemake 9)
+- Packaging moved to `pyproject.toml`; `setup.py`, `setup.cfg`, `requirements.txt` and `MANIFEST.in` removed
+- `pyinseq` command is now a console entry point (`pyinseq.cli:main`)
+- Development tools (pytest, black, pre-commit, codecov) are no longer installed as runtime dependencies; use `pip install "pyinseq[test]"` or `pip install -e ".[dev]"`
+- Continuous integration moved from Travis CI to GitHub Actions (Python 3.11-3.14 on Linux and macOS)
+- snakemake is now run with the greedy scheduler and via the current Python interpreter
+- `mamba` is no longer required
+### Fixed
+- Runtime dependencies are now declared, so `pip` installs compatible versions
+  (e.g. `tqdm` new enough for the progress-bar `colour` option) ([#90](https://github.com/mjmlab/pyinseq/issues/90))
+- Python 3.11+ is now required, avoiding `screed`'s `importlib.metadata`
+  failure on Python 3.7 ([#89](https://github.com/mjmlab/pyinseq/issues/89))
+- `pyinseq --test` now runs only pyinseq's own tests instead of collecting every
+  package in site-packages (e.g. matplotlib's) ([#83](https://github.com/mjmlab/pyinseq/issues/83))
+- Compatibility with snakemake 9 logging
+- Removed use of `distutils` and `pkg_resources`, which are unavailable on modern Python
+- Replaced `DataFrame.append`, removed in pandas 2
+- `pyinseq` now exits with a non-zero status when the snakemake workflow fails
+- The bowtie conda environment now includes the `conda-forge` channel required by bioconda
+- Reading gzipped input now uses `gzip` (`gzcat` is unavailable on Linux)
+
 ## [0.3.2] - 2022-05-16
 ### Fixed
 - Fixed [bug](https://github.com/mjmlab/pyinseq/issues/85) in generation of the `summary_gene_table.txt file`

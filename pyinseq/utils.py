@@ -2,7 +2,7 @@
 
 """
 
- Functions that have no home...
+Functions that have no home...
 
 """
 
@@ -10,7 +10,6 @@ import re
 import os
 import csv
 import yaml
-import glob
 import json
 import shutil
 import pickle
@@ -85,7 +84,7 @@ def count_lines(filename: str, fastq=False):
         # Check if gz compressed
         if filename.split(".")[-1] in ["gz"]:
             # Build pipe for uncompressed file
-            pipe = sub.Popen(("gzcat", "-cd", filename), stdout=sub.PIPE)
+            pipe = sub.Popen(("gzip", "-cd", filename), stdout=sub.PIPE)
             output = int(sub.check_output(["wc", "-l"], stdin=pipe.stdout))
         # Other files...
         else:
@@ -193,7 +192,7 @@ def tab_delimited_samples_to_dict(sample_file):
 def yaml_samples_to_dict(sample_file):
     """Read sample names, barcodes from yaml."""
     with open(sample_file, "r") as f:
-        samples_dict = yaml.load(sample_file)
+        samples_dict = yaml.safe_load(f)
     return samples_dict
 
 
@@ -210,8 +209,7 @@ def directory_of_samples_to_dict(directory):
 
 def list_files(folder, ext="gz"):
     """Return list of .gz files from the specified folder."""
-    with cd(folder):
-        return [f for f in glob.glob(f"*.{ext}")]
+    return [f.name for f in Path(folder).glob(f"*.{ext}")]
 
 
 """
@@ -226,19 +224,18 @@ def copy_file(src, dest):
     shutil.copy(src, dest)
 
 
-def execute(cmd) -> None:
-    """Execute snakemake workflow using subprocess module"""
-    # Call bash command, suppress pyinseq output
+def execute(cmd) -> int:
+    """Execute snakemake workflow using subprocess module; returns exit code"""
     if not isinstance(cmd, list):
         cmd = cmd.split(" ")
     process = sub.Popen(cmd)
     try:
-        process.wait()
+        return process.wait()
     except KeyboardInterrupt:
         # Kill if CTRL+C event occurs
         process.kill()
-    finally:
-        process.terminate()
+        process.wait()
+        raise
 
 
 def pickle_object(object, pickle_output):

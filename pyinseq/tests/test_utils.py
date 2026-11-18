@@ -1,15 +1,10 @@
-#!/usr/bin/env python3
 import os
 import sys
+import shutil
 import filecmp
 import traceback
-from distutils import dir_util
+from io import StringIO
 from pathlib import Path
-
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 
 import pytest
 
@@ -29,10 +24,11 @@ class cd:
 
 
 def run_pytest():
-    """Runs pytest directly from source code. CWD should be in pyinseq source dir"""
-    rootdir = Path(__file__).parents[2]
-    with cd(rootdir):
-        pytest.main([])
+    """Runs the pyinseq test suite, from a source checkout or an installed package"""
+    tests_dir = Path(__file__).parent
+    # Some tests use paths relative to the directory containing the package
+    with cd(tests_dir.parents[1]):
+        return int(pytest.main([str(tests_dir), "-p", "no:cacheprovider"]))
 
 
 def get_dump():
@@ -72,7 +68,7 @@ def datadir(tmpdir_factory, request):
     tmpdir = tmpdir_factory.mktemp("data")
     # this is the data/ dir in pyinseq/tests
     data_dir = os.path.join(os.path.dirname(__file__), "data")
-    dir_util.copy_tree(data_dir, str(tmpdir))
+    shutil.copytree(data_dir, str(tmpdir), dirs_exist_ok=True)
 
     # Create dump in temporary directory
     tmpdir.join("dump").mkdir()
@@ -86,45 +82,14 @@ def datadir(tmpdir_factory, request):
     return getter
 
 
-def scriptpath(scriptname="pyinseq"):
-    "Return the path to the scripts, in both dev and install situations."
-
-    path = os.path.join(os.path.dirname(__file__), "../../scripts")
-    if os.path.exists(os.path.join(path, scriptname)):
-        return path
-
-    path = os.path.join(os.path.dirname(__file__), "../../../EGG-INFO/scripts")
-    if os.path.exists(os.path.join(path, scriptname)):
-        return path
-
-    for path in os.environ["PATH"].split(":"):
-        if os.path.exists(os.path.join(path, scriptname)):
-            return path
-
-
 def _runscript(scriptname):
-    """
-    Find & run a script with exec (i.e. not via os.system or subprocess).
-    """
+    """Run the pyinseq command-line entry point in this process."""
+    if scriptname != "pyinseq":
+        raise ValueError(f"Unknown script: {scriptname}")
+    from pyinseq.cli import main
 
-    import pkg_resources
-
-    ns = {"__name__": "__main__"}
-    ns["sys"] = globals()["sys"]
-
-    try:
-        pkg_resources.get_distribution("pyinseq").run_script(scriptname, ns)
-        return 0
-    except pkg_resources.ResolutionError as err:
-        path = scriptpath()
-
-        scriptfile = os.path.join(path, scriptname)
-        if os.path.isfile(scriptfile):
-            if os.path.isfile(scriptfile):
-                exec(compile(open(scriptfile).read(), scriptfile, "exec"), ns)
-                return 0
-
-    return -1
+    main()
+    return 0
 
 
 def runscript(

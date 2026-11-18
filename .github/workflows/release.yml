@@ -1,0 +1,54 @@
+name: Release
+
+# Publishing a GitHub release builds pyinseq and uploads it to PyPI using
+# PyPI Trusted Publishing (no API tokens). See RELEASECHECKLIST.md.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Check that the release tag matches pyinseq/VERSION
+        run: |
+          version="$(cat pyinseq/VERSION)"
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$version" != "$tag" ]; then
+            echo "::error::Release tag '$GITHUB_REF_NAME' does not match pyinseq/VERSION '$version'"
+            exit 1
+          fi
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade build twine
+          python -m build
+          python -m twine check --strict dist/*
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/pyinseq/
+    permissions:
+      id-token: write # required for Trusted Publishing
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

@@ -1,5 +1,3 @@
-#!/usr/bin/env/python3
-
 """
 
 Settings for running baseline pyinseq
@@ -7,6 +5,7 @@ Settings for running baseline pyinseq
 """
 
 import os
+import sys
 import yaml
 from pathlib import Path
 from pyinseq.logger import pyinseq_logger as logger
@@ -37,6 +36,8 @@ class Settings:
         # Set snakemake shell command
         self.snakefile = get_workflow_snakefile_path(self.command)
         self.snakemake_cmd = [
+            sys.executable,
+            "-m",
             "snakemake",
             "--config",
             f"experiment={self.experiment}",
@@ -44,11 +45,15 @@ class Settings:
             str(self.snakefile),
             "--cores",
             str(self.threads - 1),
+            # The default ILP scheduler needs an external solver binary
+            # (PuLP's bundled cbc is x86-only on macOS); the greedy
+            # scheduler is plenty for pyinseq's small workflows
+            "--scheduler",
+            "greedy",
             "--quiet",
         ]
         # Add additional parameters, if any...
         self.snakemake_cmd.extend(config_dict["snakemake_params"])
-        self.snakemake_cmd = " ".join(self.snakemake_cmd)
 
     def __repr__(self):
         # Print each variable on a separate line
@@ -61,6 +66,8 @@ class Settings:
         except OSError:
             pass
         # combine logging text here
+        if not self.summary_log.exists():
+            return
         with open(self.summary_log, "r") as f:
             summary_log_text = "".join(f.readlines())
         self.summary_log.unlink()

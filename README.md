@@ -1,6 +1,5 @@
-[![Build Status](https://travis-ci.com/mjmlab/pyinseq.svg?branch=master)](https://app.travis-ci.com/github/mjmlab/pyinseq)
-![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)
-![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)
+[![CI](https://github.com/mjmlab/pyinseq/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/mjmlab/pyinseq/actions/workflows/ci.yml)
+![Python 3.11+](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)
 
 ![logo](https://github.com/mjmlab/pyinseq/raw/master/img/pyinseq-logo-small.png)
 
@@ -11,26 +10,24 @@ bacteria.
 ## Quick start <!-- omit in TOC -->
 
 This section is meant for users who know their way around terminal and `conda`. To use `pyinseq`, 
-create a virtual environment with `python` 3.7 and install `pyinseq` using `conda`.
+create a virtual environment with `python` 3.12 and install `pyinseq` using `conda`.
 
 ```bash
-$ conda install -n base -c conda-forge mamba
-$ conda create -n pyinseq-py37 python=3.7
-$ conda activate pyinseq-py37
-(pyinseq-py37) $ conda install -c bioconda bowtie
-(pyinseq-py37) $ pip install pyinseq
+$ conda create -n pyinseq -c conda-forge -c bioconda python=3.12 bowtie
+$ conda activate pyinseq
+(pyinseq) $ pip install pyinseq
 ```
 
 Verify your installation with `--test`
 
 ```bash
-(pyinseq-py37) $ pyinseq --test
+(pyinseq) $ pyinseq --test
 ```
 
 Now you can run `pyinseq`!
 
 ```bash
-(pyinseq-py37) $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name>
+(pyinseq) $ pyinseq -i <input file> -s <sample file> -g <genbank file> -e <experiment name>
 ```
 
 ## Table of contents <!-- omit in TOC -->
@@ -372,9 +369,10 @@ $ pyinseq genomeprep -g <genbank file> -e <experiment name>
 `pyinseq` was written and tested using a MacOS (or Linux-based) operating system.
 
 - MacOS or Linux-based operating systems.
-- [Python 3.7](https://www.python.org/downloads/release/python-3713/)
-- [bowtie](http://bowtie-bio.sourceforge.net/index.shtml) (v1.0.0)
-- [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
+- [Python](https://www.python.org/downloads/) 3.11 or newer
+- [bowtie](http://bowtie-bio.sourceforge.net/index.shtml) (v1.x)
+- [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) 8 or newer (installed automatically with `pyinseq`)
+- conda 24.7.1 or newer, if you run workflows with `--snakemake_params --use-conda`
 
 > `pyinseq` has not being tested on Windows operating systems, but as of Windows 10 
 > there is support for terminals with *Ubuntu*
@@ -397,65 +395,58 @@ Once conda is installed, you can verify it by running:
 $ conda --help
 ```
 
-#### Installing mamba
-
-`mamba` is now required for `snakemake`. Install it system-wide with this command. The subsequent steps are shown using `conda` since that is more common for the
-scientific audience, but can largely be accomplished in `mamba` if the user desires.
-
-```
-conda install -n base -c conda-forge mamba
-```
-
 #### Creating a virtual environment
 
 A virtual environment is an isolated computational space where you can install dependencies and software without affecting the base operating system's configuration. 
-We can use `conda` to create a virtual environment with python 3.7
+We can use `conda` to create a virtual environment with python 3.12
+(the newest python for which bioconda currently provides `bowtie`; `pyinseq` itself
+supports python 3.11 and newer)
 
 ```bash
-$ conda create -n pyinseq-py37 python=3.7
+$ conda create -n pyinseq -c conda-forge python=3.12
 ```
 
 To activate your environment:
 
 ```bash
-$ conda activate pyinseq-py37
+$ conda activate pyinseq
 ```
 
 You should see the name of your environment surrounded by parentheses in your terminal prompt.
 
 ```bash
-(pyinseq-py37) $ 
+(pyinseq) $ 
 ```
 #### Install `bowtie`:
 
 ```bash
-(pyinseq-py37) $ conda install -c bioconda bowtie
+(pyinseq) $ conda install -c conda-forge -c bioconda bowtie
 ```
 #### Install `pyinseq`:
 
 Install the stable version:
 
 ```bash
-(pyinseq-py37) $ pip install pyinseq
+(pyinseq) $ pip install pyinseq
 ```
 
 Or, install the most recent version from GitHub:
 
 ```
-(pyinseq-py37) $ pip install git+https://github.com/mjmlab/pyinseq
+(pyinseq) $ pip install git+https://github.com/mjmlab/pyinseq
 ```
 
 
 Verify your installation with `--test`
 
 ```bash
-(pyinseq-py37) $ pyinseq --test
+(pyinseq) $ pyinseq --test
 
 
 Verify that pyinseq installed correctly by running:
 
 ```bash
-(pyinseq-py37) $ pyinseq --help
+(pyinseq) $ pyinseq --help
 2021-05-26 13:10 - INFO - pyinseq - Process command line arguments
 usage: pyinseq [-h] [--get_default_config] [--config_format CONFIG_FORMAT]
                [-c CONFIG] [-t THREADS] [--snakemake_params ...] [-v]
@@ -473,7 +464,7 @@ usage: pyinseq [-h] [--get_default_config] [--config_format CONFIG_FORMAT]
 You can test your installation of `pyinseq` by using the option `--test`.
 
 ```bash
-(pyinseq-py37) $ pyinseq --test
+(pyinseq) $ pyinseq --test
 ```
 
 If all tests pass then you are good to go!
@@ -493,7 +484,7 @@ You can do this two ways:
 
 * or completely remove the conda virtual environment.
 
-``` conda env remove -n pyinseq-py37```
+``` conda env remove -n pyinseq```
 
 Note: will need to `conda deactivate` first to leave the environment.
 
